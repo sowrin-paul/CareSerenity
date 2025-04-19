@@ -1,0 +1,73 @@
+/* Full-Width Navbar Container */
+.navbar {
+    position: relative;       /* Fixes it at the top */
+    top: 0;                /* Aligns to top */
+    left: 0;              /* Aligns to left edge */
+    width: 100%;           /* Full width */
+    background-color: #b2ddee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 60px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    z-index: 9999;         /* Ensures it stays above other content */
+  }
+  
+  
+  /* Logo and Brand */
+  .navbar .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar .logo {
+    height: 40px;
+    margin-right: 10px;
+  }
+  
+  .navbar .brand {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .navbar .brand .care {
+    color: #007bb6; /* Blue */
+  }
+  
+  .navbar .brand .serenity {
+    color: #e11d48; /* Red/Pink */
+  }
+  
+  /* Navigation Links */
+  .navbar .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .navbar .nav-links a {
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    position: relative;
+    padding: 0 10px;
+  }
+  
+  .navbar .nav-links a.active {
+    color: #e11d48;
+    font-weight: bold;
+  }
+  
+  /* Vertical Dividers */
+  .navbar .nav-links a:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    height: 20px;
+    width: 1px;
+    background-color: #333;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
