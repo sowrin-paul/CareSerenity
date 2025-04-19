@@ -1,4 +1,4 @@
-/* General resets and shared styles */
+
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -8,7 +8,6 @@ body {
     margin: 0;
   }
   
-  /* Hero Section */
   .hero {
     height: 100vh;
     background-image: linear-gradient(to bottom,
@@ -71,34 +70,32 @@ body {
 }
 
   
-  /* Stats Section */
-  #info_web {
+  .info_web {
     display: flex;
     justify-content: center;
     gap: 40px;
     margin-top: 2rem;
     color: white;
   }
-  #info_web > div {
+  .info_web > div {
     flex: 1;
   }
   
-  #info_cell {
+  .info_cell {
     background: rgba(255, 255, 255, 0.1);
     padding: 20px;
     border-radius: 10px;
   }
   
-  #count {
+  .count {
     font-size: 2rem;
     font-weight: bold;
   }
   
-  #text {
+  .text {
     font-size: 1rem;
   }
   
-  /* Services */
   .services {
     margin-top: 5rem;
     display: flex;
@@ -106,12 +103,12 @@ body {
     margin: 3% 15%;
   }
   
-  .section-title {
+  .sectionTitle {
     text-align: center;
     margin-bottom: 3%;
   }
   
-  #highlight {
+  .highlight {
     font-family: var(--secondary-font);
     color: var(--primary-title-color);
     margin-bottom: 8px;
@@ -119,14 +116,14 @@ body {
     font-weight: 500;
   }
   
-  .service-table {
+  .serviceTable {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, auto);
     gap: 20px;
   }
   
-  .service-table .part {
+  .serviceTable .part {
     text-align: center;
     padding: 45px 60px;
     transition: .8s ease-out;
@@ -165,7 +162,6 @@ body {
     transition: .3s ease-in;
 }
   
-  /* Donations */
   .donations {
     display: flex;
     flex-direction: column;
@@ -175,8 +171,8 @@ body {
     background-color: #84bdd07e;
 }
 
-.donations .cards-container ,
-.blog .cards-container {
+.donations .cardsContainer ,
+.blog .cardsContainer {
     max-width: 1430px;
     display: flex;
     align-items: center;
@@ -273,18 +269,18 @@ body {
     gap: 30px;
 }
 
-.session-title{
+.sessionTitle{
   font-size: 2rem;
   font-weight: 500;
 }
 
-.descriptionbox .about-detail p {
+.descriptionbox .aboutDetail p {
     font-family: "Poppins";
     font-size: 13px;
     color: var(--text-color-lighter);
 }
 
-.about-detail b {
+.aboutDetail b {
     font-size: 20px;
     color: var(--text-color-light);
 }
@@ -308,7 +304,7 @@ body {
     padding: 3% 5%;
     background-color: rgb(247, 212, 217);
 }
-.blog h2{
+.blog .h2{
     color: var(--primary-color-dark) !important;
 }
 
@@ -322,7 +318,7 @@ body {
     color: #545454;
 }
 
-.contact_form {
+.contactForm {
     width: 65%;
     display: flex;
     flex-direction: column;
@@ -337,7 +333,7 @@ body {
     line-height: 1.2;
 }
 
-.form_row {
+.formRow {
     width: 100%;
     display: flex;
 }
@@ -379,7 +375,7 @@ body {
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.contact_form button {
+.contactForm button {
     margin-left: 20%;
     cursor: pointer;
     border: 1px solid transparent;
@@ -387,7 +383,8 @@ body {
     font-size: 1rem;
     border-radius: .25rem;
     color: white;
-    background-color: var(--secondary-color-light);
+    background-color: aqua;
+    color: rgb(59, 54, 54);
     transition: .5s;
 }
 
@@ -396,18 +393,18 @@ body {
     transition: .5s;
 }
 
-.contact_address {
+.contactAddress {
     width: 30%;
     display: flex;
     align-items: end;
 }
 
-.contact_address .address {
+.contactAddress .address {
     font-size: 16px;
 }
 
 
-#line {
+.line {
     border-top: 1px solid var(--text-color-lighter);
     margin: 3% 15%;
     z-index: 9999;
@@ -418,7 +415,7 @@ body {
     text-align: center;
 }
 
-#button-30{
+.button_30{
   background-color: aqua;
   color: rgb(59, 54, 54)
 }

@@ -1,0 +1,92 @@
+.body{
+    background-image: url('../assets/bg_4.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loginContainer {
+    max-width: 450px;
+    margin: 60px auto;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    color: white;
+  }
+  
+  
+  form input,
+  form select {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  form input{
+    width: 93%
+  }
+  form h1 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  button#button-30 {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button#button-30:hover {
+    background-color: #357ab8;
+  }
+  
+  .userType {
+    text-align: left;
+    margin-top: 15px;
+  }
+  
+  .userType label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  .signup {
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: #f5f4f4;
+  }
+  
+  .signup a,
+  .goback {
+    color: #4a90e2;
+    font-weight: 600;
+    margin-left: 5px;
+    text-decoration: none;
+  }
+  
+  .signup a:hover,
+  .goback:hover {
+    text-decoration: underline;
+  }
+  
