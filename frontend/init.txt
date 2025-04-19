@@ -1,0 +1,16 @@
+id
+username
+fname
+lname
+email
+password
+role
+superuser
+is_active
+
+
+
+
+email
+password
+role
