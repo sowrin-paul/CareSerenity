@@ -111,7 +111,7 @@ const LandingPage = () => {
         <div className="descriptionbox">
           <div className="session-title">
             <p>Help us to Achieve our Goal</p>
-            <p id="highlight">Joining Hands, Changing Stories</p>
+            <p id="highlight descHighlight">Joining Hands, Changing Stories</p>
           </div>
           <div className="about-detail">
             <p>
@@ -160,7 +160,7 @@ const LandingPage = () => {
       <div id="line"></div>
       <div className="row no-margin" id="contactUs">
         <iframe
-          src="https://www.google.com/maps/embed?..."
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3650.582336034878!2d90.4471350761669!3d23.79788287863816!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1721831420744!5m2!1sen!2sus"
           width="100%"
           height="450"
           style={{ border: 0 }}
