@@ -1,15 +1,18 @@
-import React from 'react'
-import '../css/Navbar.css'
+import React from 'react';
+import styles from '../css/Navbar.module.css';
 
 const Navbar = () => {
     return (
-        <div class="navbar">
-            <div class="logo-container">
-                {/* <img src="" alt="Logo" class="logo"> */}
-                    <div class="brand"><span class="care">Care</span><span class="serenity">Serenity</span></div>
+        <div className={styles.navbar}>
+            <div className={styles["logo-container"]}>
+                {/* <img src="" alt="Logo" className="logo" /> */}
+                <div className={styles.brand}>
+                    <span className={styles.care}>Care</span>
+                    <span className={styles.serenity}>Serenity</span>
+                </div>
             </div>
-            <div class="nav-links">
-                <a href="#" class="active">Home</a>
+            <div className={styles["nav-links"]}>
+                <a href="#" className={styles.active}>Home</a>
                 <a href="#">Services</a>
                 <a href="#">Donations</a>
                 <a href="#">Blogs</a>
@@ -17,8 +20,7 @@ const Navbar = () => {
                 <a href="#">Contact Us</a>
             </div>
         </div>
+    );
+};
 
-    )
-}
-
-export default Navbar
+export default Navbar;
