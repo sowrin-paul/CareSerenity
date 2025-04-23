@@ -3,37 +3,15 @@ import styles from '../css/LandingPage.module.css';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import aboutImage from '../assets/about_img.png';
+import Footer from '../components/Footer';
+import Hero from '../components/Hero';
 
 const LandingPage = () => {
   return (
     <>
       <TopBar />
       <Navbar />
-      <div className={styles.hero}>
-        <div className={`${styles.section__container} ${styles.header__container}`}>
-          <h1>Join us to make Lives Better</h1>
-          <p>
-            A platform for Organizations. Stay connected with orphans and elderly
-            to change lives with each click. Spread kindness to all.
-          </p>
-        </div>
-
-        <div className={`${styles.row} ${styles.info_web} ${styles['diag-ro']}`} id="info_web">
-          {["orphans to help", "organizations", "BDT as Donation", "users", "Volunteers"].map((label, index) => (
-            <div className={`${styles.aboutDiag} ${styles.info_cell}` } id="info_cell" key={index}>
-              <div className={styles.icon}>
-                {/* <i className="fas fa-arrow-right"></i> */}
-              </div>
-              <div className={styles.tex}>
-                <p>We have</p>
-                <h3>43</h3>
-                <p>{label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <Hero />
       <div id="line" className={styles.line}></div>
       <div className={styles.services} id="services">
         <div className={styles.sectionTitle}>
@@ -221,6 +199,7 @@ const LandingPage = () => {
       <button id="scrollTopBtn" title="Go to top">
         <i className="bx bx-chevrons-up bx-burst"></i>
       </button>
+      <Footer />
     </>
   );
 };

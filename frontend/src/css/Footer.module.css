@@ -1,0 +1,97 @@
+.footer {
+    background-color: var(--text-color-dark);
+    color: rgb(243, 234, 223);
+    margin-top: 3rem;
+    padding: 2% 15%;
+}
+
+.footer__container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5rem;
+    align-items: center;
+    border-bottom: 1px solid white;
+}
+
+.footer__content h4 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 2.5rem;
+    color: var(--background-color);
+}
+
+.footer__content p {
+    color: var(--background-color);
+}
+
+.footer__form form {
+    width: 100%;
+    max-width: 600px;
+    margin-inline: auto;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--background-color);
+    border-radius: 10px;
+}
+
+.footer__form input {
+    width: 100%;
+    padding: 0 1rem;
+    outline: none;
+    border: none;
+    font-size: 17px;
+}
+
+.footer__form button {
+    padding: 8px 20px;
+    outline: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-color-dark);
+    background-color: var(--primary-color-light);
+    border-radius: 9px;
+    transition: .4s;
+}
+
+.footer__form button:hover {
+    background-color: var(--primary-color-dark);
+    transition: .4s;
+}
+
+.footer__bar {
+    padding-block: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.footer__logo h4 a {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: var(--primary-font);
+    color: var(--white);
+}
+
+.footer__logo p {
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--background-color);
+}
+
+.footer__nav {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.footer__link a {
+    font-weight: 500;
+    color: var(--background-color);
+    white-space: nowrap;
+}
