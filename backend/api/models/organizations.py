@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from backend.api.models import CustomUserManager
-from user import User
+# from backend.api.models import CustomUserManager
+from .user import User
 
 class Organizations(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="organizations")

@@ -1,2 +1,2 @@
 from .user import User, UserProfile
-from .organizations import Organization
+from .organizations import Organizations

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import Response
+from rest_framework import response as Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from .serializers import RegisterSerializer, LoginSerializer
