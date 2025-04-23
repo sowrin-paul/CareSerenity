@@ -24,7 +24,7 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        navigate("/");
+        navigate("/userDashboard");
       } else {
         const errorData = await response.json();
         setError(errorData.detail || "Invalid credentials");
@@ -41,19 +41,23 @@ const Login = () => {
       <div className={styles.positive}></div> */}
 
       <div className={styles.loginContainer}>
-        <form>
+        <form onSubmit={handleSubmit}>
           <h1>Log In</h1>
 
           <input
             type="email"
             name="acc_email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <input
             type="password"
             name="acc_pass"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
           <button
@@ -64,6 +68,8 @@ const Login = () => {
             Log In
           </button>
         </form>
+
+        {error && <p className={styles.error}>{error}</p>}
 
         <p className={styles.forgetPass}>
           <Link to="/forgetpassword">Forgot password?</Link>

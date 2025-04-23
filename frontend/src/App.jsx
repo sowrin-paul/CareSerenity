@@ -4,6 +4,7 @@ import './App.css';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Signup from "./components/Signup";
+import UserDashboard from "./components/userDashboard";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/userDashboard" element={<UserDashboard />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
     </Router>

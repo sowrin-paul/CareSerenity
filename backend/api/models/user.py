@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -51,3 +53,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.email}'s Profile"
+
+@login_required
+def get_username(request):
+    return JsonResponse({"username": request.user.username})
