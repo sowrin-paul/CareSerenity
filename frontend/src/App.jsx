@@ -5,6 +5,7 @@ import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Signup from "./components/Signup";
 import UserDashboard from "./components/userDashboard";
+import U_home from "./components/U_home";
 
 function App() {
   return (
