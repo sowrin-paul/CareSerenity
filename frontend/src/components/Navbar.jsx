@@ -1,11 +1,12 @@
 import React from 'react';
+import Logo from '../assets/Logo.png';
 import styles from '../css/Navbar.module.css';
 
 const Navbar = () => {
     return (
         <div className={styles.navbar}>
             <div className={styles["logo-container"]}>
-                {/* <img src="" alt="Logo" className="logo" /> */}
+                <img src={Logo} className={styles.logo} alt="Logo" />
                 <div className={styles.brand}>
                     <span className={styles.care}>Care</span>
                     <span className={styles.serenity}>Serenity</span>
