@@ -9,36 +9,43 @@ body {
   }
   
   .hero {
-    height: 100vh;
-    background-image: linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.9),
-            rgba(0, 0, 0, 0.3)),
-        url("../assets/bg_1.jpeg");
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 80px;
+    height: 70vh;
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    animation: changeBackground 15s linear infinite;
+    animation: changeBackground 15s ease-in-out infinite;
 }
 @keyframes changeBackground {
-  25% {
+    0% {
       background-image: linear-gradient(to bottom,
               rgba(0, 0, 0, 0.9),
               rgba(0, 0, 0, 0.3)),
           url("../assets/bg_2.jpg");
   }
-
-  50% {
+  25% {
       background-image: linear-gradient(to bottom,
               rgba(0, 0, 0, 0.9),
               rgba(0, 0, 0, 0.3)),
           url("../assets/bg_3.jpg");
   }
 
-  75% {
+  50% {
       background-image: linear-gradient(to bottom,
               rgba(0, 0, 0, 0.9),
               rgba(0, 0, 0, 0.3)),
           url("../assets/bg_4.jpg");
+  }
+
+  75% {
+      background-image: linear-gradient(to bottom,
+              rgba(0, 0, 0, 0.9),
+              rgba(0, 0, 0, 0.3)),
+          url("../assets/bg_1.jpg");
   }
 
   100% {

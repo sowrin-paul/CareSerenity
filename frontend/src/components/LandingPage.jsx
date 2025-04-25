@@ -117,7 +117,7 @@ const LandingPage = () => {
             <h2 id="highlight" className={styles.highlight}>Blog</h2>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ipsum sit nibh amet egestas tellus.</p>
         </div>
-        <div class="cards-container">
+        <div className="cards-container">
         </div>
       </div>
       <div id="line" className={styles.line}></div>
