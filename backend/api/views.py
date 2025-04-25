@@ -11,8 +11,11 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+            if user.ac_role == 0:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+            elif user.ac_role == 1:
+                return Response({"message": "Registration request sent to the admin for approval."}, status=status.HTTP_201_CREATED)
         print("Validation error:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -24,3 +27,14 @@ class LoginView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def approve_organization(request, user_id):
+    try:
+        user = User.objects.get(id=user_id, ac_role=1, is_active=False)
+        user.is_active = True
+        user.save()
+        return Response({"message": "Organization approved successfully"}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": "Organization not found or already approved."}, status=status.HTTP_404_NOT_FOUND)

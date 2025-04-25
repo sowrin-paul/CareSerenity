@@ -10,10 +10,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["email", "password", "ac_role"]
 
     def create(self, validated_data):
+        is_active = True
+        if validated_data.get("ac_role") == 1:
+            is_active = False
         user = User.objects.create_user(
-            email = self.validated_data["email"],
-            password = self.validated_data["password"],
-            ac_role = self.validated_data.get("ac_role", 0),
+            email = validated_data["email"],
+            password = validated_data["password"],
+            ac_role = validated_data.get("ac_role", 0),
+            is_active = is_active,
         )
         user.save()
 
