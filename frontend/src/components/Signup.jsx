@@ -43,7 +43,7 @@ const Signup = () => {
                 // setTimeout(() => navigate("/login"), 2000);
                 if(role == 0) {
                     navigate("/userDashboard");
-                }else if(role == 1) {
+                } else if(role == 1) {
                     alert(data.message|| "Registration request sent to the admin for approval.")
                 }
             } else {
