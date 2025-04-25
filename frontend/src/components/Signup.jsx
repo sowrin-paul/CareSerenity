@@ -7,8 +7,8 @@ const Signup = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [role, setRole] = useState("");
-    const [securityQuestion, setSecurityQuestion] = useState("");
-    const [answer, setAnswer] = useState("");
+    // const [securityQuestion, setSecurityQuestion] = useState("");
+    // const [answer, setAnswer] = useState("");
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
@@ -32,8 +32,8 @@ const Signup = () => {
                     email,
                     password,
                     role,
-                    security_question: securityQuestion,
-                    security_answer: answer,
+                    // security_question: securityQuestion,
+                    // security_answer: answer,
                 }),
             });
 
@@ -96,7 +96,7 @@ const Signup = () => {
                         </select>
                     </div>
 
-                    <div className={styles.userType}>
+                    {/* <div className={styles.userType}>
                         <label>Security question:</label>
                         <select
                             name="question"
@@ -141,7 +141,7 @@ const Signup = () => {
                         placeholder="Your answer"
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
-                    />
+                    /> */}
 
                     <button type="submit" name="signup_btn" id="button-30">
                         SignUp
