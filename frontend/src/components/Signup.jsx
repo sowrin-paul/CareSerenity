@@ -38,6 +38,9 @@ const Signup = () => {
             });
 
             const data = await response.json();
+            console.log(data);
+
+
             if (response.ok) {
                 // setSuccess(true);
                 // setTimeout(() => navigate("/login"), 2000);
@@ -97,8 +100,8 @@ const Signup = () => {
                             <option value="" disabled>
                                 Select your account type
                             </option>
-                            <option value="user">User</option>
-                            <option value="org">Organization</option>
+                            <option value="0">User</option>
+                            <option value="1">Organization</option>
                         </select>
                     </div>
 

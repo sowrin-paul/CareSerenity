@@ -11,6 +11,9 @@ from rest_framework.permissions import IsAdminUser
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
+        
+        print("Request data:", request.data)
+        
         if serializer.is_valid():
             user = serializer.save()
             if user.ac_role == 0:

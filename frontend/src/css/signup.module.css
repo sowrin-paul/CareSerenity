@@ -52,7 +52,7 @@
     color: var(--primary-color-light);
   }
   
-  button {
+  .loginContainer form button {
     width: 93%;
     padding: 12px;
     margin-top: 15px;
@@ -66,7 +66,7 @@
     transition: background-color 0.3s ease;
   }
   
-  button:hover {
+  .loginContainer form button:hover {
     background-color: var(--primary-color-dark);
     transition: background-color 0.3s ease;
   }

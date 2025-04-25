@@ -7,8 +7,14 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required")
+        print("Extra fields before cleanup:", extra_fields)  # Debugging
         email = self.normalize_email(email)
-        ac_role = extra_fields.get("ac_role", 0)
+        ac_role = extra_fields.pop("ac_role", 0)  # Remove ac_role from extra_fields
+
+        # Validate the role
+        if ac_role not in dict(self.model.ROLE_CHOICE).keys():
+            raise ValueError(f"Invalid role: {ac_role}. Must be one of {list(dict(self.model.ROLE_CHOICE).keys())}")
+
         user = self.model(email=email, ac_role=ac_role, **extra_fields)
         user.set_password(password)
         user.save(using=self.db)
@@ -65,4 +71,4 @@ class UserProfile(models.Model):
 
 @login_required
 def get_username(request):
-    return JsonResponse({"username": request.user.username})
+    return JsonResponse({"username": request.user.email})
