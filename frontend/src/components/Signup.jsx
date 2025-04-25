@@ -37,9 +37,15 @@ const Signup = () => {
                 }),
             });
 
+            const data = await response.json();
             if (response.ok) {
-                setSuccess(true);
-                setTimeout(() => navigate("/login"), 2000);
+                // setSuccess(true);
+                // setTimeout(() => navigate("/login"), 2000);
+                if(role == 0) {
+                    navigate("/userDashboard");
+                }else if(role == 1) {
+                    alert(data.message|| "Registration request sent to the admin for approval.")
+                }
             } else {
                 const errorData = await response.json();
                 setError(errorData.detail || "Failed to register. Please try again.");
