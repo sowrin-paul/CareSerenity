@@ -65,14 +65,16 @@ const LandingPage = () => {
       </div>
 
       <div id="line"></div>
+
       <div className={styles.donations} id="donations">
         <div className={styles.sectionTitle}>
           <p id="highlight" className={styles.highlight}>Recently raised funds</p>
         </div>
-        <div className={styles.cardsContainer}>card generate</div>
+        <div className={styles.cardsContainer}>Donation card will pop up here</div>
       </div>
 
       <div id="line"></div>
+
       <div className={styles.AboutUs} id="AboutUs">
         <div className={styles.descriptionbox}>
           <div className={styles.sessionTitle}>
@@ -107,7 +109,7 @@ const LandingPage = () => {
           </div>
         </div>
         <div className={styles.aboutImage}>
-          {/* <img src={aboutImage} alt="About" /> */}
+          <img src={aboutImage} alt="About" />
         </div>
       </div>
 
