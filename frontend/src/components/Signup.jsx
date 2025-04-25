@@ -77,6 +77,7 @@ const Signup = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+
                     <input
                         type="password"
                         name="confirm_pass"
@@ -87,7 +88,6 @@ const Signup = () => {
                     />
 
                     <div className={styles.userType}>
-                        <label>Account type:</label>
                         <select
                             name="role"
                             required
@@ -101,6 +101,16 @@ const Signup = () => {
                             <option value="org">Organization</option>
                         </select>
                     </div>
+
+                    
+                    <button type="submit" name="signup_btn" id="button-30">
+                        SignUp
+                    </button>
+
+
+                    <p className={styles.signup}>
+                        Already have an account? <Link id="signup" to="/login">Login</Link>
+                    </p>
 
                     {/* <div className={styles.userType}>
                         <label>Security question:</label>
@@ -148,18 +158,10 @@ const Signup = () => {
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
                     /> */}
-
-                    <button type="submit" name="signup_btn" id="button-30">
-                        SignUp
-                    </button>
                 </form>
 
                 {error && <p className={styles.error}>{error}</p>}
                 {success && <p className={styles.success}>Registration successful! Redirecting...</p>}
-
-                <p className={styles.signup}>
-                    Already have an account? <Link id="signup" to="/login">Login</Link>
-                </p>
                 <span>
                     <Link className="goback" to="/">Go Back</Link>
                 </span>

@@ -1,6 +1,6 @@
 import React, { use, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "../css/Login.module.css";
+import styles from "../css/Signup.module.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -60,30 +60,24 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button
-            type="submit"
-            name="login_btn"
-            className={styles.loginBtn}
-          >
+          <button type="submit" name="login_btn" className={styles.loginBtn}>
             Log In
           </button>
         </form>
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <p className={styles.forgetPass}>
-          <Link to="/forgetpassword">Forgot password?</Link>
-        </p>
-
         <p className={styles.signup}>
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link className={styles.signupLink} to="/signup">
             Create new
           </Link>
         </p>
 
         <span>
-          <Link className={styles.goBack} to="/">Go Back</Link>
+          <Link className={styles.goBack} to="/">
+            Go Back
+          </Link>
         </span>
       </div>
     </div>
