@@ -7,14 +7,11 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required")
-        print("Extra fields before cleanup:", extra_fields)  # Debugging
+        print("Extra fields before cleanup:", extra_fields)
         email = self.normalize_email(email)
-        ac_role = extra_fields.pop("ac_role", 0)  # Remove ac_role from extra_fields
-
-        # Validate the role
+        ac_role = extra_fields.pop("ac_role", 0)
         if ac_role not in dict(self.model.ROLE_CHOICE).keys():
             raise ValueError(f"Invalid role: {ac_role}. Must be one of {list(dict(self.model.ROLE_CHOICE).keys())}")
-
         user = self.model(email=email, ac_role=ac_role, **extra_fields)
         user.set_password(password)
         user.save(using=self.db)
@@ -29,9 +26,7 @@ class User(AbstractBaseUser):
     ROLE_CHOICE = [
         (0, "User"),
         (1, "Organizations"),
-        # (2, "Admin"),
     ]
-
     email = models.EmailField(unique=True)
     ac_role = models.IntegerField(choices=ROLE_CHOICE, default=0)
     is_active = models.BooleanField(default=True)

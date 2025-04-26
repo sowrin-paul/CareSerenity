@@ -31,7 +31,7 @@ const Signup = () => {
                 body: JSON.stringify({
                     email,
                     password,
-                    role,
+                    ac_role: role,
                     // security_question: securityQuestion,
                     // security_answer: answer,
                 }),
