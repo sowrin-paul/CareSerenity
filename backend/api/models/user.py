@@ -7,17 +7,19 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required")
-        print("Extra fields before cleanup:", extra_fields)  # Debugging
+        # print("Extra fields before cleanup:", extra_fields)
+        ac_role = extra_fields.get("ac_role")
+        # if ac_role is None:
+        #     raise ValueError("ac_role is required and must be explicitly provided")
+        # if ac_role not in dict(self.model.ROLE_CHOICE):
+        #     raise ValueError(f"Invalid role: {ac_role}. Must be one of {list(dict(self.model.ROLE_CHOICE).keys())}")
+
+        extra_fields["ac_role"] = ac_role
         email = self.normalize_email(email)
-        ac_role = extra_fields.pop("ac_role", 0)  # Remove ac_role from extra_fields
-
-        # Validate the role
-        if ac_role not in dict(self.model.ROLE_CHOICE).keys():
-            raise ValueError(f"Invalid role: {ac_role}. Must be one of {list(dict(self.model.ROLE_CHOICE).keys())}")
-
-        user = self.model(email=email, ac_role=ac_role, **extra_fields)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self.db)
+        print("extra field:", extra_fields)
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
@@ -33,7 +35,7 @@ class User(AbstractBaseUser):
     ]
 
     email = models.EmailField(unique=True)
-    ac_role = models.IntegerField(choices=ROLE_CHOICE, default=0)
+    ac_role = models.IntegerField(choices=ROLE_CHOICE)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

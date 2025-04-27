@@ -4,24 +4,26 @@ from django.contrib.auth import authenticate
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    ac_role = serializers.IntegerField(required=True)
 
     class Meta:
         model = User
         fields = ["email", "password", "ac_role"]
 
     def create(self, validated_data):
+        role = validated_data["ac_role"]
         is_active = True
-        if validated_data.get("ac_role") == 1:
+        if role == 1:
             is_active = False
-        user = User.objects.create_user(
+        return User.objects.create_user(
             email = validated_data["email"],
             password = validated_data["password"],
-            ac_role = validated_data.get("ac_role", 0),
+            ac_role = role,
             is_active = is_active,
         )
-        user.save()
+        # user.save()
 
-        return user
+        # return user
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

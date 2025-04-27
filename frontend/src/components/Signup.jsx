@@ -105,7 +105,6 @@ const Signup = () => {
                         </select>
                     </div>
 
-                    
                     <button type="submit" name="signup_btn" id="button-30">
                         SignUp
                     </button>
