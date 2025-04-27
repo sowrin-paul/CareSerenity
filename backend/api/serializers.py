@@ -9,7 +9,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "password", "ac_role"]
-
     def create(self, validated_data):
         role = validated_data["ac_role"]
         is_active = True

@@ -31,9 +31,7 @@ class User(AbstractBaseUser):
     ROLE_CHOICE = [
         (0, "User"),
         (1, "Organizations"),
-        # (2, "Admin"),
     ]
-
     email = models.EmailField(unique=True)
     ac_role = models.IntegerField(choices=ROLE_CHOICE)
     is_active = models.BooleanField(default=True)

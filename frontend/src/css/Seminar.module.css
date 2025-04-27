@@ -1,0 +1,71 @@
+.seminarContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #0f766e; 
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .card {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .cardTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0f766e;
+    margin-bottom: 0.5rem;
+  }
+  
+  .cardDate {
+    font-size: 0.95rem;
+    color: #6b7280; 
+    margin-bottom: 0.25rem;
+  }
+  
+  .cardLocation {
+    font-size: 0.95rem;
+    color: #374151; 
+    margin-bottom: 1rem;
+  }
+  
+  .cardDescription {
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    flex-grow: 1; 
+  }
+  
+  .registerBtn {
+    background-color: #0f766e;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: auto; 
+  }
+  
+  .registerBtn:hover {
+    background-color: #0d5e58;
+  }
+  
