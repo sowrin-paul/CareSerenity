@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Signup from "./components/Signup";
 import UserDashboard from "./components/userDashboard";
 import U_home from "./components/U_home";
+import O_profile from "./components/O_profile";
 
 function App() {
   return (
@@ -13,9 +14,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/userDashboard" element={<UserDashboard />} />
+        <Route path="/U_home/:userId/" element={<U_home />} />
+        <Route path="/O_profile/:userId" element={<O_profile />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/u_home" element={<U_home />} />
       </Routes>
     </Router>
   );

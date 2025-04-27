@@ -1,47 +1,48 @@
-
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  h1, h2, h3 {
+}
+
+h1,
+h2,
+h3 {
     margin: 0;
-  }
-  
-  .services {
+}
+
+.services {
     margin-top: 5rem;
     display: flex;
     flex-direction: column;
     margin: 3% 15%;
-  }
-  
-  .sectionTitle {
+}
+
+.sectionTitle {
     text-align: center;
     margin-bottom: 3%;
-  }
-  
-  .highlight {
+}
+
+.highlight {
     font-family: var(--secondary-font);
     color: var(--primary-title-color);
     margin-bottom: 8px;
     font-size: 5rem;
     font-weight: 500;
-  }
-  
-  .serviceTable {
+}
+
+.serviceTable {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, auto);
     gap: 20px;
-  }
-  
-  .serviceTable .part {
+}
+
+.serviceTable .part {
     text-align: center;
     padding: 45px 60px;
     transition: .8s ease-out;
 }
 
-.part:hover{
+.part:hover {
     background-color: rgba(255, 89, 122, 0.7);
     transform: scale(1.1) translateY(-5px);
     transition: .3s ease-in;
@@ -59,7 +60,7 @@ body {
     transition: .3s ease-in;
 }
 
-.part:hover p{
+.part:hover p {
     color: var(--text-color-dark);
     transition: .8s ease-out;
 }
@@ -76,8 +77,8 @@ body {
     color: #808080;
     transition: .3s ease-in;
 }
-  
-  .donations {
+
+.donations {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -86,7 +87,7 @@ body {
     background-color: #84bdd07e;
 }
 
-.donations .cardsContainer ,
+.donations .cardsContainer,
 .blog .cardsContainer {
     max-width: 1430px;
     display: flex;
@@ -128,14 +129,14 @@ body {
     box-shadow: inset 0px 0px 10px white;
 }
 
-.card h1{
+.card h1 {
     color: rgb(56, 41, 49);
     padding: 5px;
     font-size: 22px;
     text-shadow: 4px 4px 5px rgb(0, 0, 0, .3);
 }
 
-.card p{
+.card p {
     color: var(--text-color-dark);
     font-size: 15px;
     font-weight: 500;
@@ -184,9 +185,9 @@ body {
     gap: 30px;
 }
 
-.sessionTitle{
-  font-size: 2rem;
-  font-weight: 500;
+.sessionTitle {
+    font-size: 2rem;
+    font-weight: 500;
 }
 
 .descriptionbox .aboutDetail p {
@@ -219,7 +220,8 @@ body {
     padding: 3% 5%;
     background-color: rgb(247, 212, 217);
 }
-.blog .h2{
+
+.blog .h2 {
     color: var(--primary-color-dark) !important;
 }
 
@@ -330,7 +332,7 @@ body {
     text-align: center;
 }
 
-.button_30{
-  background-color: aqua;
-  color: rgb(59, 54, 54)
+.button_30 {
+    background-color: aqua;
+    color: rgb(59, 54, 54)
 }

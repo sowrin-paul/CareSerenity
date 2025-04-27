@@ -20,9 +20,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             ac_role = role,
             is_active = is_active,
         )
-        # user.save()
-
-        # return user
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -34,4 +31,4 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid email or password")
         elif not user.is_active:
             raise serializers.ValidationError("User is not active")
-        return user
+        return {"user": user}

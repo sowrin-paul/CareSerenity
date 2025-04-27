@@ -1,87 +1,85 @@
-
 .navbar {
-    position: fixed;       
-    top: 30px;                
-    left: 0;              
-    width: 100%;
-    height: 50px;          
-    background-color: #b2ddee;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0px 8%;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    z-index: 10000;
-    padding: 5px 8%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  }
-  
-  
-  .navbar .logo-container {
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .navbar .logo-container:hover{
-    cursor: pointer;
-    scale: 1.1;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .navbar .logo-container .logo {
-    height: 40px;
-  }
-  
-  .navbar .brand {
-    font-weight: bold;
-    display: flex;
-  }
-  
-  .navbar .brand .care {
-    font-size: 25px !important;
-    color: #007bb6; 
-  }
-  
-  .navbar .brand .serenity {
-    font-size: 25px !important;
-    color: #e11d48; 
-  }
-  
-  .navbar .nav-links {
-    display: flex;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .navbar .nav-links a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    text-decoration: none;
-    color: #000;
-    font-weight: 500;
-    position: relative;
-    padding: 0 10px;
-    border-right: 2px solid black;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .navbar .nav-links a:hover {
-    color: #0377ad;
-    scale: 1.1;
-    transition: all 0.3s ease-in-out;
-    background-color: #4648495d;
-  }
-  
-  .navbar .nav-links a.active {
-    color: #e11d48;
-    font-weight: bold;
-  }
-  
-  .nav-links a:last-child {
-    border-right: none;
+  position: fixed;
+  top: 30px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #b2ddee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 8%;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  z-index: 10000;
+  padding: 5px 8%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
-  
+
+
+.navbar .logo-container {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar .logo-container:hover {
+  cursor: pointer;
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar .logo-container .logo {
+  height: 40px;
+}
+
+.navbar .brand {
+  font-weight: bold;
+  display: flex;
+}
+
+.navbar .brand .care {
+  font-size: 25px !important;
+  color: #007bb6;
+}
+
+.navbar .brand .serenity {
+  font-size: 25px !important;
+  color: #e11d48;
+}
+
+.navbar .nav-links {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.navbar .nav-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+  position: relative;
+  padding: 0 10px;
+  border-right: 2px solid black;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar .nav-links a:hover {
+  color: #0377ad;
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+  background-color: #4648495d;
+}
+
+.navbar .nav-links a.active {
+  color: #e11d48;
+  font-weight: bold;
+}
+
+.nav-links a:last-child {
+  border-right: none;
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from '../css/LandingPage.module.css';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
@@ -7,6 +7,16 @@ import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 
 const LandingPage = () => {
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      const section = document.getElementById(hash);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
+
   return (
     <>
       <TopBar />
@@ -75,7 +85,7 @@ const LandingPage = () => {
 
       <div id="line"></div>
 
-      <div className={styles.AboutUs} id="AboutUs">
+      <div className={styles.AboutUs} id="aboutUs">
         <div className={styles.descriptionbox}>
           <div className={styles.sessionTitle}>
             <p>Help us to Achieve our Goal</p>

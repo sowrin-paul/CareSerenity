@@ -1,6 +1,7 @@
 import React, { use, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../css/Signup.module.css";
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +25,15 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        navigate("/userDashboard");
+        const userId = data.id;
+        const userRole = data.ac_role;
+
+        if (userRole == 0) {
+          navigate(`/U_home/${userId}`);
+        }
+        else if (userRole == 1) {
+          navigate(`/O_profile/${userId}`);
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.detail || "Invalid credentials");

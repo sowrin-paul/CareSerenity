@@ -1,10 +1,13 @@
 import React from 'react'
 import TopBar from '../components/TopBar'
-import Navbar from '../components/Navbar'
+import Navbar from '../components/NavbarU'
 import Hero from '../components/Hero'
 import Footer from '../components/Footer'
 import styles from '../css/U_home.module.css'
+import { useParams } from 'react-router-dom'
 const U_home = () => {
+    const {userId} = useParams();
+
     return (
         <div>
             <TopBar />
@@ -23,7 +26,7 @@ const U_home = () => {
                     {/* <?php include('./seminar_fetch_BE.php') ?> */}
 
                     <h1 id="heading" className={styles.heading}>Volunteers Recruitment</h1>
-                    {/* <?php include('./U_volunteer_recruite_fetch_BE.php') ?> */}
+                    {/* <?php include('./U_volunteer_recruit_fetch_BE.php') ?> */}
 
                     <h1 id="heading" className={styles.heading}>Recent Blogs</h1>
                     {/* <?php include('./blog_show_BE.php') ?> */}
