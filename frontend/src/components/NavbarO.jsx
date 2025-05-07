@@ -1,36 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import '../css/Navbar.module.css';
+import styles from '../css/Navbar.module.css';
 
 const navOptions = {
-  home: [
-    '/O_home',
-    '/O_create_blog',
-    '/O_view_blog'
-  ],
-  organizations: [
-    '/O_organization',
-    '/O_see_organization_orphanage',
-    '/O_see_organization_profile',
-    '/O_see_orphan_profile'
-  ],
-  seminars: [
-    '/O_seminar',
-    '/seminar_view'
-  ],
-  aboutus: [
-    '/O_aboutus'
-  ],
-  myprofile: [
-    '/O_profile',
-    '/O_profile_edit',
-    '/O_chat_list',
-    '/O_orphan',
-    '/O_orphan_profile',
-    '/O_orphan_removed',
-    '/O_adoption'
-  ]
+  home: ['/O_home', '/O_create_blog', '/O_view_blog'],
+  organizations: ['/O_organization', '/O_see_organization_orphanage', '/O_see_organization_profile', '/O_see_orphan_profile'],
+  seminars: ['/O_seminar', '/seminar_view'],
+  aboutus: ['/O_aboutus'],
+  myprofile: ['/O_profile', '/O_profile_edit', '/O_chat_list', '/O_orphan', '/O_orphan_profile', '/O_orphan_removed', '/O_adoption'],
 };
 
 function Navbar() {
@@ -67,28 +45,26 @@ function Navbar() {
       });
   };
 
-  // const unreadCount = notifications.filter(n => n.is_read === 0).length;
-
   return (
     <nav>
-      <div className="top-nav">
-        <ul className="contact-info">
-          <li className="top-nav-item">
+      <div className={styles.topNav}>
+        <ul className={styles.contactInfo}>
+          <li className={styles.topNavItem}>
             <i className='bx bxs-phone'></i>
             <a href="tel:+8801973336001">+880 1973336001</a>
           </li>
-          <li className="top-nav-item">
+          <li className={styles.topNavItem}>
             <i className='bx bxl-gmail'></i>
             <a href="mailto:care.senerity@gmail.com">care.senerity@gmail.com</a>
           </li>
-          <li className="top-nav-item">
+          <li className={styles.topNavItem}>
             <i className='bx bxs-map'></i>
             <a href="#">1/1, Block-B, Road-27, Dhaka - 1216</a>
           </li>
         </ul>
-        <ul className="auth-links">
+        <ul className={styles.authLinks}>
           <li>
-            <Link to="/O_profile" className={activeOption === 'myprofile' ? 'active' : ''}>
+            <Link to="/O_profile" className={activeOption === 'myprofile' ? styles.active : ''}>
               My account
             </Link>
           </li>
@@ -98,36 +74,34 @@ function Navbar() {
         </ul>
       </div>
 
-      <div className="bottom-nav">
-        <div className="logo">
-          <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/ripples.js"></script>
-          <l-ripples size="45" speed="2" color="#f3254e"></l-ripples>
+      <div className={styles.bottomNav}>
+        <div className={styles.logo}>
           <Link to="/O_home">
             <span className="icon first">Care</span><span className="icon second">Serenity</span>
           </Link>
         </div>
 
-        <ul className="main-nav">
+        <ul className={styles.mainNav}>
           <li>
-            <Link to="/O_home" className={activeOption === 'home' ? 'active' : ''}>
+            <Link to="/O_home" className={activeOption === 'home' ? styles.active : ''}>
               Home
             </Link>
           </li>
-          <span className="h-bar"></span>
+          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_organization" className={activeOption === 'organizations' ? 'active' : ''}>
+            <Link to="/O_organization" className={activeOption === 'organizations' ? styles.active : ''}>
               Organizations
             </Link>
           </li>
-          <span className="h-bar"></span>
+          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_seminar" className={activeOption === 'seminars' ? 'active' : ''}>
+            <Link to="/O_seminar" className={activeOption === 'seminars' ? styles.active : ''}>
               Seminars
             </Link>
           </li>
-          <span className="h-bar"></span>
+          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_aboutus" className={activeOption === 'aboutus' ? 'active' : ''}>
+            <Link to="/O_aboutus" className={activeOption === 'aboutus' ? styles.active : ''}>
               About Us
             </Link>
           </li>

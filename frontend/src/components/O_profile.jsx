@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../css/Color.module.css';
-import '../css/Navbar.module.css';
-import '../css/Organizations.module.css';
-import '../css/Footer.module.css';
+import styles from '../css/O_profile.module.css';
 import Navbar from './NavbarO';
 import Footer from './Footer';
 
@@ -29,21 +26,21 @@ const OrganizationProfile = () => {
     } = orgData;
 
     return (
-        <div>
+        <div className={styles.accountPageContainer}>
             <Navbar unreadNotifications={unreadNotifications} />
 
             {/* Feedback Messages */}
-            <div className="feedback-message">
+            <div className={styles.feedbackMessage}>
                 {/* control feedback */}
             </div>
 
-            <div className="account-container">
+            <div className={styles.accountInfoContainer}>
                 {/* Profile Section */}
-                <div className="profile-section">
-                    <div className="profile-picture">
+                <div className={styles.profileSection}>
+                    <div className={styles.accountPicture}>
                         <img src={`./assets/${org_logo}`} alt="Organization Logo" />
                     </div>
-                    <div className="profile-details">
+                    <div className={styles.profileDetails}>
                         <h1>{org_name}</h1>
                         <p>Location: {org_location}, Bangladesh</p>
                         <p>Email: {org_email}</p>
@@ -55,7 +52,7 @@ const OrganizationProfile = () => {
                 </div>
 
                 {/* Bio Section */}
-                <div className="bio-section">
+                <div className={styles.bioSection}>
                     <h2>Our Vision</h2>
                     <p>{org_vision}</p>
                     <h2>Description</h2>
@@ -63,38 +60,38 @@ const OrganizationProfile = () => {
                 </div>
 
                 {/* Button Group */}
-                <div className="button-group">
-                    <a href="./O_chat" className="btn-link">Chats</a>
-                    <a href="./O_funds" className="btn-link">Funds</a>
-                    <a href="./O_orphan" className="btn-link">Orphanage</a>
-                    <a href="./O_volunteer" className="btn-link">Volunteers</a>
-                    <a href="./O_profile_edit" className="btn-link">Edit Profile</a>
+                <div className={styles.buttonGroup}>
+                    <a href="./O_chat" className={styles.btnLink}>Chats</a>
+                    <a href="./O_funds" className={styles.btnLink}>Funds</a>
+                    <a href="./O_orphan" className={styles.btnLink}>Orphanage</a>
+                    <a href="./O_volunteer" className={styles.btnLink}>Volunteers</a>
+                    <a href="./O_profile_edit" className={styles.btnLink}>Edit Profile</a>
                 </div>
 
                 {/* Stats Section */}
-                <div className="stats-section">
-                    <div className="stats-box">
+                <div className={styles.statsSection}>
+                    <div className={styles.statsBox}>
                         <a href="./O_funds"><i className='bx bxs-dollar-circle'></i></a>
                         <div>
                             <p>Funds</p>
                             <h3>{total_amount_received} TK</h3>
                         </div>
                     </div>
-                    <div className="stats-box">
+                    <div className={styles.statsBox}>
                         <a href="./O_adoption"><i className='bx bxs-face'></i></a>
                         <div>
                             <p>Adoptions</p>
                             <h3>{total_adoptions}</h3>
                         </div>
                     </div>
-                    <div className="stats-box">
+                    <div className={styles.statsBox}>
                         <a href="#"><i className='bx bxs-user-plus'></i></a>
                         <div>
                             <p>Volunteers</p>
                             <h3>3</h3>
                         </div>
                     </div>
-                    <div className="stats-box">
+                    <div className={styles.statsBox}>
                         <a href="./O_orphan"><i className='bx bxs-report'></i></a>
                         <div>
                             <p>Orphans</p>
