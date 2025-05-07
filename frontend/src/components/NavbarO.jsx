@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../css/Navbar.module.css';
+import TopBar from './TopBar';
+import { useParams } from 'react-router-dom';
+import Logo from '../assets/Logo.png';
 
 const navOptions = {
   home: ['/O_home', '/O_create_blog', '/O_view_blog'],
@@ -46,102 +49,77 @@ function Navbar() {
   };
 
   return (
-    <nav>
-      <div className={styles.topNav}>
-        <ul className={styles.contactInfo}>
-          <li className={styles.topNavItem}>
-            <i className='bx bxs-phone'></i>
-            <a href="tel:+8801973336001">+880 1973336001</a>
-          </li>
-          <li className={styles.topNavItem}>
-            <i className='bx bxl-gmail'></i>
-            <a href="mailto:care.senerity@gmail.com">care.senerity@gmail.com</a>
-          </li>
-          <li className={styles.topNavItem}>
-            <i className='bx bxs-map'></i>
-            <a href="#">1/1, Block-B, Road-27, Dhaka - 1216</a>
-          </li>
-        </ul>
-        <ul className={styles.authLinks}>
-          <li>
-            <Link to="/O_profile" className={activeOption === 'myprofile' ? styles.active : ''}>
-              My account
-            </Link>
-          </li>
-          <li>
-            <Link id="login-btn" to="/">Logout</Link>
-          </li>
-        </ul>
-      </div>
-
-      <div className={styles.bottomNav}>
-        <div className={styles.logo}>
-          <Link to="/O_home">
-            <span className="icon first">Care</span><span className="icon second">Serenity</span>
+    <>
+      <div className={styles.navbar}>
+        <div className={styles.logoContainer}>
+          <script
+            type="module"
+            src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/ripples.js"
+          ></script>
+          <l-ripples size="45" speed="2" color="#f3254e"></l-ripples>
+          <Link to="/U_home">
+            <img src={Logo} className={styles.logo} alt="Logo" />
+            <div className={styles.brand}>
+              <span className={styles.care}>Care</span>
+              <span className={styles.serenity}>Serenity</span>
+            </div>
           </Link>
         </div>
-
-        <ul className={styles.mainNav}>
+        <ul className={styles.navLinks}>
           <li>
-            <Link to="/O_home" className={activeOption === 'home' ? styles.active : ''}>
+            <Link
+              to="/O_profile"
+              className={activeOption === "home" ? styles.active : ""}
+            >
               Home
             </Link>
           </li>
-          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_organization" className={activeOption === 'organizations' ? styles.active : ''}>
+            <Link
+              to="/"
+              className={activeOption === "organizations" ? styles.active : ""}
+            >
               Organizations
             </Link>
           </li>
-          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_seminar" className={activeOption === 'seminars' ? styles.active : ''}>
+            <Link
+              to="/"
+              className={activeOption === "adoptions" ? styles.active : ""}
+            >
+              Adoptions
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/"
+              className={activeOption === "seminars" ? styles.active : ""}
+            >
               Seminars
             </Link>
           </li>
-          <span className={styles.hBar}></span>
           <li>
-            <Link to="/O_aboutus" className={activeOption === 'aboutus' ? styles.active : ''}>
+            <Link
+              to="/"
+              className={activeOption === "aboutus" ? styles.active : ""}
+            >
               About Us
             </Link>
           </li>
-
-          {/* <li className="icon" onClick={() => setShowBox(prev => !prev)}>
-            {unreadCount > 0 ? (
-              <i className='bx bxs-bell-ring bx-tada'></i>
-            ) : (
-              <i className='bx bxs-bell'></i>
-            )}
-          </li> */}
-
-          {showBox && (
-            <div className="notifi-box" id="box">
-              <h2>Notifications</h2>
-              <div id="content">
-                {notifications.length > 0 ? (
-                  notifications.map(notification => (
-                    <div
-                      key={notification.notification_id}
-                      className={`notifi-item${notification.is_read === 0 ? ' unseen' : ''}`}
-                      style={notification.is_read === 0 ? { background: 'rgba(255, 182, 193, .5)' } : {}}
-                      onClick={() => markAsRead(notification.notification_id)}
-                    >
-                      <div className="text">
-                        <h4>{notification.content}</h4>
-                        <p>{notification.date}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p>No notifications</p>
-                )}
-              </div>
-            </div>
-          )}
+          {/* <li className={styles.icon} onClick={toggleNotification}>
+                <i
+                  className="bx bxs-bell"
+                  style={{ display: unreadCount > 0 ? "none" : "inline-block" }}
+                ></i>
+                <i
+                  className="bx bxs-bell-ring bx-tada"
+                  style={{ display: unreadCount > 0 ? "inline-block" : "none" }}
+                ></i>
+              </li> */}
         </ul>
       </div>
-    </nav>
+    </>
   );
-}
+};
 
 export default Navbar;

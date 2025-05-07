@@ -1,382 +1,240 @@
 .accountPageContainer {
-    min-height: 80vh;
-    margin: 3% 15%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: #f9f9f9;
+    padding: 100px;
+    min-height: 100vh;
 }
 
-/* ACCOUNT INFO */
-.accountInfoContainer {
+/* Feedback Message */
+.feedbackMessage {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(255, 255, 255, 0.8);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-radius: 110px 15px 15px 110px;
-    box-shadow: 1rem 1rem 5rem rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e11d48;
+    font-weight: bold;
 }
 
-.accountPicture {
+/* Account Info Section */
+.accountInfoContainer {
+    width: 90%;
+    max-width: 1200px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profileSection {
     display: flex;
     align-items: center;
-    margin-left: 1rem;
+    margin-bottom: 20px;
 }
 
 .accountPicture img {
-    width: 14rem;
-    height: 14rem;
-    margin: 1rem;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    border: 5px solid black;
-    box-shadow: 0px 0px 13px 1px rgba(0, 0, 0, 0.7);
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .accountData {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem 2.5rem;
+    margin-left: 20px;
 }
 
 .accountData h1 {
-    font-size: 3rem;
-    color: var(--primary-title-color, #333);
-    text-transform: capitalize;
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
 }
 
 .accountData p {
-    font-size: 15px;
-    color: var(--text-color-lighter, #666);
-    font-family: 'Segoe UI', sans-serif;
-    padding-left: 2px;
+    font-size: 1rem;
+    color: #555;
+    margin: 5px 0;
 }
 
+/* Biography Section */
 .biography {
-    width: 30%;
-    padding: 2rem;
-    border-left: 1px solid lightgray;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f1faff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.biography h1 {
-    width: 100%;
-    color: var(--primary-color-dark, #444);
-    font-size: 23px;
-    font-weight: bold;
-    padding-bottom: 10px;
-    border-bottom: 1px dotted var(--text-color-lighter, #999);
-    text-transform: capitalize;
+.biography h2 {
+    font-size: 1.5rem;
+    color: #007bb6;
+    margin-bottom: 10px;
 }
 
 .biography p {
-    width: 100%;
-    margin-top: 10px;
-    color: var(--text-color-lighter, #666);
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
 }
 
-/* OPTIONS BUTTON */
+/* Options Buttons */
 .options {
-    width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    border-bottom: 2px solid var(--text-color-dark, #222);
+    flex-wrap: wrap;
     gap: 10px;
-    padding: 10px;
+    margin-top: 20px;
 }
 
 .optionButton {
-    padding: 10px 15px;
-    font-size: 1rem;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--primary-color-light, #007bff);
-    color: #fff;
-    font-weight: 500;
-    border-radius: 8px;
-    margin: 1.5rem 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.7s;
-    border: none;
+    background-color: #007bb6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 .optionButton:hover {
-    background-color: var(--secondary-color-light, #6c757d);
-    color: var(--text-color-dark, #222);
-    transform: scale(1.1);
+    background-color: #005f8a;
 }
 
-/* RIGHT PORTION */
+/* Stats Section */
 .rightPortion {
     display: flex;
-    flex-direction: column;
-    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 20px;
 }
 
 .tabs {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    font-weight: 700;
-    color: var(--color7, #555);
-    border-bottom: 2px solid black;
-    margin-bottom: 25px;
+    background-color: #f1faff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    flex: 1;
+    min-width: 200px;
 }
 
-.plate {
-    background-color: #dbf4ff21;
-    box-shadow: 1rem 1rem 4rem rgba(0, 0, 0, 0.3);
-    margin-bottom: 1.5rem;
-    border-radius: 15px;
+.tabs .icon {
+    font-size: 2rem;
+    color: #007bb6;
+    margin-right: 10px;
 }
 
-.rightPortion h1 {
-    color: var(--color4, #333);
-    margin: 2rem;
+.tabs p {
+    font-size: 1rem;
+    color: #555;
 }
 
-/* INFO BOX */
+.tabs h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 5px;
+}
+
+/* Info Box */
 .infoBox {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 2rem;
-    padding-left: 2.5rem;
-    align-items: center;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .infoBoxTop {
-    margin-left: 4rem;
-    display: flex;
-    flex-direction: column;
-    width: 95%;
+    margin-bottom: 20px;
 }
 
-.infoBoxCell {
-    width: 90%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #dbf4ff21;
-    box-shadow: -2rem -0.5rem 5rem rgba(0, 0, 0, 0.2);
-    border-radius: 15px;
-    margin: 5px 0;
-}
-
-.infoBoxCell label {
-    font-weight: bold;
-    margin-left: 1.5rem;
-}
-
-.infoBoxCell input {
-    width: 85%;
-    height: 46px;
-    padding: 12px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border: none;
-    color: var(--text-dark, #222);
-}
-
-/* CHAT */
-.chatContainer {
-    background: white;
-    width: 555px;
-    position: fixed;
-    bottom: 0;
-    right: 20px;
-    z-index: 9999;
-    border-radius: 0;
-    display: flex;
-}
-
-.peopleList {
-    width: 260px;
+.infoBoxHeading {
+    font-size: 1.5rem;
+    color: #007bb6;
+    margin-bottom: 10px;
 }
 
 .peopleListSearch {
-    padding: 20px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1rem;
 }
 
-.peopleList input {
-    border-radius: 3px;
-    border: none;
-    padding: 14px;
-    background: #6a6c75;
-    color: white;
-    width: 90%;
-    font-size: 14px;
-}
-
-.peopleList ul {
-    padding: 20px;
-    max-height: 750px;
+.chatContainer {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    height: 200px;
     overflow-y: auto;
 }
 
-.peopleList ul li {
-    padding-bottom: 20px;
+.inboxFooter {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
 }
 
-.peopleList img {
-    float: left;
+/* Table Styles */
+.infoTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-.about {
-    padding-left: 8px;
-    float: left;
-    margin-top: 8px;
-}
-
-.status {
-    color: #92959e;
-}
-
-.chat {
-    width: calc(100% - 60px);
-    height: 100%;
-    border: 2px solid #434651;
-    border-radius: 13px 13px 0 0;
-    color: #434651;
-}
-
-.chatHeader {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 11px;
-    border-bottom: 1px solid white;
-    border-radius: 13px 13px 0 0;
-}
-
-.chatHeader img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 4px solid rgb(0, 131, 26);
-}
-
-.chatAbout {
-    margin-top: 6px;
-    padding-left: 10px;
-    width: 375px;
-}
-
-.chatWith {
-    font-weight: bold;
-    font-size: 20px;
-    color: var(--color7, #555);
-}
-
-.chatHistory {
-    margin: 20px;
-    height: 500px;
-    overflow-y: scroll;
-    word-break: break-word;
-}
-
-.chatHistory::-webkit-scrollbar {
-    width: 0;
-    display: none;
-}
-
-.messageData {
-    margin-bottom: 1px;
-    font-size: small;
-}
-
-.messageDataTime {
-    color: #a8aab1;
-    padding-left: 6px;
-}
-
-.message {
-    padding: 10px 13px;
-    line-height: 26px;
-    font-size: 16px;
-    border-radius: 7px;
-    margin-bottom: 8px;
-    max-width: 80%;
-}
-
-.myMessage {
-    background: #86bb71;
-    color: var(--text-dark, #222);
-}
-
-.otherMessage {
-    background: #94c2ed;
-    color: var(--text-dark, #222);
-}
-
-.chatMessage {
-    padding: 11px;
-    display: flex;
-    align-items: center;
-    border-top: 2px solid white;
-    background-color: rgba(0, 0, 0, 0.2);
-}
-
-.chatMessage input {
-    width: 390px;
-    height: 44px;
+.tableHead th {
+    background-color: #007bb6;
+    color: white;
     padding: 10px;
-    font-size: 14px;
-    border-radius: 5px;
-}
-
-.chatMessage button {
-    background: var(--color5, #007bff);
-    color: var(--text-dark, #222);
-    font-weight: bold;
-    padding: 9px 13px;
-    border-radius: 10px;
-    margin-left: 9px;
-    border: none;
-    cursor: pointer;
-}
-
-.chatMessage button:hover {
-    background: var(--color4, #555);
-}
-
-/* STATUS COLORS */
-.online {
-    color: #86bb71;
-    margin-right: 3px;
-    font-size: 10px;
-}
-
-.offline {
-    color: #e38968;
-    margin-right: 3px;
-    font-size: 10px;
-}
-
-.me {
-    color: #94c2ed;
-    margin-right: 3px;
-    font-size: 10px;
-}
-
-/* ALIGNMENT CLASSES */
-.alignLeft {
     text-align: left;
 }
 
-.alignRight {
-    text-align: right;
+.tableBody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
 
-.floatRight {
-    float: right;
+.tableBody a {
+    color: #007bb6;
+    text-decoration: none;
 }
 
-.clearfix::after {
-    content: "";
-    display: block;
-    clear: both;
-    visibility: hidden;
+.tableBody a:hover {
+    text-decoration: underline;
+}
+
+.statusDone {
+    color: green;
+    font-weight: bold;
+}
+
+.statusPending {
+    color: orange;
+    font-weight: bold;
+}
+
+/* Donation List */
+.donationList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.donationList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.completed {
+    background-color: #e6ffe6;
+}
+
+.notCompleted {
+    background-color: #ffe6e6;
 }

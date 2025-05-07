@@ -13,14 +13,14 @@ const Navbar = () => {
 
     return (
         <div className={styles.navbar}>
-            <div className={styles["logo-container"]}>
+            <div className={styles.logoContainer}>
                 <img src={Logo} className={styles.logo} alt="Logo" />
                 <div className={styles.brand}>
                     <span className={styles.care}>Care</span>
                     <span className={styles.serenity}>Serenity</span>
                 </div>
             </div>
-            <div className={styles["nav-links"]}>
+            <div className={styles.navLinks}>
                 <a href="#" className={styles.active}>Home</a>
                 <a href="#" onClick={() => handleScroll("services")}>Services</a>
                 <a href="#" onClick={() => handleScroll("donations")}>Donations</a>

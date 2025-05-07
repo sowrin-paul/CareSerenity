@@ -8,53 +8,51 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0px 8%;
+  padding: 5px 8%;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
   z-index: 10000;
-  padding: 5px 8%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-
-.navbar .logo-container {
+.logoContainer {
   display: flex;
   align-items: center;
   transition: all 0.3s ease-in-out;
 }
 
-.navbar .logo-container:hover {
+.logoContainer:hover {
   cursor: pointer;
   scale: 1.1;
   transition: all 0.3s ease-in-out;
 }
 
-.navbar .logo-container .logo {
+.logo {
   height: 40px;
 }
 
-.navbar .brand {
+.brand {
   font-weight: bold;
   display: flex;
 }
 
-.navbar .brand .care {
+.care {
   font-size: 25px !important;
   color: #007bb6;
 }
 
-.navbar .brand .serenity {
+.serenity {
   font-size: 25px !important;
   color: #e11d48;
 }
 
-.navbar .nav-links {
+.navLinks {
   display: flex;
   align-items: center;
   height: 100%;
 }
 
-.navbar .nav-links a {
+.navLinks a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,18 +66,17 @@
   transition: all 0.3s ease-in-out;
 }
 
-.navbar .nav-links a:hover {
+.navLinks a:hover {
   color: #0377ad;
   scale: 1.1;
   transition: all 0.3s ease-in-out;
-  background-color: #4648495d;
 }
 
-.navbar .nav-links a.active {
+.navLinks a.active {
   color: #e11d48;
   font-weight: bold;
 }
 
-.nav-links a:last-child {
+.navLinks a:last-child {
   border-right: none;
 }
