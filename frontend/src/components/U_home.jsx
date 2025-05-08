@@ -4,14 +4,16 @@ import Navbar from '../components/NavbarU';
 import Hero from '../components/Hero';
 import Footer from '../components/Footer';
 import styles from '../css/U_home.module.css';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const U_home = () => {
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         setIsLoggedIn(false);
+        navigate("/home");
     };
 
     return (

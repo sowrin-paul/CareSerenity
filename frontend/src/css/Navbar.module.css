@@ -62,7 +62,6 @@
   font-weight: 500;
   position: relative;
   padding: 0 10px;
-  border-right: 2px solid black;
   transition: all 0.3s ease-in-out;
 }
 
@@ -75,8 +74,4 @@
 .navLinks a.active {
   color: #e11d48;
   font-weight: bold;
-}
-
-.navLinks a:last-child {
-  border-right: none;
 }

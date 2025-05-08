@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import User, UserProfile
+from .models .seminar import Seminar
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -18,3 +19,9 @@ class UserAdmin(admin.ModelAdmin):
         queryset.filter(ac_role=1, is_active=False).update(is_active=True)
         self.message_user(request, "selected organization have been approved.")
     approve_organizations.short_description = "Approve selected organization."
+
+@admin.register(Seminar)
+class SeminarAdmin(admin.ModelAdmin):
+    list_display = ("title", "date", "location", "participant_count")
+    search_fields = ("title", "location")
+    list_filter = ("date", "location")

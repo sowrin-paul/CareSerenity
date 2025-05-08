@@ -29,10 +29,10 @@ const Login = () => {
         const userRole = data.ac_role;
 
         if (userRole == 0) {
-          navigate(`/U_home/${userId}`);
+          navigate(`/user-home/${userId}`);
         }
         else if (userRole == 1) {
-          navigate(`/O_profile/${userId}`);
+          navigate(`/organization-profile/${userId}`);
         }
       } else {
         const errorData = await response.json();

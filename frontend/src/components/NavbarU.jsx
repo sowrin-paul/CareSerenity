@@ -15,10 +15,10 @@ const navOptions = {
     "/U_see_orphan_profile",
   ],
   adoptions: ["/U_adoption"],
-  seminars: ["/U_seminar"],
+  seminars: ["/user-seminar"],
   joinus: ["/U_joinus"],
   aboutus: ["/U_aboutus"],
-  myprofile: ["/U_profile", "/U_profile_edit", "/U_chat_list"],
+  myprofile: ["/user-profile", "/U_profile_edit", "/U_chat_list"],
 };
 
 function Navbar() {
@@ -38,20 +38,20 @@ function Navbar() {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get("/api/notifications");
-        // setNotifications(response.data);
-        const unread = response.data.filter((notification) => notification.is_read === 0).length;
-        setUnreadCount(unread);
-      } catch (error) {
-        console.error("Error fetching notifications", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchNotifications = async () => {
+  //     try {
+  //       const response = await axios.get("/api/notifications");
+  //       // setNotifications(response.data);
+  //       const unread = response.data.filter((notification) => notification.is_read === 0).length;
+  //       setUnreadCount(unread);
+  //     } catch (error) {
+  //       console.error("Error fetching notifications", error);
+  //     }
+  //   };
 
-    fetchNotifications();
-  }, []);
+  //   fetchNotifications();
+  // }, []);
 
   // const markAsRead = async (id) => {
   //   try {
@@ -78,7 +78,7 @@ function Navbar() {
             src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/ripples.js"
           ></script>
           <l-ripples size="45" speed="2" color="#f3254e"></l-ripples>
-          <Link to="/U_home">
+          <Link to="/user-home">
             <img src={Logo} className={styles.logo} alt="Logo" />
             <div className={styles.brand}>
               <span className={styles.care}>Care</span>
@@ -90,7 +90,7 @@ function Navbar() {
         <ul className={styles.navLinks}>
           <li>
             <Link
-              to="/U_home"
+              to="/user-home"
               className={activeOption === "home" ? styles.active : ""}
             >
               Home
@@ -98,7 +98,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/U_organization"
+              to="/user-organization"
               className={activeOption === "organizations" ? styles.active : ""}
             >
               Organizations
@@ -106,7 +106,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/U_adoption"
+              to="/user-adoption"
               className={activeOption === "adoptions" ? styles.active : ""}
             >
               Adoptions
@@ -114,7 +114,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/U_seminar"
+              to="/user-seminar"
               className={activeOption === "seminars" ? styles.active : ""}
             >
               Seminars
@@ -122,13 +122,13 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/U_aboutus"
+              to="/user-aboutus"
               className={activeOption === "aboutus" ? styles.active : ""}
             >
               About Us
             </Link>
           </li>
-          <li className={styles.icon} onClick={toggleNotification}>
+          {/* <li className={styles.icon} onClick={toggleNotification}>
             <i
               className="bx bxs-bell"
               style={{ display: unreadCount > 0 ? "none" : "inline-block" }}
@@ -137,7 +137,7 @@ function Navbar() {
               className="bx bxs-bell-ring bx-tada"
               style={{ display: unreadCount > 0 ? "inline-block" : "none" }}
             ></i>
-          </li>
+          </li> */}
         </ul>
       </div>
     </>

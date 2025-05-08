@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth import authenticate
+from .models .seminar import Seminar
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -32,3 +33,8 @@ class LoginSerializer(serializers.Serializer):
         elif not user.is_active:
             raise serializers.ValidationError("User is not active")
         return {"user": user}
+
+class SeminarSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Seminar
+        fields = "__all__"

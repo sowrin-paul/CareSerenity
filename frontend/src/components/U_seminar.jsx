@@ -2,19 +2,23 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "./NavbarU";
 import Footer from "./Footer";
-import { Link } from "react-router-dom";
-import "../css/colors.css";
-import "../css/navbar.css";
-import "../css/profile_edit.css";
-import "../css/seminar.css";
-import "../css/footer.css";
-import "../css/notification.css";
-import "../css/feedback.css";
+import { Link, useNavigate } from "react-router-dom";
+import TopBar from "./TopBar";
+import styles from "../css/Seminar.module.css";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
+import { Alert, Stack } from "@mui/material";
 
-function SeminarUserPage() {
+function USeminarUserPage() {
   const [seminars, setSeminars] = useState([]);
+  const [filteredSeminars, setFilteredSeminars] = useState([]);
   const [feedback, setFeedback] = useState({ positive: "", negative: "" });
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState({ location: "", date: "" });
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSeminars();
@@ -24,9 +28,18 @@ function SeminarUserPage() {
   const fetchSeminars = async () => {
     try {
       const response = await axios.get("/api/seminars");
-      setSeminars(response.data);
+      if (Array.isArray(response.data)) {
+        setSeminars(response.data);
+        setFilteredSeminars(response.data); // Ensure this is an array
+      } else {
+        console.error("API response is not an array:", response.data);
+        setSeminars([]);
+        setFilteredSeminars([]);
+      }
     } catch (error) {
       console.error("Error fetching seminars:", error);
+      setSeminars([]);
+      setFilteredSeminars([]);
     }
   };
 
@@ -42,64 +55,128 @@ function SeminarUserPage() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Searching for:", query);
+    const filtered = seminars.filter(
+      (seminar) =>
+        seminar.title.toLowerCase().includes(query.toLowerCase()) ||
+        seminar.location.toLowerCase().includes(query.toLowerCase()) ||
+        seminar.seminar_date.includes(query)
+    );
+    setFilteredSeminars(filtered);
+
+    if (filtered.length === 0) {
+      setShowAlert(true);
+    } else {
+      setShowAlert(false);
+    }
+  };
+
+  const handleFilter = () => {
+    const filtered = seminars.filter(
+      (seminar) =>
+        (filter.location === "" || seminar.location === filter.location) &&
+        (filter.date === "" || seminar.seminar_date === filter.date)
+    );
+    setFilteredSeminars(filtered);
+
+    if (filtered.length === 0) {
+      setShowAlert(true);
+    } else {
+      setShowAlert(false);
+    }
   };
 
   const handleRefresh = () => {
     fetchSeminars();
+    setQuery("");
+    setFilter({ location: "", date: "" });
+    setShowAlert(false);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate("/home");
   };
 
   return (
     <>
+      <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <Navbar />
-
-      <div className="feedback">
+      <div className={styles.feedback}>
         {feedback.positive && (
-          <div className="positive">
+          <div className={styles.positive}>
             <h5>{feedback.positive}</h5>
           </div>
         )}
         {feedback.negative && (
-          <div className="negative">
+          <div className={styles.negative}>
             <h5>{feedback.negative}</h5>
           </div>
         )}
       </div>
 
-      <div className="options">
-        <form onSubmit={handleSearch}>
+      <div className={styles.options}>
+        <form onSubmit={handleSearch} className={styles.searchForm}>
           <input
             type="text"
-            placeholder="Search Organizations..."
+            placeholder="Search by title, date, or location..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            className={styles.searchInput}
           />
-          <button type="submit">
-            <i className="ri-search-line"></i>
+          <button type="submit" className={styles.searchButton}>
+            <SearchRoundedIcon />
           </button>
         </form>
-        <button onClick={handleRefresh} id="button-30">
-          <i className="bx bx-refresh" style={{ color: "black" }}></i>
+        <button onClick={handleRefresh} className={styles.refreshButton}>
+          <RefreshRoundedIcon />
         </button>
       </div>
 
-      <h1 id="heading">Available Seminars :</h1>
+      <h1 className={styles.heading}>Available Seminars :</h1>
+      <div className={styles.filterOptions}>
+        <input
+          type="text"
+          placeholder="Filter by location..."
+          value={filter.location}
+          onChange={(e) => setFilter({ ...filter, location: e.target.value })}
+          className={styles.filterInput}
+        />
+        <input
+          type="date"
+          value={filter.date}
+          onChange={(e) => setFilter({ ...filter, date: e.target.value })}
+          className={styles.filterInput}
+        />
+        <button onClick={handleFilter} className={styles.filterButton}>
+          <FilterAltRoundedIcon />
+          Filter
+        </button>
+      </div>
 
-      <div className="seminarBlock">
-        {seminars.length > 0 ? (
-          <div className="cards">
-            {seminars.map((seminar) => (
+      {/* alert showing */}
+      {showAlert && (
+        <Stack sx={{ width: "80%", margin: "10px auto" }} spacing={2}>
+          <Alert severity="warning">No seminar found. Please try again.</Alert>
+        </Stack>
+      )}
+
+      <div className={styles.seminarBlock}>
+        {Array.isArray(filteredSeminars) && filteredSeminars.length > 0 ? (
+          <div className={styles.cards}>
+            {filteredSeminars.map((seminar) => (
               <Link
                 key={seminar.seminar_id}
                 to={`/seminar_view/${seminar.seminar_id}/${seminar.org_id}`}
+                className={styles.cardLink}
               >
-                <div className="seminarCard">
+                <div className={styles.seminarCard}>
                   <img
                     src={`/assets/${seminar.banner}`}
                     alt="Seminar Banner"
+                    className={styles.cardImage}
                   />
-                  <h3>{seminar.title}</h3>
-                  <div className="info">
+                  <h3 className={styles.cardTitle}>{seminar.title}</h3>
+                  <div className={styles.cardInfo}>
                     <span>{seminar.seminar_date}</span>
                     <span>
                       <i className="bx bxs-user-check"></i>{" "}
@@ -111,23 +188,18 @@ function SeminarUserPage() {
             ))}
           </div>
         ) : (
-          <p id="notFound">Currently no seminars are available.</p>
+          <p className={styles.notFound}>Currently no seminars are available.</p>
         )}
       </div>
 
       <Footer />
 
       {/* Scroll-to-top button */}
-      <button id="scrollTopBtn" title="Go to top">
+      {/* <button className={styles.scrollTopBtn} title="Go to top">
         <i className="bx bx-chevrons-up bx-burst"></i>
-      </button>
-
-      {/* JavaScript files */}
-      <script src="./js/scrollupBTN.js" async defer></script>
-      <script src="./js/notification_color.js" async defer></script>
-      <script src="./js/feedback.js" async defer></script>
+      </button> */}
     </>
   );
 }
 
-export default SeminarUserPage;
+export default USeminarUserPage;

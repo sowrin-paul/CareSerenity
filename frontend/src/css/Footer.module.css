@@ -43,6 +43,7 @@
     outline: none;
     border: none;
     font-size: 17px;
+    background-color: white;
 }
 
 .footer__form button {

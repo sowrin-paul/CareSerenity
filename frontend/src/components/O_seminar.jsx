@@ -8,7 +8,7 @@ import '../css/Footer.module.css';
 import '../css/notification.css';
 import '../css/Feedback.module.css';
 
-function SeminarsPage() {
+function OSeminarsPage() {
     const [seminars, setSeminars] = useState([]);
     const [ownSeminars, setOwnSeminars] = useState([]);
     const [feedback, setFeedback] = useState({ positive: '', negative: '' });
@@ -233,4 +233,4 @@ function SeminarsPage() {
     );
 }
 
-export default SeminarsPage;
+export default OSeminarsPage;

@@ -7,7 +7,7 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import FaceIcon from '@mui/icons-material/Face';
 import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
 import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const OrganizationProfile = () => {
     const [orgData, setOrgData] = useState({});
@@ -17,6 +17,7 @@ const OrganizationProfile = () => {
     const [totalOrphans, setTotalOrphans] = useState(0);
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const navigate = useNavigate();
 
     const {
         org_logo,
@@ -35,6 +36,7 @@ const OrganizationProfile = () => {
 
     const handleLogout = () => {
         setIsLoggedIn(false);
+        navigate("/home");
     };
     return (
         <div>

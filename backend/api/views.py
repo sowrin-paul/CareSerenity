@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers
 from rest_framework.views import APIView
-from .models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
+from .models import User
+from .models .seminar import Seminar
 
 class RegisterView(APIView):
     def post(self, request):
@@ -52,3 +53,16 @@ def pending_organization(request):
     organization = User.objects.filter(ac_role=1, is_active=False)
     data = [{"id": org.id, "email": org.email} for org in organization]
     return Response(data, status=status.HTTP_200_OK)
+
+class SeminarListView(APIView):
+    def get(self, request):
+        seminars = Seminar.objects.all()
+        serializer = SeminarSerializers(seminars, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = SeminarSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
