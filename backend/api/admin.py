@@ -22,6 +22,9 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Seminar)
 class SeminarAdmin(admin.ModelAdmin):
-    list_display = ("title", "date", "location", "participant_count")
-    search_fields = ("title", "location")
-    list_filter = ("date", "location")
+    list_display = ['title', 'seminar_date', 'created_by', 'participant_count']
+    list_filter = ['seminar_date', 'seminar_type']
+
+    def participant_count(self, obj):
+        return obj.participants.count() if hasattr(obj, 'participants') else 0
+    participant_count.short_description = 'Participant Count'

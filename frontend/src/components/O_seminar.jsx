@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../css/Color.module.css';
-import '../css/Navbar.module.css';
-import '../css/Profile_edit.module.css';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material';
 import '../css/Seminar.module.css';
-import '../css/Footer.module.css';
-import '../css/notification.css';
 import '../css/Feedback.module.css';
+import '../css/ProfileEdit.module.css';
+import Navbar from './NavbarO';
+import Footer from './Footer';
+import TopBar from './TopBar';
 
 function OSeminarsPage() {
     const [seminars, setSeminars] = useState([]);
@@ -24,40 +26,39 @@ function OSeminarsPage() {
         location: '',
         banner: null,
     });
+    const { userId } = useParams();
+    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchUnreadNotifications();
         fetchOwnSeminars();
         fetchAvailableSeminars();
     }, []);
 
-    const fetchUnreadNotifications = async () => {
-        try {
-            const res = await fetch('/api/unread-notifications');
-            const data = await res.json();
-            setUnreadCount(data.unread_count || 0);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     const fetchOwnSeminars = async () => {
         try {
             const res = await fetch('/api/own-seminars');
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const data = await res.json();
             setOwnSeminars(data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching own seminars:', error);
         }
     };
 
     const fetchAvailableSeminars = async () => {
         try {
             const res = await fetch('/api/available-seminars');
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const data = await res.json();
             setSeminars(data);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching available seminars:', error);
+            setFeedback({ positive: '', negative: 'Failed to fetch available seminars.' });
         }
     };
 
@@ -108,27 +109,42 @@ function OSeminarsPage() {
 
     const toggleLocationField = formData.type === 'offline';
 
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        navigate("/home");
+    };
+
     return (
         <div>
-            {/* Navbar */}
+            <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
             <Navbar unreadCount={unreadCount} />
 
             {/* Feedback Message */}
-            <div className="feedback">
-                {feedback.positive && <div className="positive"><h5>{feedback.positive}</h5></div>}
-                {feedback.negative && <div className="negative"><h5>{feedback.negative}</h5></div>}
-            </div>
+            <Snackbar
+                open={!!feedback.positive}
+                autoHideDuration={4000}
+                onClose={() => setFeedback({ ...feedback, positive: '' })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert severity="success" onClose={() => setFeedback({ ...feedback, positive: '' })}>
+                    {feedback.positive}
+                </Alert>
+            </Snackbar>
 
             {/* Create Seminar Button */}
             <div className="options">
-                <button onClick={() => setShowForm((prev) => !prev)} id="button-30">
+                <Button
+                    variant="contained"
+                    onClick={() => setShowForm((prev) => !prev)}
+                    id="button-30"
+                >
                     Create Seminar
-                </button>
+                </Button>
             </div>
 
             {/* Seminar Form */}
             {showForm && (
-                <div className="container" id="seminarForm">
+                <div className="container">
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                         <h2>Launch Seminar</h2>
 
@@ -139,7 +155,7 @@ function OSeminarsPage() {
 
                         <div className="form_row">
                             <label htmlFor="subject">Seminar Subject:</label>
-                            <input type="text" id="topic" name="subject" value={formData.subject} onChange={handleFormChange} required />
+                            <input type="text" id="subject" name="subject" value={formData.subject} onChange={handleFormChange} required />
                         </div>
 
                         <div className="form_row">
@@ -149,7 +165,7 @@ function OSeminarsPage() {
 
                         <div className="form_row">
                             <label htmlFor="seminar_date">Date:</label>
-                            <input type="date" id="date" name="seminar_date" value={formData.seminar_date} onChange={handleFormChange} required />
+                            <input type="date" id="seminar_date" name="seminar_date" value={formData.seminar_date} onChange={handleFormChange} required />
                         </div>
 
                         <div className="form_row">
@@ -167,7 +183,7 @@ function OSeminarsPage() {
                         </div>
 
                         {toggleLocationField && (
-                            <div className="form_row" id="locationField">
+                            <div className="form_row">
                                 <label htmlFor="location">Location:</label>
                                 <input type="text" id="location" name="location" value={formData.location} onChange={handleFormChange} />
                             </div>
@@ -179,56 +195,57 @@ function OSeminarsPage() {
                         </div>
 
                         <div className="buttons">
-                            <button id="button-30" type="submit">Create</button>
+                            <Button
+                                variant="contained"
+                                id="button-30"
+                                type="submit"
+                            >
+                                Create
+                            </Button>
                         </div>
                     </form>
                 </div>
             )}
 
             {/* My Seminars */}
-            <h1 id="heading">My Seminars :</h1>
+            <h1 className="heading">My Seminars :</h1>
             <div className="seminarBlock">
                 <div className="cards">
                     {ownSeminars.length > 0 ? ownSeminars.map((seminar) => (
-                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`}>
+                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
                             <div className="seminarCard">
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" />
-                                <h3>{seminar.title}</h3>
-                                <div className="info">
+                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
+                                <h3 className="cardTitle">{seminar.title}</h3>
+                                <div className="cardInfo">
                                     <span>{seminar.seminar_date}</span>
                                 </div>
                             </div>
                         </Link>
-                    )) : <p id="notFound">You haven't launched any seminars yet.</p>}
+                    )) : <p className="notFound">You haven't launched any seminars yet.</p>}
                 </div>
             </div>
 
             {/* Available Seminars */}
-            <h1 id="heading">Available Seminars :</h1>
+            <h1 className="heading">Available Seminars :</h1>
             <div className="seminarBlock">
                 <div className="cards">
                     {seminars.length > 0 ? seminars.map((seminar) => (
-                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`}>
+                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
                             <div className="seminarCard">
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" />
-                                <h3>{seminar.title}</h3>
-                                <div className="info">
+                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
+                                <h3 className="cardTitle">{seminar.title}</h3>
+                                <div className="cardInfo">
                                     <span>{seminar.seminar_date}</span>
                                     <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
                                 </div>
                             </div>
                         </Link>
-                    )) : <p id="notFound">Currently no seminars are available.</p>}
+                    )) : <p className="notFound">Currently no seminars are available.</p>}
                 </div>
             </div>
 
             {/* Footer */}
             <Footer />
-
-            {/* Scroll to Top Button */}
-            <button id="scrollTopBtn" title="Go to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <i className='bx bx-chevrons-up bx-burst'></i>
-            </button>
         </div>
     );
 }

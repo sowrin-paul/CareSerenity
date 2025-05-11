@@ -92,7 +92,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/"
+              to="/organization-seminar"
               className={activeOption === "seminars" ? styles.active : ""}
             >
               Seminars

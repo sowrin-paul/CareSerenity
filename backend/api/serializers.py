@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import User
 from django.contrib.auth import authenticate
+from .models .seminar import Seminar
+from .models import User
 from .models .seminar import Seminar
 
 class RegisterSerializer(serializers.ModelSerializer):

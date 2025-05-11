@@ -66,3 +66,17 @@ class SeminarListView(APIView):
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def fetch_own_seminar(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+    seminars = Seminar.objects.filter(created_by=request.user)
+    serializer = SeminarSerializers(seminars, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def fetch_available_seminars(request):
+    seminars = Seminar.objects.all()
+    serializer = SeminarSerializers(seminars, many=True)
+    return Response(serializer.data)
