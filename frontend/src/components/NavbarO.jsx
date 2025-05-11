@@ -52,11 +52,6 @@ function Navbar() {
     <>
       <div className={styles.navbar}>
         <div className={styles.logoContainer}>
-          <script
-            type="module"
-            src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/ripples.js"
-          ></script>
-          <l-ripples size="45" speed="2" color="#f3254e"></l-ripples>
           <Link to="/U_home">
             <img src={Logo} className={styles.logo} alt="Logo" />
             <div className={styles.brand}>
