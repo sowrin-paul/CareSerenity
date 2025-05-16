@@ -8,7 +8,7 @@ import UserDashboard from "./components/userDashboard";
 import U_home from "./components/U_home";
 import O_profile from "./components/O_profile";
 import USeminarUserPage from "./components/U_seminar";
-// import OSeminarsPage from "./components/O_seminar";
+import OSeminarsPage from "./components/O_seminar";
 
 function App() {
   return (
@@ -20,7 +20,7 @@ function App() {
         <Route path="/organization-profile/:userId" element={<O_profile />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/user-seminar/" element={<USeminarUserPage />} />
-        {/* <Route path="/organization-seminar/" element={<OSeminarsPage />} /> */}
+        <Route path="/organization-seminar/" element={<OSeminarsPage />} />
       </Routes>
     </Router>
   );

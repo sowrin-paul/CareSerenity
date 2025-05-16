@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
 import '../css/Seminar.module.css';
-import '../css/Feedback.module.css';
 import '../css/ProfileEdit.module.css';
 import Navbar from './NavbarO';
 import Footer from './Footer';
@@ -93,7 +92,7 @@ function OSeminarsPage() {
                     description: '',
                     seminar_date: '',
                     guest: '',
-                    type: '',
+                    seminar_type: '',
                     location: '',
                     banner: null,
                 });
@@ -126,8 +125,26 @@ function OSeminarsPage() {
                 onClose={() => setFeedback({ ...feedback, positive: '' })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert severity="success" onClose={() => setFeedback({ ...feedback, positive: '' })}>
+                <Alert
+                    severity="success"
+                    onClose={() => setFeedback({ ...feedback, positive: '' })}
+                    sx={{ width: '100%' }}
+                >
                     {feedback.positive}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={!!feedback.negative}
+                autoHideDuration={4000}
+                onClose={() => setFeedback({ ...feedback, negative: '' })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    severity="error"
+                    onClose={() => setFeedback({ ...feedback, negative: '' })}
+                    sx={{ width: '100%' }}
+                >
+                    {feedback.negative}
                 </Alert>
             </Snackbar>
 
@@ -148,32 +165,32 @@ function OSeminarsPage() {
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                         <h2>Launch Seminar</h2>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="title">Seminar Title:</label>
                             <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} required />
                         </div>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="subject">Seminar Subject:</label>
                             <input type="text" id="subject" name="subject" value={formData.subject} onChange={handleFormChange} required />
                         </div>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="description">Seminar Description:</label>
                             <input type="text" id="description" name="description" value={formData.description} onChange={handleFormChange} required />
                         </div>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="seminar_date">Date:</label>
                             <input type="date" id="seminar_date" name="seminar_date" value={formData.seminar_date} onChange={handleFormChange} required />
                         </div>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="guest">Guests:</label>
                             <input type="text" id="guest" name="guest" value={formData.guest} onChange={handleFormChange} required />
                         </div>
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="type">Type:</label>
                             <select name="type" id="type" value={formData.type} onChange={handleFormChange} required>
                                 <option value="" disabled>Select online or offline</option>
@@ -183,13 +200,13 @@ function OSeminarsPage() {
                         </div>
 
                         {toggleLocationField && (
-                            <div className="form_row">
+                            <div className="formRow">
                                 <label htmlFor="location">Location:</label>
                                 <input type="text" id="location" name="location" value={formData.location} onChange={handleFormChange} />
                             </div>
                         )}
 
-                        <div className="form_row">
+                        <div className="formRow">
                             <label htmlFor="banner">Seminar Banner:</label>
                             <input type="file" id="banner" name="banner" onChange={handleFormChange} required />
                         </div>
@@ -208,16 +225,16 @@ function OSeminarsPage() {
             )}
 
             {/* My Seminars */}
-            <h1 className="heading">My Seminars :</h1>
-            <div className="seminarBlock">
-                <div className="cards">
+            <div className="seminarContainer">
+                <h1 className="title">My Seminars :</h1>
+                <div className="grid">
                     {ownSeminars.length > 0 ? ownSeminars.map((seminar) => (
                         <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
-                            <div className="seminarCard">
+                            <div className="card">
                                 <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
                                 <h3 className="cardTitle">{seminar.title}</h3>
                                 <div className="cardInfo">
-                                    <span>{seminar.seminar_date}</span>
+                                    <span className="cardDate">{seminar.seminar_date}</span>
                                 </div>
                             </div>
                         </Link>
@@ -226,16 +243,16 @@ function OSeminarsPage() {
             </div>
 
             {/* Available Seminars */}
-            <h1 className="heading">Available Seminars :</h1>
-            <div className="seminarBlock">
-                <div className="cards">
+            <div className="seminarContainer">
+                <h1 className="title">Available Seminars :</h1>
+                <div className="grid">
                     {seminars.length > 0 ? seminars.map((seminar) => (
                         <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
-                            <div className="seminarCard">
+                            <div className="card">
                                 <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
                                 <h3 className="cardTitle">{seminar.title}</h3>
                                 <div className="cardInfo">
-                                    <span>{seminar.seminar_date}</span>
+                                    <span className="cardDate">{seminar.seminar_date}</span>
                                     <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
                                 </div>
                             </div>
@@ -244,7 +261,6 @@ function OSeminarsPage() {
                 </div>
             </div>
 
-            {/* Footer */}
             <Footer />
         </div>
     );
