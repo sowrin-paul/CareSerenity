@@ -63,7 +63,6 @@ function Navbar() {
         <ul className={styles.navLinks}>
           <li>
             <Link
-              to="/O_profile"
               className={activeOption === "home" ? styles.active : ""}
             >
               Home

@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import aboutImage from '../assets/about_img.png';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
+import { TextField, Button, Box, Typography } from '@mui/material';
 
 const LandingPage = () => {
   useEffect(() => {
@@ -147,10 +148,12 @@ const LandingPage = () => {
       </div>
 
       <div className={styles.contactUs}>
-        <form
+        <Box
+          component="form"
           className={styles.contactForm}
           action="./contact_form_BE"
           method="post"
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500, margin: '0 auto' }}
           onSubmit={(e) => {
             const mobile = document.getElementById("mobile");
             const error = document.getElementById("mobile-error");
@@ -164,36 +167,62 @@ const LandingPage = () => {
             }
           }}
         >
-          <h2 id="highlight" className={styles.highlight}>Contact Form</h2>
-          <br />
+          <Typography variant="h5" color="primary" sx={{ mb: 2 }}>
+            Contact Form
+          </Typography>
 
-          <div className={styles.formRow}>
-            <div className={styles.label}><label>Enter Name </label><span>:</span></div>
-            <div className={styles.inputbox}><input type="text" placeholder="Enter Name" name="name" /></div>
-          </div>
+          <TextField
+            label="Enter Name"
+            name="name"
+            variant="outlined"
+            fullWidth
+            required
+            margin="dense"
+          />
 
-          <div className={styles.formRow}>
-            <div className={styles.label}><label>Email Address </label><span>:</span></div>
-            <div className={styles.inputbox}><input type="email" name="email" placeholder="Enter Email Address" /></div>
-          </div>
+          <TextField
+            label="Email Address"
+            name="email"
+            type="email"
+            variant="outlined"
+            fullWidth
+            required
+            margin="dense"
+          />
 
-          <div className={styles.formRow}>
-            <div className={styles.label}><label>Mobile Number</label><span>:</span></div>
-            <div className={styles.inputbox}>
-              <input type="text" id="mobile" name="mobile" placeholder="Enter Mobile Number" required />
-              <span id="mobile-error" style={{ color: "red", display: "none" }}>Mobile number cannot exceed 11 digits</span>
-            </div>
-          </div>
+          <TextField
+            label="Mobile Number"
+            name="mobile"
+            id="mobile"
+            type="text"
+            variant="outlined"
+            fullWidth
+            required
+            margin="dense"
+            inputProps={{ maxLength: 11 }}
+            helperText={<span id="mobile-error" style={{ color: "red", display: "none" }}>Mobile number cannot exceed 11 digits</span>}
+          />
 
-          <div className={styles.formRow}>
-            <div className={styles.label}><label>Enter Message</label><span>:</span></div>
-            <div className={styles.inputbox}><textarea rows="5" placeholder="Enter Your Message" name="msg"></textarea></div>
-          </div>
+          <TextField
+            label="Enter Message"
+            name="msg"
+            multiline
+            rows={5}
+            variant="outlined"
+            fullWidth
+            margin="dense"
+          />
 
-          <div className={styles.formRow}>
-            <button type="submit" className={styles.button_30}>Send Message</button>
-          </div>
-        </form>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            className={styles.button_30}
+          >
+            Send Message
+          </Button>
+        </Box>
 
         <div className={styles.contactAddress}>
           <div className={styles.address}>
@@ -208,9 +237,9 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <button id="scrollTopBtn" title="Go to top">
+      {/* <button id="scrollTopBtn" title="Go to top">
         <i className="bx bx-chevrons-up bx-burst"></i>
-      </button>
+      </button> */}
       <Footer />
     </>
   );
