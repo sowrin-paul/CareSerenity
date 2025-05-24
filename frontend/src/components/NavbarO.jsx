@@ -17,8 +17,8 @@ const navOptions = {
 function Navbar() {
   const location = useLocation();
   const [activeOption, setActiveOption] = useState('');
-  const [notifications, setNotifications] = useState([]);
-  const [showBox, setShowBox] = useState(false);
+  // const [notifications, setNotifications] = useState([]);
+  // const [showBox, setShowBox] = useState(false);
 
   useEffect(() => {
     const path = location.pathname;
@@ -31,22 +31,22 @@ function Navbar() {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    axios.get('/api/notifications')
-      .then(response => {
-        setNotifications(response.data.notifications);
-      })
-      .catch(error => {
-        console.error('Error fetching notifications:', error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios.get('/api/notifications')
+  //     .then(response => {
+  //       setNotifications(response.data.notifications);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching notifications:', error);
+  //     });
+  // }, []);
 
-  const markAsRead = (id) => {
-    axios.post(`/api/notifications/markAsRead/${id}`)
-      .then(() => {
-        setNotifications(prev => prev.map(n => n.notification_id === id ? { ...n, is_read: 1 } : n));
-      });
-  };
+  // const markAsRead = (id) => {
+  //   axios.post(`/api/notifications/markAsRead/${id}`)
+  //     .then(() => {
+  //       setNotifications(prev => prev.map(n => n.notification_id === id ? { ...n, is_read: 1 } : n));
+  //     });
+  // };
 
   return (
     <>

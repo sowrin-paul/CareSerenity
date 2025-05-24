@@ -1,26 +1,47 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.authtoken.models import Token
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from .models import User
 from .models .seminar import Seminar
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers
 
 class RegisterView(APIView):
     def post(self, request):
+        email = request.data.get("email")
+        username = request.data.get("username")
+        ac_role = request.data.get("ac_role")
         serializer = RegisterSerializer(data=request.data)
-        print(request.data)
+        if str(ac_role) not in ["0", "1"]:
+            return Response({ "error": "Invalid role selected" }, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
         if serializer.is_valid():
             user = serializer.save()
             if user.ac_role == 0:
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                        "success": True,
+                        "statusCode": 200,
+                        "message": "Registration successful",
+                        "data": {
+                        "id": str(user.id),
+                        "name": user.get_username(),
+                        "email": user.email,
+                        "role": user.ac_role,
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    }
+                }, status=status.HTTP_201_CREATED)
             elif user.ac_role == 1:
                 return Response({"message": "Registration request sent to the admin for approval."}, status=status.HTTP_201_CREATED)
-        print("Validation error:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
@@ -28,11 +49,19 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data["user"]
-            token, _ = Token.objects.get_or_create(user=user)
+            refresh = RefreshToken.for_user(user)
             return Response({
-                    "id": user.id,
-                    "token": token.key,
-                    "ac_role": user.ac_role,
+                        "success": True,
+                        "statusCode": 200,
+                        "message": "Login successful",
+                        "data": {
+                        "id": str(user.id),
+                        "name": user.get_username(),
+                        "email": user.email,
+                        "role": user.ac_role,
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    }
                 }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -55,6 +84,10 @@ def pending_organization(request):
     return Response(data, status=status.HTTP_200_OK)
 
 class SeminarListView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def get(self, request):
         seminars = Seminar.objects.all()
         serializer = SeminarSerializers(seminars, many=True)
@@ -65,17 +98,17 @@ class SeminarListView(APIView):
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def fetch_own_seminar(request):
-    if not request.user.is_authenticated:
-        return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
     seminars = Seminar.objects.filter(created_by=request.user)
     serializer = SeminarSerializers(seminars, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def fetch_available_seminars(request):
     seminars = Seminar.objects.all()
     serializer = SeminarSerializers(seminars, many=True)

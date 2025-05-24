@@ -1,9 +1,14 @@
 from django.urls import include, path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView
 from .models import get_username
 from . import views
 
 urlpatterns = [
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("login/", LoginView.as_view(), name='login'),
     path("register/", RegisterView.as_view(), name='register'),
     path("api/user/", get_username, name="get-username"),
@@ -11,5 +16,5 @@ urlpatterns = [
     path("pending-organization/", pending_organization, name="pending-organization"),
     path("seminars/", SeminarListView.as_view(), name="seminar-list-create"),
     path("own-seminars/", views.fetch_own_seminar, name="fetch-own-seminars"),
-    path("available-seminars/", views.fetch_available_seminars, name="fetch-available-seminars")
+    path("available-seminars/", views.fetch_available_seminars, name="fetch-available-seminars"),
 ]

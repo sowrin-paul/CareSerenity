@@ -12,7 +12,7 @@ class Seminar(models.Model):
     seminar_type = models.CharField(max_length=50, choices=[('online', 'Online'), ('offline', 'Offline')], null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     banner = models.ImageField(upload_to='seminar_banners/', null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='own_seminars')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='own_seminars', blank=True)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='seminars_participated', blank=True)
 
     def __str__(self):

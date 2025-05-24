@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import { TextField, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import Collapse from '@mui/material/Collapse';
 import Snackbar from '@mui/material/Snackbar';
-import '../css/Seminar.module.css';
-import '../css/ProfileEdit.module.css';
+import seminarStyles from '../css/Seminar.module.css';
+import profileEditStyles from '../css/ProfileEdit.module.css';
 import Navbar from './NavbarO';
 import Footer from './Footer';
 import TopBar from './TopBar';
@@ -36,7 +38,7 @@ function OSeminarsPage() {
 
     const fetchOwnSeminars = async () => {
         try {
-            const res = await fetch('/api/own-seminars/');
+            const res = await fetch('/own-seminars/');
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
@@ -49,7 +51,7 @@ function OSeminarsPage() {
 
     const fetchAvailableSeminars = async () => {
         try {
-            const res = await fetch('/api/available-seminars/');
+            const res = await fetch('/available-seminars/');
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
@@ -73,16 +75,20 @@ function OSeminarsPage() {
         e.preventDefault();
         const formPayload = new FormData();
         for (let key in formData) {
-            formPayload.append(key, formData[key]);
+            if (key === "type") {
+                formPayload.append("seminar_type",  formData[key]);
+            } else {
+                formPayload.append(key, formData[key]);
+            }
         }
 
         try {
-            const res = await fetch('/api/create-seminars/', {
+            const res = await fetch('/seminars/', {
                 method: 'POST',
                 body: formPayload,
             });
             const data = await res.json();
-            if (data.success) {
+            if (res.ok) {
                 setFeedback({ positive: 'Seminar created successfully!', negative: '' });
                 fetchOwnSeminars();
                 fetchAvailableSeminars();
@@ -149,7 +155,7 @@ function OSeminarsPage() {
             </Snackbar>
 
             {/* Create Seminar Button */}
-            <div className="options">
+            <div className={profileEditStyles.options} style={{ paddingTop: '100px' }}>
                 <Button
                     variant="contained"
                     onClick={() => setShowForm((prev) => !prev)}
@@ -160,58 +166,127 @@ function OSeminarsPage() {
             </div>
 
             {/* Seminar Form */}
-            {showForm && (
-                <div className="container">
+            <Collapse in={showForm} timeout={400} unmountOnExit>
+                <div className={profileEditStyles.container}>
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                         <h2>Launch Seminar</h2>
 
-                        <div className="formRow">
-                            <label htmlFor="title">Seminar Title:</label>
-                            <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Title"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
                         </div>
 
-                        <div className="formRow">
-                            <label htmlFor="subject">Seminar Subject:</label>
-                            <input type="text" id="subject" name="subject" value={formData.subject} onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Subject"
+                                name="subject"
+                                value={formData.subject}
+                                onChange={handleFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
                         </div>
 
-                        <div className="formRow">
-                            <label htmlFor="description">Seminar Description:</label>
-                            <input type="text" id="description" name="description" value={formData.description} onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
                         </div>
 
-                        <div className="formRow">
-                            <label htmlFor="seminar_date">Date:</label>
-                            <input type="date" id="seminar_date" name="seminar_date" value={formData.seminar_date} onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Date"
+                                name="seminar_date"
+                                type="date"
+                                value={formData.seminar_date}
+                                onChange={handleFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                                InputLabelProps={{ shrink: true }}
+                            />
                         </div>
 
-                        <div className="formRow">
-                            <label htmlFor="guest">Guests:</label>
-                            <input type="text" id="guest" name="guest" value={formData.guest} onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Guests"
+                                name="guest"
+                                value={formData.guest}
+                                onChange={handleFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
                         </div>
 
-                        <div className="formRow">
-                            <label htmlFor="type">Type:</label>
-                            <select name="type" id="type" value={formData.type} onChange={handleFormChange} required>
-                                <option value="" disabled>Select online or offline</option>
-                                <option value="online">Online</option>
-                                <option value="offline">Offline</option>
-                            </select>
+                        <div className={profileEditStyles.formRow}>
+                            <FormControl fullWidth margin="dense" required>
+                                <InputLabel id="type-label">Type</InputLabel>
+                                <Select
+                                    labelId="type-label"
+                                    name="seminar_type"
+                                    value={formData.type}
+                                    label="Type"
+                                    onChange={handleFormChange}
+                                >
+                                    <MenuItem value="">
+                                        <em>Select online or offline</em>
+                                    </MenuItem>
+                                    <MenuItem value="online">Online</MenuItem>
+                                    <MenuItem value="offline">Offline</MenuItem>
+                                </Select>
+                            </FormControl>
                         </div>
 
                         {toggleLocationField && (
-                            <div className="formRow">
-                                <label htmlFor="location">Location:</label>
-                                <input type="text" id="location" name="location" value={formData.location} onChange={handleFormChange} />
+                            <div className={profileEditStyles.formRow}>
+                                <TextField
+                                    label="Location"
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    margin="dense"
+                                />
                             </div>
                         )}
 
-                        <div className="formRow">
-                            <label htmlFor="banner">Seminar Banner:</label>
-                            <input type="file" id="banner" name="banner" onChange={handleFormChange} required />
+                        <div className={profileEditStyles.formRow}>
+                            <Button
+                                variant="outlined"
+                                component="label"
+                                fullWidth
+                                sx={{ justifyContent: 'center' }}
+                            >
+                                Upload Seminar Banner
+                                <input
+                                    type="file"
+                                    name="banner"
+                                    hidden
+                                    onChange={handleFormChange}
+                                    required
+                                />
+                            </Button>
+                            {formData.banner && (
+                                <span style={{ marginLeft: 8 }}>{formData.banner.name || 'File selected'}</span>
+                            )}
                         </div>
 
-                        <div className="buttons">
+                        <div className={profileEditStyles.buttons}>
                             <Button
                                 variant="contained"
                                 id="button-30"
@@ -222,45 +297,44 @@ function OSeminarsPage() {
                         </div>
                     </form>
                 </div>
-            )}
+            </Collapse>
 
-            {/* My Seminars */}
-            <div className="seminarContainer">
-                <h1 className="title">My Seminars :</h1>
-                <div className="grid">
-                    {ownSeminars.length > 0 ? ownSeminars.map((seminar) => (
-                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
-                            <div className="card">
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
-                                <h3 className="cardTitle">{seminar.title}</h3>
-                                <div className="cardInfo">
-                                    <span className="cardDate">{seminar.seminar_date}</span>
+                {/* My Seminars */}
+                <div className={seminarStyles.seminarContainer}>
+                    <h1 className={seminarStyles.title}>My Seminars :</h1>
+                    <div className={seminarStyles.grid}>
+                        {ownSeminars.length > 0 ? ownSeminars.map((seminar) => (
+                            <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className={seminarStyles.cardLink}>
+                                <div className={seminarStyles.card}>
+                                    <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
+                                    <h3 className={seminarStyles.cardTitle}>{seminar.title}</h3>
+                                    <div className={seminarStyles.cardInfo}>
+                                        <span className={seminarStyles.cardDate}>{seminar.seminar_date}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-                    )) : <p className="notFound">You haven't launched any seminars yet.</p>}
+                            </Link>
+                        )) : <p className={seminarStyles.notFound}>You haven't launched any seminars yet.</p>}
+                    </div>
                 </div>
-            </div>
 
-            {/* Available Seminars */}
-            <div className="seminarContainer">
-                <h1 className="title">Available Seminars :</h1>
-                <div className="grid">
-                    {seminars.length > 0 ? seminars.map((seminar) => (
-                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
-                            <div className="card">
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
-                                <h3 className="cardTitle">{seminar.title}</h3>
-                                <div className="cardInfo">
-                                    <span className="cardDate">{seminar.seminar_date}</span>
-                                    <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
+                {/* Available Seminars */}
+                <div className={seminarStyles.seminarContainer}>
+                    <h1 className={seminarStyles.title}>Available Seminars :</h1>
+                    <div className={seminarStyles.grid}>
+                        {seminars.length > 0 ? seminars.map((seminar) => (
+                            <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className={seminarStyles.cardLink}>
+                                <div className={seminarStyles.card}>
+                                    <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
+                                    <h3 className={seminarStyles.cardTitle}>{seminar.title}</h3>
+                                    <div className={seminarStyles.cardInfo}>
+                                        <span className={seminarStyles.cardDate}>{seminar.seminar_date}</span>
+                                        <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-                    )) : <p className="notFound">Currently no seminars are available.</p>}
+                            </Link>
+                        )) : <p className={seminarStyles.notFound}>Currently no seminars are available.</p>}
+                    </div>
                 </div>
-            </div>
-
             <Footer />
         </div>
     );
