@@ -1,0 +1,26 @@
+.feedback {
+    width: 100%;
+    text-align: center;
+}
+
+.negative h5 {
+    padding: 8px;
+    text-align: center;
+    border-radius: 8px;
+    color: rgb(0, 0, 0);
+    font-weight: 500;
+    font-size: medium;
+    background-color: rgba(255, 170, 170);
+    border: 2px solid rgb(255, 0, 0);
+}
+
+.positive h5 {
+    padding: 8px;
+    text-align: center;
+    border-radius: 8px;
+    color: rgb(0, 0, 0);
+    font-weight: 500;
+    font-size: medium;
+    background-color: rgb(170, 255, 170);
+    border: 2px solid rgb(0, 255, 0);
+}

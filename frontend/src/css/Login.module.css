@@ -1,0 +1,105 @@
+.body {
+  background-image: url('../assets/bg_4.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginContainer {
+  max-width: 450px;
+  margin: 60px auto;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  color: white;
+}
+
+.loginContainer form {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.loginContainer h1 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #333;
+}
+
+.loginContainer input {
+  width: 90%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.loginContainer input:focus {
+  border-color: #0077cc;
+  outline: none;
+}
+
+.loginBtn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0077cc;
+  color: #fff;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.loginBtn:hover {
+  background-color: #005fa3;
+}
+
+.forgetPass,
+.signup,
+.goBack {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #eceaea
+}
+
+.signupLink {
+  color: #0077cc;
+  margin-left: 0.3rem;
+  text-decoration: none;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+.goBack {
+  margin-top: 0.5rem;
+  color: #eceaea;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.goBack:hover {
+  text-decoration: underline;
+}
+
+.negative,
+.positive {
+  height: 100px;
+  background: linear-gradient(90deg, #e0f7fa, #b2ebf2);
+}

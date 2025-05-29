@@ -1,0 +1,119 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 80px;
+  height: 80vh;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  animation: changeBackground 15s ease-in-out infinite;
+}
+
+@keyframes changeBackground {
+  0% {
+    background-image: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.3)),
+      url("../assets/bg_1.jpeg");
+  }
+
+  25% {
+    background-image: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.3)),
+      url("../assets/bg_2.jpg");
+  }
+
+  50% {
+    background-image: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.3)),
+      url("../assets/bg_3.jpg");
+  }
+
+  75% {
+    background-image: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.3)),
+      url("../assets/bg_4.jpg");
+  }
+
+  100% {
+    background-image: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.3)),
+      url("../assets/bg_5.jpg");
+  }
+}
+
+.section__container {
+  width: 100%;
+  padding: 2rem 0rem 2rem 0rem;
+}
+
+.header__container h1 {
+  position: relative;
+  margin-bottom: .5rem;
+  font-size: 80px;
+  font-weight: 500;
+  color: #f5deb3;
+  text-align: center;
+}
+
+.header__container p {
+  width: 45%;
+  margin-inline: auto;
+  font-size: 14px;
+  font-weight: normal;
+  color: #f5deb3;
+  text-align: center;
+}
+
+
+.info_web {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 2rem;
+  color: white;
+  background-color: #ffffff1a;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  padding: 15px 0px;
+}
+
+.info_cell {
+  gap: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #FF597B;
+}
+
+.info_cell .count {
+  font-size: 60px;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+}
+
+.info_cell .txt {
+  font-size: 12px;
+  font-weight: 500;
+  color: wheat;
+}

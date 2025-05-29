@@ -1,0 +1,240 @@
+.accountPageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 100px;
+    min-height: 100vh;
+}
+
+/* Feedback Message */
+.feedbackMessage {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e11d48;
+    font-weight: bold;
+}
+
+/* Account Info Section */
+.accountInfoContainer {
+    width: 90%;
+    max-width: 1200px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profileSection {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.accountPicture img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.accountData {
+    margin-left: 20px;
+}
+
+.accountData h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.accountData p {
+    font-size: 1rem;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Biography Section */
+.biography {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f1faff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.biography h2 {
+    font-size: 1.5rem;
+    color: #007bb6;
+    margin-bottom: 10px;
+}
+
+.biography p {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+}
+
+/* Options Buttons */
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.optionButton {
+    background-color: #007bb6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.optionButton:hover {
+    background-color: #005f8a;
+}
+
+/* Stats Section */
+.rightPortion {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.tabs {
+    display: flex;
+    align-items: center;
+    background-color: #f1faff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.tabs .icon {
+    font-size: 2rem;
+    color: #007bb6;
+    margin-right: 10px;
+}
+
+.tabs p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.tabs h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 5px;
+}
+
+/* Info Box */
+.infoBox {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.infoBoxTop {
+    margin-bottom: 20px;
+}
+
+.infoBoxHeading {
+    font-size: 1.5rem;
+    color: #007bb6;
+    margin-bottom: 10px;
+}
+
+.peopleListSearch {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.chatContainer {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.inboxFooter {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Table Styles */
+.infoTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tableHead th {
+    background-color: #007bb6;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+.tableBody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tableBody a {
+    color: #007bb6;
+    text-decoration: none;
+}
+
+.tableBody a:hover {
+    text-decoration: underline;
+}
+
+.statusDone {
+    color: green;
+    font-weight: bold;
+}
+
+.statusPending {
+    color: orange;
+    font-weight: bold;
+}
+
+/* Donation List */
+.donationList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.donationList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.completed {
+    background-color: #e6ffe6;
+}
+
+.notCompleted {
+    background-color: #ffe6e6;
+}

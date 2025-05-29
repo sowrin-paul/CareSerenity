@@ -1,0 +1,81 @@
+.navbar {
+  position: fixed;
+  top: 30px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #b2ddee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8%;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.logoContainer:hover {
+  cursor: pointer;
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+
+.logoContainer a {
+  display: flex;
+}
+
+.logo {
+  height: 40px;
+}
+
+.brand {
+  font-weight: bold;
+  display: flex;
+}
+
+.care {
+  font-size: 25px !important;
+  color: #007bb6;
+}
+
+.serenity {
+  font-size: 25px !important;
+  color: #e11d48;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.navLinks a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+  position: relative;
+  padding: 0 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navLinks a:hover {
+  color: #0377ad;
+  scale: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+
+.navLinks a.active {
+  color: #e11d48;
+  font-weight: bold;
+}

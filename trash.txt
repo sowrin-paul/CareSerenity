@@ -1,0 +1,269 @@
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import '../css/Seminar.module.css';
+import '../css/ProfileEdit.module.css';
+import Navbar from './NavbarO';
+import Footer from './Footer';
+import TopBar from './TopBar';
+
+function OSeminarsPage() {
+    const [seminars, setSeminars] = useState([]);
+    const [ownSeminars, setOwnSeminars] = useState([]);
+    const [feedback, setFeedback] = useState({ positive: '', negative: '' });
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
+        title: '',
+        subject: '',
+        description: '',
+        seminar_date: '',
+        guest: '',
+        type: '',
+        location: '',
+        banner: null,
+    });
+    const { userId } = useParams();
+    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchOwnSeminars();
+        fetchAvailableSeminars();
+    }, []);
+
+    const fetchOwnSeminars = async () => {
+        try {
+            const res = await fetch('/api/own-seminars/');
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+            setOwnSeminars(data);
+        } catch (error) {
+            console.error('Error fetching own seminars:', error);
+        }
+    };
+
+    const fetchAvailableSeminars = async () => {
+        try {
+            const res = await fetch('/api/available-seminars/');
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+            setSeminars(data);
+        } catch (error) {
+            console.error('Error fetching available seminars:', error);
+            setFeedback({ positive: '', negative: 'Failed to fetch available seminars.' });
+        }
+    };
+
+    const handleFormChange = (e) => {
+        const { name, value, files } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: files ? files[0] : value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formPayload = new FormData();
+        for (let key in formData) {
+            formPayload.append(key, formData[key]);
+        }
+
+        try {
+            const res = await fetch('/api/create-seminars/', {
+                method: 'POST',
+                body: formPayload,
+            });
+            const data = await res.json();
+            if (data.success) {
+                setFeedback({ positive: 'Seminar created successfully!', negative: '' });
+                fetchOwnSeminars();
+                fetchAvailableSeminars();
+                setFormData({
+                    title: '',
+                    subject: '',
+                    description: '',
+                    seminar_date: '',
+                    guest: '',
+                    seminar_type: '',
+                    location: '',
+                    banner: null,
+                });
+                setShowForm(false);
+            } else {
+                setFeedback({ positive: '', negative: data.message || 'Failed to create seminar.' });
+            }
+        } catch (error) {
+            setFeedback({ positive: '', negative: 'An error occurred.' });
+            console.error(error);
+        }
+    };
+
+    const toggleLocationField = formData.type === 'offline';
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        navigate("/home");
+    };
+
+    return (
+        <div>
+            <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+            <Navbar unreadCount={unreadCount} />
+
+            {/* Feedback Message */}
+            <Snackbar
+                open={!!feedback.positive}
+                autoHideDuration={4000}
+                onClose={() => setFeedback({ ...feedback, positive: '' })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    severity="success"
+                    onClose={() => setFeedback({ ...feedback, positive: '' })}
+                    sx={{ width: '100%' }}
+                >
+                    {feedback.positive}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={!!feedback.negative}
+                autoHideDuration={4000}
+                onClose={() => setFeedback({ ...feedback, negative: '' })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    severity="error"
+                    onClose={() => setFeedback({ ...feedback, negative: '' })}
+                    sx={{ width: '100%' }}
+                >
+                    {feedback.negative}
+                </Alert>
+            </Snackbar>
+
+            {/* Create Seminar Button */}
+            <div className="options">
+                <Button
+                    variant="contained"
+                    onClick={() => setShowForm((prev) => !prev)}
+                    id="button-30"
+                >
+                    Create Seminar
+                </Button>
+            </div>
+
+            {/* Seminar Form */}
+            {showForm && (
+                <div className="container">
+                    <form onSubmit={handleSubmit} encType="multipart/form-data">
+                        <h2>Launch Seminar</h2>
+
+                        <div className="formRow">
+                            <label htmlFor="title">Seminar Title:</label>
+                            <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="formRow">
+                            <label htmlFor="subject">Seminar Subject:</label>
+                            <input type="text" id="subject" name="subject" value={formData.subject} onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="formRow">
+                            <label htmlFor="description">Seminar Description:</label>
+                            <input type="text" id="description" name="description" value={formData.description} onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="formRow">
+                            <label htmlFor="seminar_date">Date:</label>
+                            <input type="date" id="seminar_date" name="seminar_date" value={formData.seminar_date} onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="formRow">
+                            <label htmlFor="guest">Guests:</label>
+                            <input type="text" id="guest" name="guest" value={formData.guest} onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="formRow">
+                            <label htmlFor="type">Type:</label>
+                            <select name="type" id="type" value={formData.type} onChange={handleFormChange} required>
+                                <option value="" disabled>Select online or offline</option>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+
+                        {toggleLocationField && (
+                            <div className="formRow">
+                                <label htmlFor="location">Location:</label>
+                                <input type="text" id="location" name="location" value={formData.location} onChange={handleFormChange} />
+                            </div>
+                        )}
+
+                        <div className="formRow">
+                            <label htmlFor="banner">Seminar Banner:</label>
+                            <input type="file" id="banner" name="banner" onChange={handleFormChange} required />
+                        </div>
+
+                        <div className="buttons">
+                            <Button
+                                variant="contained"
+                                id="button-30"
+                                type="submit"
+                            >
+                                Create
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* My Seminars */}
+            <div className="seminarContainer">
+                <h1 className="title">My Seminars :</h1>
+                <div className="grid">
+                    {ownSeminars.length > 0 ? ownSeminars.map((seminar) => (
+                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
+                            <div className="card">
+                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
+                                <h3 className="cardTitle">{seminar.title}</h3>
+                                <div className="cardInfo">
+                                    <span className="cardDate">{seminar.seminar_date}</span>
+                                </div>
+                            </div>
+                        </Link>
+                    )) : <p className="notFound">You haven't launched any seminars yet.</p>}
+                </div>
+            </div>
+
+            {/* Available Seminars */}
+            <div className="seminarContainer">
+                <h1 className="title">Available Seminars :</h1>
+                <div className="grid">
+                    {seminars.length > 0 ? seminars.map((seminar) => (
+                        <Link key={seminar.seminar_id} to={`/seminar-view/${seminar.seminar_id}`} className="cardLink">
+                            <div className="card">
+                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className="cardImage" />
+                                <h3 className="cardTitle">{seminar.title}</h3>
+                                <div className="cardInfo">
+                                    <span className="cardDate">{seminar.seminar_date}</span>
+                                    <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
+                                </div>
+                            </div>
+                        </Link>
+                    )) : <p className="notFound">Currently no seminars are available.</p>}
+                </div>
+            </div>
+
+            <Footer />
+        </div>
+    );
+}
+
+export default OSeminarsPage;

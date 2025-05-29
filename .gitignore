@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Django specific files
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# AI/ML specific files
+*.h5
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.tflite
+*.pb
+*.model
+*.joblib
+*.pkl
+
+# Environment variables
+.env
+.env.*
+
+# VS Code specific files
+.vscode/
+*.code-workspace
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.out
+
+# Ignore IDE files
+.idea/
+*.iml
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,77 @@
+.main-nav .icon {
+	cursor: pointer;
+	margin: 0 .5rem;
+}
+
+.icon:hover {
+	opacity: .7;
+}
+
+.icon .bx.bxs-bell{
+	font-size: 20px;
+	color: var(--primary-title-color);
+}
+
+.icon .bx.bxs-bell-ring{
+	font-size: 20px;
+	color: var(--primary-color-dark);
+}
+
+.main-nav .notifi-box {
+	display: none;
+	z-index: 9999;
+    width: 360px;
+    height: calc(100vh - 86px);
+    background: white;
+    position: absolute;
+    top: 61px;
+    right: 0px;
+    transition: 1s opacity, 250ms height;
+    overflow: hidden;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.notifi-box h2 {
+	position: sticky;
+    top: 0;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 7px 20px;
+    border-bottom: 1px solid rgb(0, 0, 0, .2);
+    color: var(--primary-color-dark);
+    text-align: center;
+}
+
+#content {
+	height: 80vh;
+	overflow-y: auto;
+}
+
+.notifi-box h2 span {
+	color: #f00;
+}
+
+.notifi-item {
+	display: flex;
+    padding: 7px 17px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.notifi-item:hover {
+	background-color: #eee;
+}
+
+.notifi-item .text h4 {
+	color: #777;
+	font-size: 13px;
+	margin-top: 10px;
+	font-weight: 500;
+}
+
+.notifi-item .text p {
+	color: #aaa;
+	font-size: 12px;
+	font-weight: 300;
+}

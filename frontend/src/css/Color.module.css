@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+:root {
+    --primary-color-dark: #f2264f;
+    --primary-color-light: #FF597B;
+    --secondary-color-dark: #0099cc;
+    --secondary-color-light: #62CDFF;
+    --primary-font: 'Poppins';
+    --secondary-font: 'Ubuntu';
+    --text-color: #545454;
+    --text-color-dark: #18181b;
+    --text-color-medium: #1e1e1e;
+    --text-color-light: #2f2f2f;
+    --text-color-lighter: #71717a;
+    --background-color: #ffffff;
+
+    --primary-title-color: #2e91b2;
+    --secondary-title-color: #f3254e;
+    --primary-text-color: #71717a;
+    --button-color: #ff597b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--primary-font);
+    font-size: 12px;
+}
+
+body {
+    scroll-behavior: smooth;
+    background-color: var(--background-color);
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+#button-30 {
+    align-items: center;
+    appearance: none;
+    background-color: #FCFCFD;
+    border-radius: 4px;
+    border-width: 0;
+    box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,
+                rgba(45, 35, 66, 0.3) 0 7px 13px -3px,
+                #D6D6E7 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #36395A;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono", monospace;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding: 10px 15px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s, transform .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow, transform;
+    font-size: 18px;
+}
+
+#button-30:active {
+    box-shadow: #D6D6E7 0 3px 7px inset;
+    transform: translateY(2px);
+}
+
+#button-30:hover {
+    box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px,
+                rgba(45, 35, 66, 0.3) 0 7px 13px -3px,
+                #D6D6E7 0 -3px 0 inset;
+    transform: translateY(-2px);
+}
+
+#button-30:focus {
+    box-shadow: #D6D6E7 0 0 0 1.5px inset,
+                rgba(45, 35, 66, 0.4) 0 2px 4px,
+                rgba(45, 35, 66, 0.3) 0 7px 13px -3px,
+                #D6D6E7 0 -3px 0 inset;
+}
+
+#notFound {
+    width: 100%;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-family: 'Trebuchet MS';
+    color: rgba(25, 22, 45, 0.3);
+    text-shadow: 6px 6px 8px rgba(25, 22, 45, 0.3);
+}
+
+.container .options {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+    border-bottom: 2px solid var(--text-color-dark);
+    padding-bottom: 15px;
+}
+
+.options form {
+    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 4rem;
+    background-color: rgba(255, 89, 123, 0.6);
+}
+
+.options input {
+    outline: none;
+    color: #ffffff;
+    border: none;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+.options input::placeholder {
+    color: white;
+}
+
+.options form button {
+    border: none;
+    background-color: transparent;
+}
+
+.options i {
+    font-size: 23px;
+    color: white;
+}
