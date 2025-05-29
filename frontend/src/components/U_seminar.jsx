@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./NavbarU";
 import Footer from "./Footer";
-import { Link, useNavigate } from "react-router-dom";
 import TopBar from "./TopBar";
 import styles from "../css/Seminar.module.css";
-import SearchIcon from "@mui/icons-material/Search";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { Alert, Stack, TextField, IconButton, FormControl, InputLabel, Select, MenuItem, Snackbar, Button, Card, CardContent, CardActionArea, CardMedia, Typography } from "@mui/material";
+import {
+  Alert, Stack, TextField, IconButton, FormControl, InputLabel, Select, MenuItem, Snackbar, Button, Card, CardContent, CardActionArea, CardMedia, Typography, Dialog, DialogActions, DialogContent, DialogTitle
+} from "@mui/material";
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function USeminarUserPage() {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -15,19 +20,23 @@ function USeminarUserPage() {
   const [seminars, setSeminars] = useState([]);
   const [filteredSeminars, setFilteredSeminars] = useState([]);
   const [feedback, setFeedback] = useState({ positive: "", negative: "" });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSeminar, setSelectedSeminar] = useState(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [search, setSearch] = useState("");
   const [searchDate, setSearchDate] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchSeminars();
-    fetchFeedback && fetchFeedback()
-  });
+  }, []);
+
   const fetchSeminars = async () => {
     try {
       const res = await fetch(`${apiUrl}/available-seminars/`, {
@@ -35,60 +44,98 @@ function USeminarUserPage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const contentType = res.headers.get("content-type");
-      if (!res.ok) {
-        const errorText = await res.text();
-        setSeminars([]);
-        setFilteredSeminars([]);
-        setFeedback({ positive: '', negative: 'Failed to fetch available seminars.' });
-        console.error('Error fetching available seminars:', errorText);
-        return;
-      }
-      if (contentType && contentType.includes("application/json")) {
-        const data = await res.json();
-        setSeminars(data);
-        setFilteredSeminars(data);
-      } else {
-        const text = await res.text();
-        setSeminars([]);
-        setFilteredSeminars([]);
-        setFeedback({ positive: '', negative: 'Failed to fetch available seminars.' });
-        console.error('Non-JSON response:', text);
-      }
+      if (!res.ok) throw new Error("Failed to fetch available seminars.");
+      const data = await res.json();
+      setSeminars(data);
+      setFilteredSeminars(data);
     } catch (error) {
-      setSeminars([]);
-      setFilteredSeminars([]);
-      setFeedback({ positive: '', negative: 'Failed to fetch available seminars.' });
-      console.error('Error fetching available seminars:', error);
+      setFeedback({ positive: "", negative: "Failed to fetch available seminars." });
     }
   };
-
-  const fetchFeedback = () => {
-    const positive = sessionStorage.getItem("positive");
-    const negative = sessionStorage.getItem("negative");
-    if (positive || negative) {
-      setFeedback({ positive, negative });
-      sessionStorage.removeItem("positive");
-      sessionStorage.removeItem("negative");
-    }
-  };
-
-  // Filtering
-  const filtered = seminars.filter((seminar) => {
-    const matchesTitle = seminar.title?.toLowerCase().includes(search.toLowerCase());
-    const matchesDate = searchDate ? seminar.seminar_date === searchDate : true;
-    const matchesLocation = seminar.location?.toLowerCase().includes(searchLocation.toLowerCase());
-    const matchesType = filterType && filterType !== "All" ? seminar.seminar_type === filterType : true;
-    return matchesTitle && matchesDate && matchesLocation && matchesType;
-  });
 
   useEffect(() => {
+    const filtered = seminars.filter((seminar) => {
+      const matchesTitle = seminar.title?.toLowerCase().includes(search.toLowerCase());
+      const matchesDate = searchDate ? seminar.seminar_date === searchDate : true;
+      const matchesLocation = seminar.location?.toLowerCase().includes(searchLocation.toLowerCase());
+      const matchesType = filterType && filterType !== "All" ? seminar.seminar_type === filterType : true;
+      return matchesTitle && matchesDate && matchesLocation && matchesType;
+    });
+
     setFilteredSeminars(filtered);
     setShowAlert(filtered.length === 0);
   }, [search, searchDate, searchLocation, filterType, seminars]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const handleCardClick = async (seminarId) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiUrl}/seminars/${seminarId}/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch seminar details.");
+      const data = await res.json();
+      setSelectedSeminar(data);
+
+      const regRes = await fetch(`${apiUrl}/seminars/${seminarId}/is-registered/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (regRes.ok) {
+        const regData = await regRes.json();
+        setIsRegistered(regData.registered);
+      }
+
+      setIsModalOpen(true);
+    } catch (error) {
+      setFeedback({ positive: "", negative: "Failed to load seminar details." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedSeminar(null);
+  };
+
+  const handleRegistration = async () => {
+    try {
+      const url = isRegistered
+        ? `${apiUrl}/seminars/${selectedSeminar.id}/deregister/`
+        : `${apiUrl}/seminars/${selectedSeminar.id}/register/`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (!res.ok) throw new Error("Registration action failed");
+      setIsRegistered(!isRegistered);
+      setSelectedSeminar((prev) => ({
+        ...prev,
+        participants_count: isRegistered
+          ? prev.participants_count - 1
+          : prev.participants_count + 1,
+      }));
+      setFeedback({
+        positive: isRegistered ? "Registration cancelled." : "Successfully registered!",
+        negative: "",
+      });
+    } catch (error) {
+      setFeedback({
+        positive: "",
+        negative: "Registration action failed.",
+      });
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate("/home");
   };
 
   const handleRefresh = () => {
@@ -98,9 +145,8 @@ function USeminarUserPage() {
     setShowAlert(false);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate("/home");
+  const handleSearch = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -108,13 +154,12 @@ function USeminarUserPage() {
       <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <Navbar />
 
-      {/* Feedback Message */}
+      {/* Feedback Messages */}
       <Snackbar
         open={!!feedback.positive}
         autoHideDuration={4000}
         onClose={() => setFeedback({ ...feedback, positive: "" })}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ position: "fixed", zIndex: 11 }}
       >
         <Alert
           severity="success"
@@ -129,7 +174,6 @@ function USeminarUserPage() {
         autoHideDuration={4000}
         onClose={() => setFeedback({ ...feedback, negative: "" })}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ position: "fixed", zIndex: 11 }}
       >
         <Alert
           severity="error"
@@ -162,16 +206,16 @@ function USeminarUserPage() {
             variant="outlined"
           />
           <IconButton type="submit" color="primary">
-            <SearchIcon />
+            <SearchRoundedIcon />
           </IconButton>
           <IconButton onClick={handleRefresh} color="primary">
-            <RefreshIcon />
+            <RefreshRoundedIcon />
           </IconButton>
           <IconButton
             onClick={() => setShowFilter((f) => !f)}
             color={showFilter ? "secondary" : "primary"}
           >
-            <FilterListIcon />
+            <FilterListRoundedIcon />
           </IconButton>
           {showFilter && (
             <FormControl size="small" style={{ minWidth: 120 }}>
@@ -212,46 +256,79 @@ function USeminarUserPage() {
                   alignItems: "center",
                   textDecoration: "none"
                 }}
-                component={Link}
-                to={`/seminar-view/${seminar.id}`}
+                onClick={() => handleCardClick(seminar.id)}
               >
                 <CardActionArea>
                   <CardMedia
                     component="img"
                     height="160"
-                    image={seminar.banner ? `${apiUrl}/media/${seminar.banner}` : '/assets/default_banner.jpg'}
+                    image={seminar.banner ? `${apiUrl}${seminar.banner}` : "/assets/default_banner.jpg"}
                     alt="Seminar Banner"
-                    className={styles.cardImage}
                     sx={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                   />
                   <CardContent>
-                    <Typography gutterBottom variant="h6" className={styles.cardTitle}>
+                    <Typography gutterBottom variant="h6">
                       {seminar.title}
                     </Typography>
-                    <div className={styles.cardInfo}>
-                      <Typography variant="body2" color="text.secondary">
-                        {seminar.seminar_date}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ marginLeft: 2 }}>
-                        <i className="bx bxs-user-check"></i> {seminar.participants_count}
-                      </Typography>
-                    </div>
+                    <Typography variant="body2" color="text.secondary">
+                      {seminar.seminar_date}
+                    </Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>
             ))}
           </div>
         ) : (
-          <>
-            {/* Alert for no seminars */}
-            {showAlert && (
-              <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
-                <Alert severity="warning">Currently no seminar available.</Alert>
-              </Stack>
-            )}
-          </>
+          <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
+            <Alert severity="warning">Currently no seminar available.</Alert>
+          </Stack>
         )}
       </div>
+
+      {/* Seminar Details Modal */}
+      <Dialog open={isModalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
+        <DialogTitle>{selectedSeminar?.title || "Seminar Details"}</DialogTitle>
+        <DialogContent>
+          {loading ? (
+            <Typography>Loading...</Typography>
+          ) : (
+            <>
+              <img
+                src={selectedSeminar?.banner ? `${apiUrl}${selectedSeminar.banner}` : "/assets/default_banner.jpg"}
+                alt="Seminar Banner"
+                style={{ width: "100%", borderRadius: "8px", marginBottom: "16px" }}
+              />
+              <Typography variant="body1" gutterBottom>
+                <b>Date:</b> {selectedSeminar?.seminar_date}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Location:</b> {selectedSeminar?.location}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Description:</b> {selectedSeminar?.description}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Special Guest:</b> {selectedSeminar?.guest}
+              </Typography>
+              <div style={{ display: "flex", gap: "20px", marginTop: "16px" }}>
+                <Button
+                  variant={isRegistered ? "outlined" : "contained"}
+                  color={isRegistered ? "error" : "success"}
+                  startIcon={isRegistered ? <CancelIcon /> : <HowToRegIcon />}
+                  onClick={handleRegistration}
+                >
+                  {isRegistered ? "Cancel Registration" : "Register"}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleModalClose} color="primary" startIcon={<ArrowBackIcon />}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Footer />
     </>
@@ -259,3 +336,4 @@ function USeminarUserPage() {
 }
 
 export default USeminarUserPage;
+

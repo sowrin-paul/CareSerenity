@@ -22,8 +22,11 @@ const SeminarView = ({ userRole = 'user', accountId }) => {
     const fetchSeminar = async () => {
       setLoading(true);
       try {
-        // Fetch seminar details
-        const res = await fetch(`${apiUrl}/seminars/${seminar_id}/`);
+      const res = await fetch(`${apiUrl}/seminars/${seminar_id}/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
         if (!res.ok) throw new Error('Failed to fetch seminar details');
         const data = await res.json();
         setSeminar(data);
@@ -142,7 +145,7 @@ const SeminarView = ({ userRole = 'user', accountId }) => {
           <div
             className={`${styles.cardImgOverlay} ${styles.three}`}
             style={{
-              backgroundImage: `url(${seminar.banner ? apiUrl + '/media/' + seminar.banner : '/assets/default_banner.jpg'})`
+              backgroundImage: `url(${seminar.banner ? apiUrl + seminar.banner : '/assets/default_banner.jpg'})`
             }}
           >
             <span className={`${styles.badge} ${styles.badgeLight} ${styles.textUppercase}`}>

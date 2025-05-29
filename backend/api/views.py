@@ -136,4 +136,14 @@ class UserProfileView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({ "profile": serializer.data })
-        return Response(serializer.error, status=400)
+        return Response(serializer.errors, status=400)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def fetch_seminar_details(request, seminar_id):
+    try:
+        seminar = Seminar.objects.get(id=seminar_id)
+        serializer = SeminarSerializers(seminar)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Seminar.DoesNotExist:
+        return Response({"error": "Seminar not found"}, status=status.HTTP_400_NOT_FOUND)

@@ -136,7 +136,7 @@ const UserProfile = () => {
           <CardHeader
             avatar={
               <Avatar
-                src={profile?.image ? `${apiUrl}/media/${profile.image}` : "/assets/default_org.png"}
+                src={profile?.image ? `${apiUrl}${profile.image}` : "/assets/default_org.png"}
                 alt={user?.name}
                 sx={{ width: 80, height: 80, fontSize: 36, bgcolor: '#1976d2', mr: 2 }}
               >

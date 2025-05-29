@@ -137,7 +137,7 @@ const U_home = () => {
                                             height="140"
                                             image={
                                                 seminar.banner
-                                                    ? `${apiUrl}/media/${seminar.banner}`
+                                                    ? `${apiUrl}${seminar.banner}`
                                                     : '/assets/default_banner.jpg'
                                             }
                                             alt={seminar.title}
