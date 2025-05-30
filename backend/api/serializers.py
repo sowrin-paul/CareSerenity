@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from .models .seminar import Seminar
 from .models import User, UserProfile
 from .models .seminar import Seminar
+from .models .organizations import Organizations
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -45,3 +46,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = "__all__"
         read_only_fields = ['user']
+
+class OrganizationProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organizations
+        fields = "__all__"
+        read_only_fields = ['user', "registration_num", "established_date"]

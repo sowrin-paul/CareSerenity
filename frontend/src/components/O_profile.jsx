@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Modal, Box, TextField, Button, Stack } from '@mui/material';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
+import FaceRoundedIcon from '@mui/icons-material/FaceRounded';
+import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
+import FamilyRestroomRoundedIcon from '@mui/icons-material/FamilyRestroomRounded';
 import styles from '../css/O_profile.module.css';
 import Navbar from './NavbarO';
 import TopBar from './TopBar';
 import Footer from './Footer';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import FaceIcon from '@mui/icons-material/Face';
-import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
-import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const OrganizationProfile = () => {
@@ -17,10 +18,11 @@ const OrganizationProfile = () => {
     const [totalOrphans, setTotalOrphans] = useState(0);
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editData, setEditData] = useState(false);
     const navigate = useNavigate();
 
     const {
-        org_logo,
         org_name,
         org_location,
         org_email,
@@ -33,6 +35,37 @@ const OrganizationProfile = () => {
         total_amount_received,
         total_adoptions,
     } = orgData;
+
+    useEffect(() => {
+        fetch("/organization/profile/", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }).then((res) => res.json()).then((data) => {
+            setOrgData(data);
+            setEditData(data);
+        }).catch((err) => console.error(err));
+    }, []);
+
+    const handleEditChange = (e) => {
+        const {name, value} = e.target;
+        setEditData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        fetch("/organization/profile/", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify(editData),
+        }).then((res) => res.json()).then((data) => {
+            setOrgData(data);
+            setIsEditModalOpen(false);
+        }).catch((err) => console.error(err));
+    };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -47,7 +80,7 @@ const OrganizationProfile = () => {
                     {/* Profile Section */}
                     <div className={styles.profileSection}>
                         <div className={styles.accountPicture}>
-                            <img src={`./assets/${org_logo}`} alt="Organization Logo" />
+                            <img src={`./assets/${orgData.org_logo}`} alt="Organization Logo" />
                         </div>
                         <div className={styles.accountData}>
                             <h1>{org_name}</h1>
@@ -70,38 +103,73 @@ const OrganizationProfile = () => {
 
                     {/* Button Group */}
                     <div className={styles.options}>
-                        <a href="./O_chat" className={styles.optionButton}>Chats</a>
-                        <a href="./O_funds" className={styles.optionButton}>Funds</a>
-                        <a href="./O_orphan" className={styles.optionButton}>Orphanage</a>
-                        <a href="./O_volunteer" className={styles.optionButton}>Volunteers</a>
-                        <a href="./O_profile_edit" className={styles.optionButton}>Edit Profile</a>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={styles.optionButton}
+                            onClick={() => navigate('./O_chat')}
+                        >
+                            Chats
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={styles.optionButton}
+                            onClick={() => navigate('./O_funds')}
+                        >
+                            Funds
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={styles.optionButton}
+                            onClick={() => navigate('./O_orphan')}
+                        >
+                            Orphanage
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={styles.optionButton}
+                            onClick={() => navigate('./O_volunteer')}
+                        >
+                            Volunteers
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            className={styles.optionButton}
+                            onClick={() => setIsEditModalOpen(true)} // Open the edit profile modal
+                        >
+                            Edit Profile
+                        </Button>
                     </div>
 
                     {/* Stats Section */}
                     <div className={styles.rightPortion}>
                         <div className={styles.tabs}>
-                            <a href="./O_funds"><MonetizationOnIcon className={styles.icon} /></a>
+                            <a href="./O_funds"><AttachMoneyRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Funds</p>
                                 <h3>{total_amount_received} TK</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
-                            <a href="./O_adoption"><FaceIcon className={styles.icon} /></a>
+                            <a href="./O_adoption"><FamilyRestroomRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Adoptions</p>
                                 <h3>{total_adoptions}+</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
-                            <a href="#"><PersonAddAltRoundedIcon className={styles.icon} /></a>
+                            <a href="#"><PersonAddAlt1RoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Volunteers</p>
                                 <h3>3</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
-                            <a href="./O_orphan"><SummarizeRoundedIcon className={styles.icon} /></a>
+                            <a href="./O_orphan"><FaceRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Orphans</p>
                                 <h3>{totalOrphans}</h3>
@@ -186,6 +254,73 @@ const OrganizationProfile = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Edit Profile Modal */}
+            <Modal
+                open={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                aria-labelledby="edit-profile-modal"
+                aria-describedby="edit-organization-profile"
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 400,
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                    }}
+                >
+                    <form onSubmit={handleEditSubmit}>
+                        <Stack spacing={2}>
+                            <TextField
+                                label="Name"
+                                name="name"
+                                value={editData.name || ''}
+                                onChange={handleEditChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Contact"
+                                name="contact"
+                                value={editData.contact || ''}
+                                onChange={handleEditChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Address"
+                                name="address"
+                                value={editData.address || ''}
+                                onChange={handleEditChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Website"
+                                name="website"
+                                value={editData.website || ''}
+                                onChange={handleEditChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Description"
+                                name="description"
+                                value={editData.description || ''}
+                                onChange={handleEditChange}
+                                multiline
+                                rows={3}
+                                fullWidth
+                            />
+                            <Button type="submit" variant="contained" color="primary">
+                                Save Changes
+                            </Button>
+                        </Stack>
+                    </form>
+                </Box>
+            </Modal>
             <Footer />
         </div>
     );

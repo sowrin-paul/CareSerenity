@@ -11,7 +11,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
 from .models .seminar import Seminar
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer
+from .models .organizations import Organizations
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -147,3 +148,24 @@ def fetch_seminar_details(request, seminar_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Seminar.DoesNotExist:
         return Response({"error": "Seminar not found"}, status=status.HTTP_400_NOT_FOUND)
+
+class OrganizationProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            organization = Organizations.objects.get(user=request.user)
+            serializer = OrganizationProfileSerializer(organization)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization profile not found."}, status=status.HTTP_404_NOT_FOUND)
+    def patch(self, request):
+        try:
+            organization = Organizations.objects.get(user=request.user)
+            serializer = OrganizationProfileSerializer(organization, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.error, status=status.HTTP_404_NOT_FOUND)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization profile not found."}, status=status.HTTP_404_NOT_FOUND)
