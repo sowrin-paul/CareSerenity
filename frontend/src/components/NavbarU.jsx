@@ -94,7 +94,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/user-organization"
+              to="/organization-lists"
               className={activeOption === "organizations" ? styles.active : ""}
             >
               Organizations

@@ -1,6 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 import os
-from backend.backend.celery import Celery
+from celery import Celery  # Correct import from the Celery library
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
