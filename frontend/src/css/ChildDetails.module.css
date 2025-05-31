@@ -1,0 +1,85 @@
+.container {
+  font-family: sans-serif;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.profileImageWrapper {
+  margin-top: 40px;
+}
+
+.profileImage {
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+}
+
+.name {
+  color: #F50057;
+  font-size: 1.8rem;
+  margin-top: 10px;
+}
+
+.detailsForm {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.inputRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.inputRow label {
+  width: 30%;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.inputRow span {
+  width: 68%;
+  font-size: 0.9rem;
+  color: #555;
+  word-wrap: break-word;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actionButtons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.actionButtons button:hover {
+  background-color: #ddd;
+}

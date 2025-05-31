@@ -1,0 +1,119 @@
+.overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background: #ffffff;
+    min-height: 100vh;
+  }
+  
+  .formContainer {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #f43f5e;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .header h2 {
+    color: #f43f5e;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  
+  .closeBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #555;
+    cursor: pointer;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .inputGroup {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 12px;
+  }
+  
+  .inputGroup input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 6px;
+    font-size: 14px;
+  }
+  
+  .icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #777;
+  }
+  
+  .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f43f5e;
+    margin-bottom: -8px;
+  }
+  
+  .paymentMethods {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .paymentBtn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: 0.3s;
+  }
+  
+  .paymentBtn.active {
+    background-color: #f43f5e;
+    color: white;
+    border-color: #f43f5e;
+  }
+  
+  .doubleInput {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .submitBtn {
+    background-color: #f43f5e;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .submitBtn:hover {
+    background-color: #e11d48;
+  }
+  
