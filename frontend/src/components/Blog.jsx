@@ -6,6 +6,7 @@ import img3 from '../assets/bg_4.jpg';
 import TopBar from "./TopBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { useNavigate } from "react-router-dom";
 
 const blogPosts = [
   {
@@ -32,6 +33,10 @@ const blogPosts = [
 ];
 
 const Blog = () => {
+  const navigate = useNavigate();
+  const readPost = ()=>{
+    navigate('/readPost');
+  }
   return (
     <>
     <TopBar />
@@ -50,7 +55,7 @@ const Blog = () => {
               <p className={styles.cardDate}>{post.date}</p>
               <h3 className={styles.cardTitle}>{post.title}</h3>
               <p className={styles.cardSummary}>{post.summary}</p>
-              <button className={styles.readMoreBtn}>Read More →</button>
+              <button className={styles.readMoreBtn} onClick={readPost}>Read More →</button>
             </div>
           </article>
         ))}
