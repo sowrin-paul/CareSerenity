@@ -38,6 +38,7 @@ const U_home = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [showRight, setShowRight] = useState(false);
     const [showLeft, setShowLeft] = useState(false);
+    const [openApplications, setOpenApplications] = useState([]);
     const scrollRef = useRef(null);
     const navigate = useNavigate();
 
@@ -99,6 +100,24 @@ const U_home = () => {
             if (el) el.removeEventListener('scroll', handleScroll);
         };
     }, [upcomingSeminars, scrollRef]);
+
+    useEffect(() => {
+    const fetchOpenApplications = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/volunteer/open-applications/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            if (!res.ok) throw new Error("Failed to fetch open applications.");
+            const data = await res.json();
+            setOpenApplications(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    fetchOpenApplications();
+}, []);
 
     const handleScroll = (direction) => {
         const el = scrollRef.current;
@@ -309,7 +328,24 @@ const U_home = () => {
 
 
                     <h1 id="heading" className={styles.heading}>Volunteers Recruitment</h1>
-                    {/* <?php include('./U_volunteer_recruit_fetch_BE.php') ?> */}
+                    <h1>Open Volunteer Applications</h1>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                        {openApplications.map((seminar) => (
+                            <Card key={seminar.id} sx={{ width: 300 }}>
+                                <CardMedia
+                                    component="img"
+                                    height="140"
+                                    image="/assets/default_seminar.jpg"
+                                    alt={seminar.title}
+                                />
+                                <CardContent>
+                                    <Typography variant="h6">{seminar.title}</Typography>
+                                    <Typography variant="body2">{seminar.description}</Typography>
+                                    <Typography variant="body2">Date: {seminar.date}</Typography>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
 
                 </div>
             </div>

@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView, SeminarRegistrationView, SeminarDeregistrationView, SeminarRegistrationStatusView, OrganizationListView, BlogListView
+from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView, SeminarRegistrationView, SeminarDeregistrationView, SeminarRegistrationStatusView, OrganizationListView, BlogListView, AssignVolunteerView, OpenVolunteerApplicationView, FetchOpenVolunteerApplicationsView, OrganizationVolunteersView, ApplyForVolunteeringView
 from .models import get_username
 from . import views
 
@@ -21,9 +21,14 @@ urlpatterns = [
     path("seminars/<int:seminar_id>/register/", SeminarRegistrationView.as_view(), name="seminar-registration"),
     path("seminars/<int:seminar_id>/deregister/", SeminarDeregistrationView.as_view(), name="seminar-deregister"),
     path("seminars/<int:seminar_id>/is-registered/", SeminarRegistrationStatusView.as_view(), name="seminar-is-registered"),
+    path("organization/seminar/<int:seminar_id>/open-volunteer/", OpenVolunteerApplicationView.as_view(),name="open-volunteer-application"),
+    path("volunteer/open-applications/", FetchOpenVolunteerApplicationsView.as_view(),name="fetch-open-volunteer-applications"),
     path("user/profile/", UserProfileView.as_view(), name="user-profile"),
     path("user/profile/update/", UserProfileView.as_view(), name='user-profile-update'),
     path("organizations/", OrganizationListView.as_view(), name="organization-list"),
     path("organization/profile/", OrganizationProfileView.as_view(), name="organization-profile"),
     path("blogs/", BlogListView.as_view(), name="blog-list"),
+    path("organization/assign-volunteer/", AssignVolunteerView.as_view(), name="volunteer-assign"),
+    path("organization/volunteers/", OrganizationVolunteersView.as_view(), name="organization-volunteers"),
+    path("seminars/<int:seminar_id>/apply-volunteer/", ApplyForVolunteeringView.as_view(), name="apply-volunteer"),
 ]

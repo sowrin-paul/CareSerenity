@@ -14,6 +14,7 @@ class Seminar(models.Model):
     banner = models.ImageField(upload_to='seminar_banners/', null=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='own_seminars', blank=True)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='seminars_participated', blank=True)
+    is_open_for_volunteers = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

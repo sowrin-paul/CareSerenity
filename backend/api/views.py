@@ -15,7 +15,9 @@ from .models .seminar import Seminar
 from .models .organizations import Organizations
 from .models .seminarRegister import SeminarRegistration
 from .models .blogs import Blog
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer
+from .models .volunteer import Volunteer
+from .models .volunteerApplication import VolunteerApplication
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer, VolunteerSerializer, VolunteerApplicationSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -128,7 +130,7 @@ def fetch_seminar_details(request, seminar_id):
         serializer = SeminarSerializers(seminar)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Seminar.DoesNotExist:
-        return Response({"error": "Seminar not found"}, status=status.HTTP_400_NOT_FOUND)
+        return Response({"error": "Seminar not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class SeminarRegistrationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -139,13 +141,13 @@ class SeminarRegistrationView(APIView):
             user = request.user
 
             if SeminarRegistration.objects.filter(user=user, seminar=seminar).exists():
-                return Response({"error": "You are already registered for this seminar."}, status=400)
+                return Response({"error": "You are already registered for this seminar."}, status=status.HTTP_400_BAD_REQUEST)
 
             registration = SeminarRegistration.objects.create(user=user, seminar=seminar)
             serializer = SeminarRegistrationSerializer(registration)
             return Response(serializer.data, status=201)
         except Seminar.DoesNotExist:
-            return Response({"error": "Seminar not found."}, status=404)
+            return Response({"error": "Seminar not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class SeminarDeregistrationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -154,16 +156,25 @@ class SeminarDeregistrationView(APIView):
         try:
             registration = SeminarRegistration.objects.get(user=request.user, seminar_id=seminar_id)
             registration.delete()
-            return Response({"message": "Registration cancelled successfully."}, status=200)
+            return Response({"message": "Registration cancelled successfully."}, status=status.HTTP_200_OK)
         except SeminarRegistration.DoesNotExist:
-            return Response({"error": "You are not registered for this seminar."}, status=404)
+            return Response({"error": "You are not registered for this seminar."}, status=status.HTTP_404_NOT_FOUND)
 
 class SeminarRegistrationStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, seminar_id):
         is_registered = SeminarRegistration.objects.filter(user=request.user, seminar_id=seminar_id).exists()
-        return Response({"registered": is_registered}, status=200)
+        return Response({"registered": is_registered}, status=status.HTTP_200_OK)
+
+
+class FetchOpenVolunteerApplicationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        seminars = Seminar.objects.filter(is_open_for_volunteers=True)
+        serializer = SeminarSerializers(seminars, many=True)
+        return Response(serializer.data, status=200)
 
 # ========================================= user profile ========================================
 class UserProfileView(APIView):
@@ -189,7 +200,7 @@ class UserProfileView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({ "profile": serializer.data })
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ======================================= organization profile ===============================
 # logger = logging.getLogger(__name__)
@@ -251,3 +262,98 @@ class BlogListView(APIView):
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_NOT_FOUND)
+
+# ======================================== Volunteer ====================================
+class AssignVolunteerView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to assign volunteers."}, status=403)
+
+            organization = Organizations.objects.get(user=request.user)
+
+            seminar_id = request.data.get('seminar_id')
+            volunteer_id = request.data.get('volunteer_id')
+
+            seminar = Seminar.objects.get(id=seminar_id, organization=organization)
+
+            volunteer = User.objects.get(id=volunteer_id)
+
+            if not volunteer.is_active or volunteer.ac_role != 0:
+                return Response({"error": "The selected user is not eligible to be a volunteer."}, status=400)
+
+            assignment = Volunteer.objects.create(
+                seminar=seminar,
+                organization=organization,
+                volunteer=volunteer
+            )
+
+            serializer = VolunteerSerializer(assignment)
+            return Response(serializer.data, status=201)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except Seminar.DoesNotExist:
+            return Response({"error": "Seminar not found or does not belong to your organization."}, status=404)
+        except User.DoesNotExist:
+            return Response({"error": "Volunteer not found."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class OrganizationVolunteersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            organization = request.user.organization
+            volunteers = User.objects.filter(ac_role=0, is_active=True)
+            volunteer_data = [{"id": volunteer.id, "name": volunteer.first_name + " " + volunteer.last_name} for volunteer in volunteers]
+            return Response(volunteer_data, status=200)
+        except AttributeError:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+
+class OpenVolunteerApplicationView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_class = [JWTAuthentication]
+
+    def post(self, request, seminar_id):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to open volunteer applications."}, status=403)
+
+            organization = Organizations.objects.get(user_id=request.user.id)
+
+            seminar = Seminar.objects.get(id=seminar_id, created_by=request.user)
+
+            seminar.is_open_for_volunteers = True
+            seminar.save()
+
+            return Response({"message": "Volunteer application opened successfully."}, status=status.HTTP_200_OK)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except Seminar.DoesNotExist:
+            return Response({"error": "Seminar not found or does not belong to your organization."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class ApplyForVolunteeringView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, seminar_id):
+        try:
+            # Check if the seminar is open for volunteers
+            seminar = Seminar.objects.get(id=seminar_id, is_open_for_volunteers=True)
+
+            # Check if the user has already applied
+            if VolunteerApplication.objects.filter(seminar=seminar, user=request.user).exists():
+                return Response({"error": "You have already applied for this seminar."}, status=400)
+
+            # Create the application
+            application = VolunteerApplication.objects.create(seminar=seminar, user=request.user)
+            serializer = VolunteerApplicationSerializer(application)
+            return Response(serializer.data, status=201)
+        except Seminar.DoesNotExist:
+            return Response({"error": "Seminar not found or not open for volunteers."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)

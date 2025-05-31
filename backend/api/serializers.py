@@ -6,6 +6,8 @@ from .models .seminar import Seminar
 from .models .organizations import Organizations
 from .models .seminarRegister import SeminarRegistration
 from .models .blogs import Blog
+from .models .volunteer import Volunteer
+from .models .volunteerApplication import VolunteerApplication
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -76,3 +78,15 @@ class BlogSerializer(serializers.ModelSerializer):
         model = Blog
         fields = ['id', 'title', 'content', 'image', 'author', 'created_at']
         read_only_fields = ['author', 'created_at']
+
+class VolunteerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volunteer
+        fields = ['id', 'seminar', 'organization', 'volunteer', 'assigned_at']
+        read_only_fields = ['assigned_at']
+
+class VolunteerApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VolunteerApplication
+        fields = ['id', 'seminar', 'user', 'applied_at']
+        read_only_fields = ['applied_at']

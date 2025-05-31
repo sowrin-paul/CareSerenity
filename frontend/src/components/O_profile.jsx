@@ -32,6 +32,11 @@ const OrganizationProfile = () => {
     const [donationRequests, setDonationRequests] = useState([]);
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const [totalOrphans, setTotalOrphans] = useState(0);
+    const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
+    const [volunteers, setVolunteers] = useState([]);
+    const [seminars, setSeminars] = useState([]);
+    const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+    const [selectedSeminar, setSelectedSeminar] = useState(null);
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
     const navigate = useNavigate();
@@ -99,6 +104,66 @@ const OrganizationProfile = () => {
             setIsEditModalOpen(false);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleVolunteerOpen = async () => {
+        setIsVolunteerModalOpen(true);
+        try {
+            // Fetch volunteers
+            const volunteerRes = await fetch(`${apiUrl}/organization/volunteers/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            if (!volunteerRes.ok) throw new Error("Failed to fetch volunteers");
+            const volunteerData = await volunteerRes.json();
+            setVolunteers(volunteerData);
+
+            // Fetch seminars created by the organization
+            const seminarRes = await fetch(`${apiUrl}/organization/seminars/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            if (!seminarRes.ok) throw new Error("Failed to fetch seminars");
+            const seminarData = await seminarRes.json();
+            setSeminars(seminarData);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleVolunteerClose = () => {
+        setIsVolunteerModalOpen(false);
+        setSelectedVolunteer(null);
+        setSelectedSeminar(null);
+    };
+
+    const handleAssignVolunteer = async () => {
+        if (!selectedVolunteer || !selectedSeminar) {
+            alert("Please select both a volunteer and a seminar.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${apiUrl}/organization/assign-volunteer/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                    volunteer_id: selectedVolunteer,
+                    seminar_id: selectedSeminar,
+                }),
+            });
+            if (!res.ok) throw new Error("Failed to assign volunteer");
+            alert("Volunteer assigned successfully!");
+            handleVolunteerClose();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to assign volunteer.");
         }
     };
 
@@ -178,7 +243,7 @@ const OrganizationProfile = () => {
                             variant="contained"
                             color="primary"
                             className={styles.optionButton}
-                            onClick={() => navigate('./O_volunteer')}
+                            onClick={handleVolunteerOpen}
                         >
                             Volunteers
                         </Button>
@@ -198,14 +263,14 @@ const OrganizationProfile = () => {
                             <a href="./O_funds"><AttachMoneyRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Funds</p>
-                                <h3>{} TK</h3>
+                                <h3>{ } TK</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
                             <a href="./O_adoption"><FamilyRestroomRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Adoptions</p>
-                                <h3>{}+</h3>
+                                <h3>{ }+</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
@@ -407,6 +472,87 @@ const OrganizationProfile = () => {
                             </Button>
                         </Stack>
                     </form>
+                </Box>
+            </Modal>
+
+            {/* Assign Volunteer Modal */}
+            <Modal
+                open={isVolunteerModalOpen}
+                onClose={handleVolunteerClose}
+                aria-labelledby="volunteer-modal-title"
+                aria-describedby="volunteer-modal-description"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 400,
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                    }}
+                >
+                    <h2 id="volunteer-modal-title">Assign Volunteer to Seminar</h2>
+                    <Stack spacing={2}>
+                        <TextField
+                            select
+                            label="Select Volunteer"
+                            value={selectedVolunteer || ""}
+                            onChange={(e) => setSelectedVolunteer(e.target.value)}
+                            SelectProps={{
+                                native: true,
+                            }}
+                            fullWidth
+                        >
+                            <option value="" disabled />
+                            {volunteers.map((volunteer) => (
+                                <option key={volunteer.id} value={volunteer.id}>
+                                    {volunteer.name}
+                                </option>
+                            ))}
+                        </TextField>
+                        <TextField
+                            select
+                            label="Select Seminar"
+                            value={selectedSeminar || ""}
+                            onChange={(e) => setSelectedSeminar(e.target.value)}
+                            SelectProps={{
+                                native: true,
+                            }}
+                            fullWidth
+                        >
+                            <option value="" disabled />
+                            {seminars.map((seminar) => (
+                                <option key={seminar.id} value={seminar.id}>
+                                    {seminar.title}
+                                </option>
+                            ))}
+                        </TextField>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch(`${apiUrl}/organization/seminars/${selectedSeminar}/open-volunteer/`, {
+                                        method: "POST",
+                                        headers: {
+                                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                        },
+                                    });
+                                    if (!res.ok) throw new Error("Failed to open volunteer application.");
+                                    alert("Volunteer application opened successfully!");
+                                } catch (err) {
+                                    console.error(err);
+                                    alert("Failed to open volunteer application.");
+                                }
+                            }}
+                        >
+                            Open Volunteer Application
+                        </Button>
+                    </Stack>
                 </Box>
             </Modal>
             <Footer />
