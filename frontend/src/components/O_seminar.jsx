@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Button from '@mui/material/Button';
-import Alert from '@mui/material/Alert';
-import { TextField, Select, MenuItem, InputLabel, FormControl, IconButton } from '@mui/material';
+import {
+    Alert, Stack, TextField, IconButton, FormControl, InputLabel, Select, MenuItem, Snackbar, Button, Card, CardContent, CardActionArea, CardMedia, Typography, Dialog, DialogActions, DialogContent, DialogTitle
+} from "@mui/material";
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import CancelIcon from "@mui/icons-material/Cancel";
 import Collapse from '@mui/material/Collapse';
-import Snackbar from '@mui/material/Snackbar';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
@@ -44,6 +49,9 @@ function OSeminarsPage() {
     const [searchLocation, setSearchLocation] = useState('');
     const [filterType, setFilterType] = useState('');
     const [showFilter, setShowFilter] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSeminar, setSelectedSeminar] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchOwnSeminars();
@@ -52,7 +60,7 @@ function OSeminarsPage() {
 
     const fetchOwnSeminars = async () => {
         try {
-            const res = await fetch('/own-seminars/', {
+            const res = await fetch(`${apiUrl}/own-seminars/`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
@@ -65,7 +73,7 @@ function OSeminarsPage() {
             }
             if (contentType && contentType.includes("application/json")) {
                 const data = await res.json();
-                setOwnSeminars(data);
+                setOwnSeminars(data); // Set the seminars created by the logged-in organization
             } else {
                 const text = await res.text();
                 console.error('Non-JSON response:', text);
@@ -162,6 +170,19 @@ function OSeminarsPage() {
     const handleLogout = () => {
         setIsLoggedIn(false);
         navigate("/home");
+    };
+
+    const handleCardClick = (id) => {
+        const seminar = seminars.find(s => s.id === id);
+        setSelectedSeminar(seminar);
+        setLoading(true);
+        setIsModalOpen(true);
+        setTimeout(() => setLoading(false), 1000); // Simulate loading
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedSeminar(null);
     };
 
     // Filtered seminars based on search and filter
@@ -451,35 +472,112 @@ function OSeminarsPage() {
                     {filteredOwnSeminars.length > 0 ? filteredOwnSeminars.map((seminar) => (
                         <Link key={seminar.id} to={`/seminar-view/${seminar.id}`} className={seminarStyles.cardLink}>
                             <div className={seminarStyles.card}>
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
+                                <img src={`${apiUrl}${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
                                 <h3 className={seminarStyles.cardTitle}>{seminar.title}</h3>
                                 <div className={seminarStyles.cardInfo}>
                                     <span className={seminarStyles.cardDate}>{seminar.seminar_date}</span>
                                 </div>
                             </div>
                         </Link>
-                    )) : <p className={seminarStyles.notFound}>You haven't launched any seminars yet.</p>}
+                    )) : (
+                        <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
+                            <Alert severity="warning">Currently no seminar available.</Alert>
+                        </Stack>
+                    )}
                 </div>
             </div>
 
+            <h1 className={seminarStyles.title}>Available Seminars :</h1>
+
             {/* Available Seminars */}
-            <div className={seminarStyles.seminarContainer}>
-                <h1 className={seminarStyles.title}>Available Seminars :</h1>
-                <div className={seminarStyles.grid}>
-                    {filteredSeminars.length > 0 ? filteredSeminars.map((seminar) => (
-                        <Link key={seminar.id} to={`/seminar-view/${seminar.id}`} className={seminarStyles.cardLink}>
-                            <div className={seminarStyles.card}>
-                                <img src={`/assets/${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
-                                <h3 className={seminarStyles.cardTitle}>{seminar.title}</h3>
-                                <div className={seminarStyles.cardInfo}>
-                                    <span className={seminarStyles.cardDate}>{seminar.seminar_date}</span>
-                                    <span><i className="bx bxs-user-check"></i> {seminar.participants_count}</span>
-                                </div>
-                            </div>
-                        </Link>
-                    )) : <p className={seminarStyles.notFound}>Currently no seminars are available.</p>}
-                </div>
+            <div className={seminarStyles.seminarBlock}>
+                {Array.isArray(filteredSeminars) && filteredSeminars.length > 0 ? (
+                    <div className={seminarStyles.cards}>
+                        {filteredSeminars.map((seminar) => (
+                            <Card
+                                key={seminar.id}
+                                className={seminarStyles.seminarCard}
+                                sx={{
+                                    borderRadius: 3,
+                                    boxShadow: 3,
+                                    minWidth: 260,
+                                    maxWidth: 300,
+                                    margin: "12px",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    textDecoration: "none",
+                                }}
+                                onClick={() => handleCardClick(seminar.id)}
+                            >
+                                <CardActionArea>
+                                    <CardMedia
+                                        component="img"
+                                        height="160"
+                                        image={seminar.banner ? `${apiUrl}${seminar.banner}` : "/assets/default_banner.jpg"}
+                                        alt="Seminar Banner"
+                                        sx={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                                    />
+                                    <CardContent>
+                                        {seminar.organization && (
+                                            <Typography variant="body2" color="text.secondary">
+                                                <b>By:</b> {seminar.organization.name}
+                                            </Typography>
+                                        )}
+                                        <Typography gutterBottom variant="h6">
+                                            {seminar.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {seminar.seminar_date}
+                                        </Typography>
+                                    </CardContent>
+                                </CardActionArea>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
+                        <Alert severity="warning">Currently no seminar available.</Alert>
+                    </Stack>
+                )}
             </div>
+
+            {/* Seminar Details Modal */}
+            <Dialog open={isModalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
+                <DialogTitle>{selectedSeminar?.title || "Seminar Details"}</DialogTitle>
+                <DialogContent>
+                    {loading ? (
+                        <Typography>Loading...</Typography>
+                    ) : (
+                        <>
+                            <img
+                                src={selectedSeminar?.banner ? `${apiUrl}${selectedSeminar.banner}` : "/assets/default_banner.jpg"}
+                                alt="Seminar Banner"
+                                style={{ width: "100%", borderRadius: "8px", marginBottom: "16px" }}
+                            />
+                            <Typography variant="body1" gutterBottom>
+                                <b>Date:</b> {selectedSeminar?.seminar_date}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                <b>Location:</b> {selectedSeminar?.location}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                <b>Description:</b> {selectedSeminar?.description}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                <b>Special Guest:</b> {selectedSeminar?.guest}
+                            </Typography>
+                        </>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleModalClose} color="primary" startIcon={<ArrowBackIcon />}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Footer />
         </div>
     );

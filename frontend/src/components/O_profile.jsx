@@ -15,86 +15,107 @@ const OrganizationProfile = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
 
     const [orgData, setOrgData] = useState({});
+    const [editData, setEditData] = useState({
+        name: "",
+        contact: "",
+        address: "",
+        website: "",
+        registration_num: "",
+        established_date: "",
+        vision: "",
+        description: "",
+    });
+    const [profilePicPreview, setProfilePicPreview] = useState(null);
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [adoptionRequests, setAdoptionRequests] = useState([]);
     const [donationRequests, setDonationRequests] = useState([]);
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const [totalOrphans, setTotalOrphans] = useState(0);
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editData, setEditData] = useState(false);
-    const [profilePicture, setProfilePicture] = useState(null);
     const navigate = useNavigate();
 
-    const {
-        org_vision,
-        org_description,
-        total_amount_received,
-        total_adoptions,
-    } = orgData;
-
     useEffect(() => {
-        fetch("/organization/profile/", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        }).then((res) => res.json()).then((data) => {
-            setOrgData(data);
-            setEditData(data);
-        }).catch((err) => console.error(err));
-    }, []);
+        const fetchProfile = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/organization/profile/`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                if (!res.ok) throw new Error("Failed to fetch profile");
+                const data = await res.json();
+                setOrgData(data.profile);
+                setEditData({
+                    name: data.profile.name || "",
+                    contact: data.profile.contact || "",
+                    address: data.profile.address || "",
+                    website: data.profile.website || "",
+                    registration_num: data.profile.registration_num || "",
+                    established_date: data.profile.established_date || "",
+                    vision: data.profile.vision || "",
+                    description: data.profile.description || "",
+                });
+                setProfilePicPreview(data.profile.org_logo ? `${apiUrl}${data.profile.org_logo}` : null);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchProfile();
+    }, [apiUrl]);
 
     const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditData((prev) => ({ ...prev, [name]: value }));
+        const { name, value, files } = e.target;
+        if (name === "org_logo" && files && files[0]) {
+            setProfilePicture(files[0]);
+            setProfilePicPreview(URL.createObjectURL(files[0]));
+        } else {
+            setEditData((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
-    const handleProfilePictureChange = (e) => {
-        setProfilePicture(e.target.files[0]);
-    };
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        Object.entries(editData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) formData.append(key, value);
+        });
+        if (profilePicture) {
+            formData.append("org_logo", profilePicture);
+        }
 
-    const handleEditSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    Object.keys(editData).forEach((key) => {
-        formData.append(key, editData[key]);
-    });
-    if (profilePicture) {
-        formData.append('org_logo', profilePicture);
-    }
-
-    // form data logging
-    for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-    }
-
-    fetch(`${apiUrl}/organization/profile/`, {
-        method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
-    })
-        .then((res) => {
-            if (!res.ok) {
-                return res.json().then((err) => {
-                    console.error('Error:', err);
-                    throw new Error('Failed to update profile');
-                });
-            }
-            return res.json();
-        })
-        .then((data) => {
-            setOrgData(data);
+        try {
+            const res = await fetch(`${apiUrl}/organization/profile/`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: formData,
+            });
+            if (!res.ok) throw new Error("Failed to update profile");
+            const data = await res.json();
+            setOrgData(data.profile);
             setIsEditModalOpen(false);
-        })
-        .catch((err) => console.error(err));
-};
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
         navigate("/home");
     };
+
+    const handleEditOpen = () => {
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditClose = () => {
+        setIsEditModalOpen(false);
+        setProfilePicPreview(null);
+    };
+
     return (
         <div>
             <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
@@ -116,22 +137,15 @@ const OrganizationProfile = () => {
                             <p>Email: {orgData.email}</p>
                             <p>Contact: {orgData.contact}</p>
                             <p>Established: {orgData.established_date}</p>
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                onClick={() => setIsEditModalOpen(true)}
-                            >
-                                Edit Profile
-                            </Button>
                         </div>
                     </div>
 
                     {/* Bio Section */}
                     <div className={styles.biography}>
                         <h2>Our Vision</h2>
-                        <p>{org_vision}</p>
+                        <p>{orgData.vision}</p>
                         <h2>Description</h2>
-                        <p>{org_description}</p>
+                        <p>{orgData.description}</p>
                     </div>
 
                     {/* Button Group */}
@@ -172,7 +186,7 @@ const OrganizationProfile = () => {
                             variant="contained"
                             color="secondary"
                             className={styles.optionButton}
-                            onClick={() => setIsEditModalOpen(true)}
+                            onClick={handleEditOpen}
                         >
                             Edit Profile
                         </Button>
@@ -184,14 +198,14 @@ const OrganizationProfile = () => {
                             <a href="./O_funds"><AttachMoneyRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Funds</p>
-                                <h3>{total_amount_received} TK</h3>
+                                <h3>{} TK</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
                             <a href="./O_adoption"><FamilyRestroomRoundedIcon className={styles.icon} /></a>
                             <div>
                                 <p>Adoptions</p>
-                                <h3>{total_adoptions}+</h3>
+                                <h3>{}+</h3>
                             </div>
                         </div>
                         <div className={styles.tabs}>
@@ -291,18 +305,18 @@ const OrganizationProfile = () => {
             {/* Edit Profile Modal */}
             <Modal
                 open={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
+                onClose={handleEditClose}
                 aria-labelledby="edit-profile-modal"
                 aria-describedby="edit-organization-profile"
             >
                 <Box
                     sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
                         width: 400,
-                        bgcolor: 'background.paper',
+                        bgcolor: "background.paper",
                         boxShadow: 24,
                         p: 4,
                         borderRadius: 2,
@@ -310,38 +324,54 @@ const OrganizationProfile = () => {
                 >
                     <form onSubmit={handleEditSubmit}>
                         <Stack spacing={2}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                <Avatar
+                                    src={profilePicPreview || "/assets/default_org.png"}
+                                    sx={{ width: 64, height: 64 }}
+                                />
+                                <Button variant="outlined" component="label">
+                                    Change Picture
+                                    <input
+                                        type="file"
+                                        name="org_logo"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={handleEditChange}
+                                    />
+                                </Button>
+                            </Box>
                             <TextField
                                 label="Name"
                                 name="name"
-                                value={editData.name || ''}
+                                value={editData.name}
                                 onChange={handleEditChange}
                                 fullWidth
                             />
                             <TextField
                                 label="Contact"
                                 name="contact"
-                                value={editData.contact || ''}
+                                value={editData.contact}
                                 onChange={handleEditChange}
                                 fullWidth
                             />
                             <TextField
                                 label="Address"
                                 name="address"
-                                value={editData.address || ''}
+                                value={editData.address}
                                 onChange={handleEditChange}
                                 fullWidth
                             />
                             <TextField
                                 label="Website"
                                 name="website"
-                                value={editData.website || ''}
+                                value={editData.website}
                                 onChange={handleEditChange}
                                 fullWidth
                             />
                             <TextField
                                 label="Registration Number"
                                 name="registration_num"
-                                value={editData.registration_num || ''}
+                                value={editData.registration_num}
                                 onChange={handleEditChange}
                                 fullWidth
                             />
@@ -349,33 +379,29 @@ const OrganizationProfile = () => {
                                 label="Established Date"
                                 name="established_date"
                                 type="date"
-                                value={editData.established_date || ''}
+                                value={editData.established_date}
                                 onChange={handleEditChange}
                                 InputLabelProps={{ shrink: true }}
                                 fullWidth
                             />
                             <TextField
-                                label="Description"
-                                name="description"
-                                value={editData.description || ''}
+                                label="Vision"
+                                name="vision"
+                                value={editData.vision}
                                 onChange={handleEditChange}
                                 multiline
                                 rows={3}
                                 fullWidth
                             />
-                            <Button
-                                variant="contained"
-                                component="label"
-                                color="primary"
-                            >
-                                Upload Profile Picture
-                                <input
-                                    type="file"
-                                    hidden
-                                    accept="image/*"
-                                    onChange={handleProfilePictureChange}
-                                />
-                            </Button>
+                            <TextField
+                                label="Description"
+                                name="description"
+                                value={editData.description}
+                                onChange={handleEditChange}
+                                multiline
+                                rows={3}
+                                fullWidth
+                            />
                             <Button type="submit" variant="contained" color="primary">
                                 Save Changes
                             </Button>

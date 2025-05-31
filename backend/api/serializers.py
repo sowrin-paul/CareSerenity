@@ -4,6 +4,7 @@ from .models .seminar import Seminar
 from .models import User, UserProfile
 from .models .seminar import Seminar
 from .models .organizations import Organizations
+from .models .seminarRegister import SeminarRegistration
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -41,14 +42,30 @@ class SeminarSerializers(serializers.ModelSerializer):
         model = Seminar
         fields = "__all__"
 
+class SeminarRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeminarRegistration
+        fields = ['id', 'user', 'seminar', 'registered_at']
+        read_only_fields = ['registered_at']
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = "__all__"
         read_only_fields = ['user']
 
+class OrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organizations
+        fields = ['id', 'name', 'contact', 'website']
+
 class OrganizationProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organizations
         fields = "__all__"
-        read_only_fields = ['user', "registration_num", "established_date"]
+        read_only_fields = ["user", "registration_num"]
+
+    def validate_name(self, value):
+        if Organizations.objects.filter(name=value).exists():
+            raise serializers.ValidationError("An organization with this name already exists.")
+        return value

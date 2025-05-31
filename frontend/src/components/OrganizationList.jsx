@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -9,59 +9,45 @@ import {
   Button,
   TextField,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import TopBar from './TopBar';
-import Navbar from './NavbarU';
+import Navbar from './NavbarO';
 import Footer from './Footer';
 
-const organizations = [
-  {
-    name: 'Safe Haven Orphanage',
-    description: 'To save children life',
-    phone: '+880123234445',
-    email: 'info@safehaven.org',
-    profilePicture: '/assets/org1.jpg',
-    rating: 4.5,
-  },
-  {
-    name: 'Little Spirituals Foundation',
-    description: 'To save children life',
-    phone: '+880123234445',
-    email: 'ls.foundation@gmail.com',
-    profilePicture: '/assets/org2.jpg',
-    rating: 4.2,
-  },
-  {
-    name: 'Dhaka Foundation',
-    description: 'The best Charity for orphans',
-    phone: '+880123234445',
-    email: 'info@safehaven.org',
-    profilePicture: '/assets/org3.jpg',
-    rating: 4.8,
-  },
-  {
-    name: 'Mirpur Care Centre',
-    description: 'We care about your life',
-    phone: '3242433222',
-    email: 'dhakafoundation@gmail.com',
-    profilePicture: '/assets/org4.jpg',
-    rating: 4.0,
-  },
-  {
-    name: 'Safe Haven Orphanage',
-    description: 'To save children life',
-    phone: '+880123234445',
-    email: 'info@safehaven.org',
-    profilePicture: '/assets/org1.jpg',
-    rating: 4.5,
-  },
-];
-
 const OrganizationList = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [filteredOrganizations, setFilteredOrganizations] = useState(organizations);
+  const [organizations, setOrganizations] = useState([]);
+  const [filteredOrganizations, setFilteredOrganizations] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState(null);
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/organizations/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (!res.ok) throw new Error('Failed to fetch organizations');
+        const data = await res.json();
+        setOrganizations(data);
+        setFilteredOrganizations(data);
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      }
+    };
+
+    fetchOrganizations();
+  }, []);
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
@@ -73,36 +59,39 @@ const OrganizationList = () => {
   };
 
   const handleView = (org) => {
-    navigate('/orgProfile', { state: { organization: org } });
+    setSelectedOrganization(org);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrganization(null);
   };
 
   const handleDonate = (org) => {
     console.log(`Donate to ${org.name}`);
-    // Implement donation functionality later
+    // donation
   };
 
   const handleLogout = () => {
-        setIsLoggedIn(false);
-        navigate("/home");
-    };
+    setIsLoggedIn(false);
+    navigate('/home');
+  };
 
   return (
     <>
       <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <Navbar />
-      <Box sx={{ padding: '20px' }}>
+      <Box sx={{ padding: '20px', marginTop: 10 }}>
         {/* Header Section */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Button variant="contained" color="primary" onClick={() => navigate('/')}>
-            Back
-          </Button>
+        <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: 3 }}>
           <TextField
             label="Search Organizations"
             variant="outlined"
             size="small"
             value={search}
             onChange={handleSearch}
-            sx={{ width: '300px' }}
+            sx={{ width: '400px' }}
           />
         </Stack>
 
@@ -112,9 +101,9 @@ const OrganizationList = () => {
             <Card
               key={index}
               sx={{
-                width: '90%', // Card width
-                maxWidth: '600px', // Maximum width
-                margin: '0 auto', // Center the card
+                width: '90%',
+                maxWidth: '600px',
+                margin: '0 auto',
                 boxShadow: 3,
               }}
             >
@@ -129,7 +118,7 @@ const OrganizationList = () => {
                   {org.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Rating: {org.rating} ⭐
+                  Rating: {org.rating}
                 </Typography>
               </CardContent>
               <Stack direction="row" spacing={2} sx={{ p: 2 }}>
@@ -154,6 +143,47 @@ const OrganizationList = () => {
           ))}
         </Stack>
       </Box>
+
+      {/* Organization Details Modal */}
+      <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+        <DialogTitle>{selectedOrganization?.name || 'Organization Details'}</DialogTitle>
+        <DialogContent>
+          {selectedOrganization && (
+            <>
+              <img
+                src={selectedOrganization.profilePicture || '/assets/default_org.png'}
+                alt={selectedOrganization.name}
+                style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }}
+              />
+              <Typography variant="body1" gutterBottom>
+                <b>Contact:</b> {selectedOrganization.contact || 'N/A'}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Address:</b> {selectedOrganization.address || 'N/A'}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Website:</b>{' '}
+                {selectedOrganization.website ? (
+                  <a href={selectedOrganization.website} target="_blank" rel="noopener noreferrer">
+                    {selectedOrganization.website}
+                  </a>
+                ) : (
+                  'N/A'
+                )}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                <b>Description:</b> {selectedOrganization.description || 'N/A'}
+              </Typography>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
     </>
   );

@@ -1,9 +1,9 @@
-from django.urls import include, path
+from django.urls import path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView
+from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView, SeminarRegistrationView, SeminarDeregistrationView, SeminarRegistrationStatusView, OrganizationListView
 from .models import get_username
 from . import views
 
@@ -18,7 +18,11 @@ urlpatterns = [
     path("seminars/<int:seminar_id>/", views.fetch_seminar_details, name="seminar-detail"),
     path("own-seminars/", views.fetch_own_seminar, name="fetch-own-seminars"),
     path("available-seminars/", views.fetch_available_seminars, name="fetch-available-seminars"),
+    path("seminars/<int:seminar_id>/register/", SeminarRegistrationView.as_view(), name="seminar-registration"),
+    path("seminars/<int:seminar_id>/deregister/", SeminarDeregistrationView.as_view(), name="seminar-deregister"),
+    path("seminars/<int:seminar_id>/is-registered/", SeminarRegistrationStatusView.as_view(), name="seminar-is-registered"),
     path("user/profile/", UserProfileView.as_view(), name="user-profile"),
     path("user/profile/update/", UserProfileView.as_view(), name='user-profile-update'),
+    path("organizations/", OrganizationListView.as_view(), name="organization-list"),
     path("organization/profile/", OrganizationProfileView.as_view(), name="organization-profile"),
 ]

@@ -69,6 +69,8 @@ function USeminarUserPage() {
   const handleCardClick = async (seminarId) => {
     try {
       setLoading(true);
+
+      // Fetch seminar details
       const res = await fetch(`${apiUrl}/seminars/${seminarId}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -78,6 +80,7 @@ function USeminarUserPage() {
       const data = await res.json();
       setSelectedSeminar(data);
 
+      // Fetch registration status
       const regRes = await fetch(`${apiUrl}/seminars/${seminarId}/is-registered/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -106,6 +109,7 @@ function USeminarUserPage() {
       const url = isRegistered
         ? `${apiUrl}/seminars/${selectedSeminar.id}/deregister/`
         : `${apiUrl}/seminars/${selectedSeminar.id}/register/`;
+
       const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -113,22 +117,21 @@ function USeminarUserPage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      if (!res.ok) throw new Error("Registration action failed");
+
+      if (!res.ok) throw new Error(isRegistered ? "Deregistration failed" : "Registration failed");
+
+      // Toggle registration state
       setIsRegistered(!isRegistered);
-      setSelectedSeminar((prev) => ({
-        ...prev,
-        participants_count: isRegistered
-          ? prev.participants_count - 1
-          : prev.participants_count + 1,
-      }));
+
+      // Update feedback message
       setFeedback({
-        positive: isRegistered ? "Registration cancelled." : "Successfully registered!",
+        positive: isRegistered ? "Registration cancelled successfully." : "Successfully registered!",
         negative: "",
       });
     } catch (error) {
       setFeedback({
         positive: "",
-        negative: "Registration action failed.",
+        negative: isRegistered ? "Failed to cancel registration." : "Failed to register.",
       });
     }
   };
