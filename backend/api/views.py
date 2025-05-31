@@ -13,7 +13,8 @@ from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
 from .models .seminar import Seminar
 from .models .organizations import Organizations
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer
+from .models .seminarRegister import SeminarRegistration
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -85,6 +86,7 @@ def pending_organization(request):
     data = [{"id": org.id, "email": org.email} for org in organization]
     return Response(data, status=status.HTTP_200_OK)
 
+# ============================================= Seminar ================================================
 class SeminarListView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
@@ -101,6 +103,7 @@ class SeminarListView(APIView):
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -126,6 +129,42 @@ def fetch_seminar_details(request, seminar_id):
     except Seminar.DoesNotExist:
         return Response({"error": "Seminar not found"}, status=status.HTTP_400_NOT_FOUND)
 
+class SeminarRegistrationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, seminar_id):
+        try:
+            seminar = Seminar.objects.get(id=seminar_id)
+            user = request.user
+
+            if SeminarRegistration.objects.filter(user=user, seminar=seminar).exists():
+                return Response({"error": "You are already registered for this seminar."}, status=400)
+
+            registration = SeminarRegistration.objects.create(user=user, seminar=seminar)
+            serializer = SeminarRegistrationSerializer(registration)
+            return Response(serializer.data, status=201)
+        except Seminar.DoesNotExist:
+            return Response({"error": "Seminar not found."}, status=404)
+
+class SeminarDeregistrationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, seminar_id):
+        try:
+            registration = SeminarRegistration.objects.get(user=request.user, seminar_id=seminar_id)
+            registration.delete()
+            return Response({"message": "Registration cancelled successfully."}, status=200)
+        except SeminarRegistration.DoesNotExist:
+            return Response({"error": "You are not registered for this seminar."}, status=404)
+
+class SeminarRegistrationStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, seminar_id):
+        is_registered = SeminarRegistration.objects.filter(user=request.user, seminar_id=seminar_id).exists()
+        return Response({"registered": is_registered}, status=200)
+
+# ========================================= user profile ========================================
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_class = [JWTAuthentication]
@@ -142,6 +181,7 @@ class UserProfileView(APIView):
             },
             "profile": serializer.data,
         })
+
     def patch(self, request):
         profile, created = UserProfile.objects.get_or_create(user=request.user)
         serializer = UserProfileSerializer(profile, data=request.data, partial=True)
@@ -150,22 +190,23 @@ class UserProfileView(APIView):
             return Response({ "profile": serializer.data })
         return Response(serializer.errors, status=400)
 
-logger = logging.getLogger(__name__)
+# ======================================= organization profile ===============================
+# logger = logging.getLogger(__name__)
 class OrganizationProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_class = [JWTAuthentication]
     parser_class = [MultiPartParser, FormParser]
 
     def get(self, request):
         if request.user.ac_role != 1:
             return Response({"error": "You are not authorized to access this resource."}, status=status.HTTP_403_FORBIDDEN)
         try:
-            organization, created = Organizations.objects.get_or_create(user=request.user)  # Unpack the tuple
+            organization = Organizations.objects.get(user=request.user)
             serializer = OrganizationProfileSerializer(organization)
             return Response({
                 "user": {
                     "name": request.user.email,
                     "email": request.user.email,
-                    "accountType": dict(User.ROLE_CHOICE).get(request.user.ac_role, "Organizations"),
                 },
                 "profile": serializer.data,
             }, status=status.HTTP_200_OK)
@@ -174,7 +215,7 @@ class OrganizationProfileView(APIView):
 
     def patch(self, request):
         try:
-            organization, created = Organizations.objects.get_or_create(user=request.user)  # Unpack the tuple
+            organization = Organizations.objects.get(user=request.user)
             serializer = OrganizationProfileSerializer(organization, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -185,3 +226,13 @@ class OrganizationProfileView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Organizations.DoesNotExist:
             return Response({"error": "Organization profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class OrganizationListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        organizations = Organizations.objects.all()
+        serializer = OrganizationSerializer(organizations, many=True)
+        return Response(serializer.data, status=200)
+
+# ========================================
