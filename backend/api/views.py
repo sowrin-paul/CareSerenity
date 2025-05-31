@@ -14,7 +14,8 @@ from .models import User, UserProfile
 from .models .seminar import Seminar
 from .models .organizations import Organizations
 from .models .seminarRegister import SeminarRegistration
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer
+from .models .blogs import Blog
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -235,4 +236,18 @@ class OrganizationListView(APIView):
         serializer = OrganizationSerializer(organizations, many=True)
         return Response(serializer.data, status=200)
 
-# ========================================
+# ======================================== Blog =======================================
+class BlogListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        blogs = Blog.objects.all()
+        serializer = BlogSerializer(blogs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = BlogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_NOT_FOUND)

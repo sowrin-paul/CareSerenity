@@ -63,6 +63,7 @@ function Navbar() {
         <ul className={styles.navLinks}>
           <li>
             <Link
+            to="/organization-lists"
               className={activeOption === "home" ? styles.active : ""}
             >
               Home
@@ -70,7 +71,7 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/"
+              to="/organization-lists"
               className={activeOption === "organizations" ? styles.active : ""}
             >
               Organizations

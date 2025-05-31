@@ -11,6 +11,7 @@ import OSeminarsPage from "./components/O_seminar";
 import SeminarView from "./components/SeminarView";
 import UserProfile from "./components/UserProfile";
 import OrganizationList from "./components/OrganizationList";
+import BlogCreate from "./components/BlogCreate";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/seminar-view/:userId" element={<SeminarView />} />
         <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/organization-lists" element={<OrganizationList />} />
+        <Route path="/blogs" element={<BlogCreate />} />
       </Routes>
     </Router>
   );

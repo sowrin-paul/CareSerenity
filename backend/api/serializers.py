@@ -5,6 +5,7 @@ from .models import User, UserProfile
 from .models .seminar import Seminar
 from .models .organizations import Organizations
 from .models .seminarRegister import SeminarRegistration
+from .models .blogs import Blog
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -69,3 +70,9 @@ class OrganizationProfileSerializer(serializers.ModelSerializer):
         if Organizations.objects.filter(name=value).exists():
             raise serializers.ValidationError("An organization with this name already exists.")
         return value
+
+class BlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = ['id', 'title', 'content', 'image', 'author', 'created_at']
+        read_only_fields = ['author', 'created_at']

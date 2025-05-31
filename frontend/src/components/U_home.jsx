@@ -1,6 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardActionArea, CardMedia, Typography, IconButton, Stack, Alert } from '@mui/material';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+    Card,
+    CardContent,
+    CardMedia,
+    CardActionArea,
+    Typography,
+    IconButton,
+    Stack,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+} from '@mui/material';
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import TopBar from '../components/TopBar';
@@ -17,12 +31,17 @@ const U_home = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(true);
     const [upcomingSeminars, setUpcomingSeminars] = useState([]);
     const [seminarLoading, setSeminarLoading] = useState(true);
+    const [recentBlogs, setRecentBlogs] = useState([]);
+    const [blogLoading, setBlogLoading] = useState(true);
+    const [selectedBlog, setSelectedBlog] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [showRight, setShowRight] = useState(false);
     const [showLeft, setShowLeft] = useState(false);
     const scrollRef = useRef(null);
     const navigate = useNavigate();
 
+    // seminars
     useEffect(() => {
         const fetchSeminar = async () => {
             try {
@@ -42,6 +61,28 @@ const U_home = () => {
         };
         fetchSeminar();
         setShowAlert();
+    }, []);
+
+    // blogs
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/blogs/`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                if (!res.ok) throw new Error("Failed to fetch blogs.");
+                const data = await res.json();
+                setRecentBlogs(data);
+            } catch (error) {
+                console.error("Error fetching blogs:", error);
+                setRecentBlogs([]);
+            } finally {
+                setBlogLoading(false);
+            }
+        };
+        fetchBlogs();
     }, []);
 
     useEffect(() => {
@@ -64,10 +105,16 @@ const U_home = () => {
         if (!el) return;
         const scrollAmount = 320;
         el.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-    }
+    };
 
-    const handleSeminarClick = (seminarId) => {
-        navigate(`/seminar-view/${seminarId}`);
+    const handleCardClick = (blog) => {
+        setSelectedBlog(blog);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedBlog(null);
     };
 
     const handleLogout = () => {
@@ -82,12 +129,89 @@ const U_home = () => {
             <Hero />
             <div className={styles.container}>
                 <div className={styles.options}>
-                    <a href="./U_create_blog.php" id="button-30" className={styles.button_30}>CreatePost</a>
+                    <Link to="/blogs" id="button-30" className={styles.button_30}>CreatePost</Link>
                 </div>
+                <div className={styles.highlights}>
+                    <h1 id="heading" className={styles.heading}>Recent Blogs</h1>
+                    {blogLoading ? (
+                        <p>Loading...</p>
+                    ) : recentBlogs.length > 0 ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                overflowX: 'auto',
+                                gap: 24,
+                                padding: '8px 40px',
+                                scrollBehavior: 'smooth',
+                            }}
+                        >
+                            {recentBlogs.map((blog) => (
+                                <Card
+                                    key={blog.id}
+                                    sx={{
+                                        width: 300,
+                                        minWidth: 300,
+                                        borderRadius: 3,
+                                        boxShadow: 3,
+                                        flex: '0 0 auto',
+                                        cursor: 'pointer',
+                                    }}
+                                    onClick={() => handleCardClick(blog)}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="140"
+                                        image={blog.image ? `${apiUrl}${blog.image}` : '/assets/default_blog.jpg'}
+                                        alt={blog.title}
+                                    />
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h6" component="div">
+                                            {blog.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {blog.content.substring(0, 100)}...
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
+                            <Alert severity="warning">No blogs available.</Alert>
+                        </Stack>
+                    )}
+                </div>
+
+                {/* Blog Detail Modal */}
+                <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+                    <DialogTitle>{selectedBlog?.title || "Blog Details"}</DialogTitle>
+                    <DialogContent>
+                        {selectedBlog && (
+                            <>
+                                <img
+                                    src={selectedBlog.image ? `${apiUrl}${selectedBlog.image}` : '/assets/default_blog.jpg'}
+                                    alt={selectedBlog.title}
+                                    style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }}
+                                />
+                                <Typography variant="body1" gutterBottom>
+                                    {selectedBlog.content}
+                                </Typography>
+                            </>
+                        )}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseModal} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+
                 <div className={styles.highlights}>
                     <h1 id="heading" className={styles.heading}>Recent Funds</h1>
                     {/* <?php include('./fund_fetch_BE.php') ?> */}
 
+                    {/* upcoming seminars */}
                     <h1 id="heading" className={styles.heading}>Upcoming Seminars</h1>
                     {showLeft && (
                         <IconButton
@@ -115,10 +239,10 @@ const U_home = () => {
                                 overflowX: 'auto',
                                 gap: 24,
                                 padding: '8px 40px',
-                                scrollBehavior: 'smooth'
+                                scrollBehavior: 'smooth',
                             }}
                         >
-                            {upcomingSeminars.map(seminar => (
+                            {upcomingSeminars.map((seminar) => (
                                 <Card
                                     key={seminar.id || seminar.seminar_id}
                                     sx={{
@@ -126,10 +250,9 @@ const U_home = () => {
                                         minWidth: 300,
                                         borderRadius: 3,
                                         boxShadow: 3,
-                                        cursor: 'pointer',
-                                        flex: '0 0 auto'
+                                        cursor: 'default',
+                                        flex: '0 0 auto',
                                     }}
-                                    onClick={() => handleSeminarClick(seminar.id || seminar.seminar_id)}
                                 >
                                     <CardActionArea>
                                         <CardMedia
@@ -144,13 +267,13 @@ const U_home = () => {
                                             sx={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                                         />
                                         <CardContent>
-                                            <Typography gutterBottom variant='h6' component="div">
+                                            <Typography gutterBottom variant="h6" component="div">
                                                 {seminar.title}
                                             </Typography>
-                                            <Typography variant='body2' color='text.secondary'>
+                                            <Typography variant="body2" color="text.secondary">
                                                 {seminar.seminar_date}
                                             </Typography>
-                                            <Typography variant='body2' color='text.secondary'>
+                                            <Typography variant="body2" color="text.secondary">
                                                 {seminar.subject}
                                             </Typography>
                                         </CardContent>
@@ -188,12 +311,10 @@ const U_home = () => {
                     <h1 id="heading" className={styles.heading}>Volunteers Recruitment</h1>
                     {/* <?php include('./U_volunteer_recruit_fetch_BE.php') ?> */}
 
-                    <h1 id="heading" className={styles.heading}>Recent Blogs</h1>
-                    {/* <?php include('./blog_show_BE.php') ?> */}
                 </div>
             </div>
             <Footer />
-        </div>
+        </div >
     );
 };
 

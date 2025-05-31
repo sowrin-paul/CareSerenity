@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView, SeminarRegistrationView, SeminarDeregistrationView, SeminarRegistrationStatusView, OrganizationListView
+from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, UserProfileView, OrganizationProfileView, SeminarRegistrationView, SeminarDeregistrationView, SeminarRegistrationStatusView, OrganizationListView, BlogListView
 from .models import get_username
 from . import views
 
@@ -25,4 +25,5 @@ urlpatterns = [
     path("user/profile/update/", UserProfileView.as_view(), name='user-profile-update'),
     path("organizations/", OrganizationListView.as_view(), name="organization-list"),
     path("organization/profile/", OrganizationProfileView.as_view(), name="organization-profile"),
+    path("blogs/", BlogListView.as_view(), name="blog-list"),
 ]
