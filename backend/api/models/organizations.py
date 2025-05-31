@@ -12,6 +12,7 @@ class Organizations(models.Model):
     description = models.TextField(null=True, blank=True)
     registration_num = models.CharField(max_length=255, unique=True, null=True, blank=True)
     established_date = models.DateField(null=True, blank=True)
+    org_logo = models.ImageField(upload_to="profile_pics_org/", null=True, blank=True)
 
     def __str__(self):
         return self.name

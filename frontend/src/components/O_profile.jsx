@@ -4,6 +4,7 @@ import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import FaceRoundedIcon from '@mui/icons-material/FaceRounded';
 import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
 import FamilyRestroomRoundedIcon from '@mui/icons-material/FamilyRestroomRounded';
+import Avatar from '@mui/material/Avatar';
 import styles from '../css/O_profile.module.css';
 import Navbar from './NavbarO';
 import TopBar from './TopBar';
@@ -11,6 +12,8 @@ import Footer from './Footer';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const OrganizationProfile = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const [orgData, setOrgData] = useState({});
     const [adoptionRequests, setAdoptionRequests] = useState([]);
     const [donationRequests, setDonationRequests] = useState([]);
@@ -20,16 +23,10 @@ const OrganizationProfile = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editData, setEditData] = useState(false);
+    const [profilePicture, setProfilePicture] = useState(null);
     const navigate = useNavigate();
 
     const {
-        org_name,
-        org_location,
-        org_email,
-        org_phone,
-        established,
-        acc_join_date,
-        role,
         org_vision,
         org_description,
         total_amount_received,
@@ -48,24 +45,51 @@ const OrganizationProfile = () => {
     }, []);
 
     const handleEditChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setEditData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleProfilePictureChange = (e) => {
+        setProfilePicture(e.target.files[0]);
+    };
+
     const handleEditSubmit = (e) => {
-        e.preventDefault();
-        fetch("/organization/profile/", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(editData),
-        }).then((res) => res.json()).then((data) => {
+    e.preventDefault();
+    const formData = new FormData();
+    Object.keys(editData).forEach((key) => {
+        formData.append(key, editData[key]);
+    });
+    if (profilePicture) {
+        formData.append('org_logo', profilePicture);
+    }
+
+    // form data logging
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+
+    fetch(`${apiUrl}/organization/profile/`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+    })
+        .then((res) => {
+            if (!res.ok) {
+                return res.json().then((err) => {
+                    console.error('Error:', err);
+                    throw new Error('Failed to update profile');
+                });
+            }
+            return res.json();
+        })
+        .then((data) => {
             setOrgData(data);
             setIsEditModalOpen(false);
-        }).catch((err) => console.error(err));
-    };
+        })
+        .catch((err) => console.error(err));
+};
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -80,16 +104,25 @@ const OrganizationProfile = () => {
                     {/* Profile Section */}
                     <div className={styles.profileSection}>
                         <div className={styles.accountPicture}>
-                            <img src={`./assets/${orgData.org_logo}`} alt="Organization Logo" />
+                            <Avatar
+                                src={orgData.org_logo ? `${apiUrl}${orgData.org_logo}` : '/assets/default_org.png'}
+                                alt="Organization Logo"
+                                sx={{ width: 120, height: 120 }}
+                            />
                         </div>
                         <div className={styles.accountData}>
-                            <h1>{org_name}</h1>
-                            <p>Location: {org_location}, Bangladesh</p>
-                            <p>Email: {org_email}</p>
-                            <p>Contact: {org_phone}</p>
-                            <p>Established: {established}</p>
-                            <p>Joined: {acc_join_date}</p>
-                            <p>Account Type: {role}</p>
+                            <h1>{orgData.name}</h1>
+                            <p>Location: {orgData.address}</p>
+                            <p>Email: {orgData.email}</p>
+                            <p>Contact: {orgData.contact}</p>
+                            <p>Established: {orgData.established_date}</p>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() => setIsEditModalOpen(true)}
+                            >
+                                Edit Profile
+                            </Button>
                         </div>
                     </div>
 
@@ -139,7 +172,7 @@ const OrganizationProfile = () => {
                             variant="contained"
                             color="secondary"
                             className={styles.optionButton}
-                            onClick={() => setIsEditModalOpen(true)} // Open the edit profile modal
+                            onClick={() => setIsEditModalOpen(true)}
                         >
                             Edit Profile
                         </Button>
@@ -306,6 +339,22 @@ const OrganizationProfile = () => {
                                 fullWidth
                             />
                             <TextField
+                                label="Registration Number"
+                                name="registration_num"
+                                value={editData.registration_num || ''}
+                                onChange={handleEditChange}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Established Date"
+                                name="established_date"
+                                type="date"
+                                value={editData.established_date || ''}
+                                onChange={handleEditChange}
+                                InputLabelProps={{ shrink: true }}
+                                fullWidth
+                            />
+                            <TextField
                                 label="Description"
                                 name="description"
                                 value={editData.description || ''}
@@ -314,6 +363,19 @@ const OrganizationProfile = () => {
                                 rows={3}
                                 fullWidth
                             />
+                            <Button
+                                variant="contained"
+                                component="label"
+                                color="primary"
+                            >
+                                Upload Profile Picture
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept="image/*"
+                                    onChange={handleProfilePictureChange}
+                                />
+                            </Button>
                             <Button type="submit" variant="contained" color="primary">
                                 Save Changes
                             </Button>
