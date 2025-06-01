@@ -103,3 +103,8 @@
   height: 100px;
   background: linear-gradient(90deg, #e0f7fa, #b2ebf2);
 }
+
+
+form p {
+  color: white;
+}
