@@ -6,7 +6,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const TopBar = ({ isLoggedIn, onLogout, ac_role }) => {
-  const accountLink = ac_role === 1 ? "/organization-profile" : "/user-home";
+  // const accountLink = ac_role === 1 ? "/organization-profile" : "/user-home";
   return (
     <div className={styles.topbar}>
       <ul className={styles.contactInfo}>
@@ -27,7 +27,7 @@ const TopBar = ({ isLoggedIn, onLogout, ac_role }) => {
         {isLoggedIn ? (
           <>
             <li>
-              <Link to={accountLink}>My Account</Link>
+              <Link to="/user-profile">My Account</Link>
             </li>
             <li>
               <button onClick={onLogout} className={styles.loginBtn}>
