@@ -26,8 +26,6 @@ build/
 *.pot
 *.pyc
 *.pyo
-*.sqlite3
-db.sqlite3
 media/
 staticfiles/
 
