@@ -1,12 +1,25 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--primary-font);
+    color: var(--text-color);
 }
 
 h1,
 h2,
 h3 {
-    margin: 0;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+}
+
+p {
+    font-family: var(--secondary-font);
+    line-height: 1.6;
+    color: var(--text-color);
+    font-size: 15px;
+}
+
+#highlight {
+    color: var(--highlight-color);
+    font-weight: bold;
 }
 
 .services {
@@ -18,7 +31,7 @@ h3 {
 
 .sectionTitle {
     text-align: center;
-    margin-bottom: 3%;
+    margin-bottom: 2rem;
 }
 
 .highlight {
@@ -43,7 +56,6 @@ h3 {
 }
 
 .part:hover {
-    background-color: rgba(255, 89, 122, 0.7);
     transform: scale(1.1) translateY(-5px);
     transition: .3s ease-in;
 }
@@ -212,7 +224,7 @@ h3 {
 
 
 
-.blog {
+/* .blog {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -223,7 +235,7 @@ h3 {
 
 .blog .h2 {
     color: var(--primary-color-dark) !important;
-}
+} */
 
 
 
@@ -298,14 +310,13 @@ h3 {
     padding: .375rem .75rem;
     font-size: 1rem;
     border-radius: .25rem;
-    color: white;
-    background-color: aqua;
+    background-color: var(--primary-color-light);
     color: rgb(59, 54, 54);
     transition: .5s;
 }
 
 .contact_form button:hover {
-    background-color: var(--secondary-color-dark);
+    background-color: #f2264f;
     transition: .5s;
 }
 
@@ -332,6 +343,18 @@ h3 {
 }
 
 .button_30 {
-    background-color: aqua;
-    color: rgb(59, 54, 54)
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    border-radius: .25rem;
+    color: white;
+    background-color: var(--primary-color-light);
+    color: rgb(59, 54, 54);
+    transition: .5s;
+}
+
+.button_30:hover {
+    background-color: #f2264f;
+    transition: .5s;
 }

@@ -495,7 +495,7 @@ const OrganizationProfile = () => {
                         borderRadius: 2,
                     }}
                 >
-                    <h2 id="volunteer-modal-title">Assign Volunteer to Seminar</h2>
+                    <h2 id="volunteer-modal-title" style={{ marginBottom: 15 }}>Assign Volunteer to Seminar</h2>
                     <Stack spacing={2}>
                         <TextField
                             select

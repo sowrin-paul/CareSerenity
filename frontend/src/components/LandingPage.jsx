@@ -1,15 +1,70 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../css/LandingPage.module.css';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import aboutImage from '../assets/about_img.png';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { TextField, Button, Box, Typography, Stack, Alert } from '@mui/material';
+import emailjs from '@emailjs/browser';
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const LandingPage = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    msg: "",
+  });
+
+  const [isSending, setIsSending] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate mobile number length
+    if (formData.mobile.length > 11) {
+      setErrorMessage("Mobile number cannot exceed 11 digits.");
+      return;
+    }
+
+    setIsSending(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    emailjs
+      .send(
+        "service_13pe3fr",
+        "template_cibvreg",
+        formData,
+        "b3UNwrJ-Pypzfr76N"
+      )
+      .then(
+        (response) => {
+          console.log("SUCCESS!", response.status, response.text);
+          setSuccessMessage("Your message has been sent successfully!");
+          setFormData({ name: "", email: "", mobile: "", msg: "" }); // Reset form
+        },
+        (error) => {
+          console.error("FAILED...", error);
+          setErrorMessage("Failed to send your message. Please try again.");
+        }
+      )
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
+
   useEffect(() => {
     const hash = window.location.hash.substring(1);
+
     if (hash) {
       const section = document.getElementById(hash);
       if (section) {
@@ -26,7 +81,7 @@ const LandingPage = () => {
       <div id="line" className={styles.line}></div>
       <div className={styles.services} id="services">
         <div className={styles.sectionTitle}>
-          <p id="highlight" className={styles.highlight}>We provide</p>
+          <h1 id="highlight" className={styles.highlight}>We provide</h1>
           <p>
             A platform for Organizations. Stay connected with orphans and elderly
             to change lives with each click. Spread kindness to all.
@@ -79,9 +134,11 @@ const LandingPage = () => {
 
       <div className={styles.donations} id="donations">
         <div className={styles.sectionTitle}>
-          <p id="highlight" className={styles.highlight}>Recently raised funds</p>
+          <h1 id="highlight" className={styles.highlight}>Recently raised funds</h1>
         </div>
-        <div className={styles.cardsContainer}>Donation card will pop up here</div>
+        <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
+          <Alert severity="warning">Currently nothing is donated.</Alert>
+        </Stack>
       </div>
 
       <div id="line"></div>
@@ -89,7 +146,7 @@ const LandingPage = () => {
       <div className={styles.AboutUs} id="aboutUs">
         <div className={styles.descriptionbox}>
           <div className={styles.sessionTitle}>
-            <p>Help us to Achieve our Goal</p>
+            <h1 id="highlight" className={styles.highlight}>Help us to Achieve our Goal</h1>
             <p id="highlight" className={styles.descHighlight}>Joining Hands, Changing Stories</p>
           </div>
           <div className={styles.aboutDetail}>
@@ -125,15 +182,15 @@ const LandingPage = () => {
       </div>
 
       <div id="line" className={styles.line}></div>
-      <div className={styles.blog} id="blogs">
+      {/* <div className={styles.blog} id="blogs">
         <div className={styles.sectionTitle}>
-            <h2 id="highlight" className={styles.highlight}>Blog</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ipsum sit nibh amet egestas tellus.</p>
+          <h2 id="highlight" className={styles.highlight}>Blog</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ipsum sit nibh amet egestas tellus.</p>
         </div>
         <div className="cards-container">
         </div>
-      </div>
-      <div id="line" className={styles.line}></div>
+      </div> */}
+      {/* <div id="line" className={styles.line}></div> */}
       <div className="row no-margin" id="contactUs">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3650.582336034878!2d90.4471350761669!3d23.79788287863816!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1721831420744!5m2!1sen!2sus"
@@ -151,25 +208,15 @@ const LandingPage = () => {
         <Box
           component="form"
           className={styles.contactForm}
-          action="./contact_form_BE"
-          method="post"
           sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500, margin: '0 auto' }}
-          onSubmit={(e) => {
-            const mobile = document.getElementById("mobile");
-            const error = document.getElementById("mobile-error");
-            if (mobile.value.length > 11) {
-              e.preventDefault();
-              error.style.display = "block";
-              mobile.style.borderColor = "red";
-            } else {
-              error.style.display = "none";
-              mobile.style.borderColor = "";
-            }
-          }}
+          onSubmit={handleSubmit}
         >
           <Typography variant="h5" color="primary" sx={{ mb: 2 }}>
             Contact Form
           </Typography>
+
+          {successMessage && <Typography color="green">{successMessage}</Typography>}
+          {errorMessage && <Typography color="red">{errorMessage}</Typography>}
 
           <TextField
             label="Enter Name"
@@ -178,6 +225,8 @@ const LandingPage = () => {
             fullWidth
             required
             margin="dense"
+            value={formData.name}
+            onChange={handleChange}
           />
 
           <TextField
@@ -188,19 +237,21 @@ const LandingPage = () => {
             fullWidth
             required
             margin="dense"
+            value={formData.email}
+            onChange={handleChange}
           />
 
           <TextField
             label="Mobile Number"
             name="mobile"
-            id="mobile"
             type="text"
             variant="outlined"
             fullWidth
             required
             margin="dense"
             inputProps={{ maxLength: 11 }}
-            helperText={<span id="mobile-error" style={{ color: "red", display: "none" }}>Mobile number cannot exceed 11 digits</span>}
+            value={formData.mobile}
+            onChange={handleChange}
           />
 
           <TextField
@@ -211,6 +262,8 @@ const LandingPage = () => {
             variant="outlined"
             fullWidth
             margin="dense"
+            value={formData.msg}
+            onChange={handleChange}
           />
 
           <Button
@@ -219,8 +272,9 @@ const LandingPage = () => {
             color="primary"
             sx={{ mt: 2 }}
             className={styles.button_30}
+            disabled={isSending}
           >
-            Send Message
+            {isSending ? "Sending..." : "Send Message"}
           </Button>
         </Box>
 
@@ -236,6 +290,7 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+
 
       {/* <button id="scrollTopBtn" title="Go to top">
         <i className="bx bx-chevrons-up bx-burst"></i>

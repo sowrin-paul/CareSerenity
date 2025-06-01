@@ -24,7 +24,7 @@ const Navbar = () => {
                 <a href="#" className={styles.active}>Home</a>
                 <a href="#" onClick={() => handleScroll("services")}>Services</a>
                 <a href="#" onClick={() => handleScroll("donations")}>Donations</a>
-                <a href="#" onClick={() => handleScroll("blogs")}>Blogs</a>
+                {/* <a href="#" onClick={() => handleScroll("blogs")}>Blogs</a> */}
                 <a href="#" onClick={() => handleScroll("aboutUs")}>About Us</a>
                 <a href="#" onClick={() => handleScroll("contactUs")}>Contact Us</a>
             </div>

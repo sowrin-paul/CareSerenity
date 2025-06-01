@@ -110,7 +110,7 @@ const OrganizationList = () => {
               <CardMedia
                 component="img"
                 height="140"
-                image={org.profilePicture || '/assets/default_org.png'}
+                image={org.profilePicture ? `${apiUrl}${org.profilePicture}` : '/assets/default_org.png'}
                 alt={org.name}
               />
               <CardContent>
