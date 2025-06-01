@@ -17,6 +17,7 @@ import {
 import TopBar from './TopBar';
 import Navbar from './NavbarO';
 import Footer from './Footer';
+import img from '../assets/org.png';
 
 const OrganizationList = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -110,7 +111,7 @@ const OrganizationList = () => {
               <CardMedia
                 component="img"
                 height="140"
-                image={org.profilePicture ? `${apiUrl}${org.profilePicture}` : '/assets/default_org.png'}
+                image={org.org_logo ? `${apiUrl}${org.org_logo}` : `${img}`}
                 alt={org.name}
               />
               <CardContent>
@@ -151,7 +152,7 @@ const OrganizationList = () => {
           {selectedOrganization && (
             <>
               <img
-                src={selectedOrganization.profilePicture || '/assets/default_org.png'}
+                src={selectedOrganization.org_logo ? `${apiUrl}${selectedOrganization.org_logo}` : `${img}`}
                 alt={selectedOrganization.name}
                 style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }}
               />
