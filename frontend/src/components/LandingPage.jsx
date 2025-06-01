@@ -137,7 +137,7 @@ const LandingPage = () => {
           <h1 id="highlight" className={styles.highlight}>Recently raised funds</h1>
         </div>
         <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
-          <Alert severity="warning">Currently nothing is donated.</Alert>
+          <Alert severity="warning">No recent fundraising campaigns yet.</Alert>
         </Stack>
       </div>
 

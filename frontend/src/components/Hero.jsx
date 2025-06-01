@@ -1,5 +1,14 @@
 import React from "react";
 import styles from "../css/Hero.module.css";
+
+const stats = [
+  { label: "orphans to help", count: 56 },
+  { label: "organizations", count: 16 },
+  { label: "BDT as Donation", count: "50K" },
+  { label: "users", count: 61 },
+  { label: "Volunteers", count: 25 },
+];
+
 const Hero = () => {
   return (
     <div>
@@ -18,21 +27,15 @@ const Hero = () => {
           className={`${styles.row} ${styles.info_web} ${styles["diag-ro"]}`}
           id="info_web"
         >
-          {[
-            "orphans to help",
-            "organizations",
-            "BDT as Donation",
-            "users",
-            "Volunteers",
-          ].map((label, index) => (
+          {stats.map((item, index) => (
             <div
               className={`${styles.aboutDiag} ${styles.info_cell}`}
               id="info_cell"
               key={index}
             >
               <p className={styles.txt}>We have</p>
-              <h3 className={styles.count}>100</h3>
-              <p className={styles.txt}>{label}</p>
+              <h3 className={styles.count}>{item.count}</h3>
+              <p className={styles.txt}>{item.label}</p>
             </div>
           ))}
         </div>

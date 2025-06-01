@@ -98,3 +98,7 @@
     text-decoration: underline;
   }
   
+
+  form p {
+    color: white;
+  }
