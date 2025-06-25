@@ -9,6 +9,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
+from .models.payment import Payment
+from .serializers import PaymentSerializer
 from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
 from .models .seminar import Seminar
