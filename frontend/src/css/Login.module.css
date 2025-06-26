@@ -1,4 +1,4 @@
-.body {
+/* .body {
   background-image: url('../assets/bg_4.jpg');
   background-size: cover;
   background-position: center;
@@ -7,9 +7,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
+} */
 
-.loginContainer {
+/* .loginContainer {
   max-width: 450px;
   margin: 60px auto;
   padding: 2rem;
@@ -21,17 +21,17 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
   color: white;
-}
+} */
 
-.loginContainer form {
+/* .loginContainer form {
   width: 350px;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 
-.loginContainer h1 {
+/* .loginContainer h1 {
   margin-bottom: 1.5rem;
   font-size: 2rem;
   color: #333;
@@ -66,9 +66,9 @@
 
 .loginBtn:hover {
   background-color: #005fa3;
-}
+} */
 
-.forgetPass,
+/* .forgetPass,
 .signup,
 .goBack {
   display: block;
@@ -107,4 +107,4 @@
 
 form p {
   color: white;
-}
+} */

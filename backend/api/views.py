@@ -8,6 +8,8 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 from rest_framework.decorators import api_view, permission_classes
 from .models.payment import Payment
 from .serializers import PaymentSerializer
@@ -21,6 +23,7 @@ from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
 from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer, VolunteerSerializer, VolunteerApplicationSerializer
 
+# ============================== Register ==============================
 class RegisterView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -52,6 +55,7 @@ class RegisterView(APIView):
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ================================== login =====================================
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -90,6 +94,52 @@ def pending_organization(request):
     organization = User.objects.filter(ac_role=1, is_active=False)
     data = [{"id": org.id, "email": org.email} for org in organization]
     return Response(data, status=status.HTTP_200_OK)
+
+# ==================================== Google auth =================================
+class GoogleAuthView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Specify the CLIENT_ID of the app that accesses the backend:
+            # You can skip audience check for development, but it's more secure to set it.
+            # idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "<YOUR_GOOGLE_CLIENT_ID>")
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
+
+            # ID token is valid. Get the user's Google Account ID and email
+            email = idinfo.get('email')
+            name = idinfo.get('name', email.split('@')[0])
+            if not email:
+                return Response({'error': 'No email found in token'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Get or create user
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'username': email,
+                'first_name': name,
+                'ac_role': 0,  # or set default role as needed
+                'is_active': True,
+            })
+
+            # Issue JWT tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "success": True,
+                "statusCode": 200,
+                "message": "Login successful",
+                "data": {
+                    "id": str(user.id),
+                    "name": user.get_username(),
+                    "email": user.email,
+                    "role": user.ac_role,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            }, status=status.HTTP_200_OK)
+        except ValueError:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # ============================================= Seminar ================================================
 class SeminarListView(APIView):
@@ -359,3 +409,4 @@ class ApplyForVolunteeringView(APIView):
             return Response({"error": "Seminar not found or not open for volunteers."}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
+
