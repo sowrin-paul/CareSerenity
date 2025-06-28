@@ -12,6 +12,7 @@ import SeminarView from "./components/SeminarView";
 import UserProfile from "./components/UserProfile";
 import OrganizationList from "./components/OrganizationList";
 import BlogCreate from "./components/BlogCreate";
+import UserBlog from "./components/UserBlog";
 
 function App() {
   return (
@@ -25,10 +26,11 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/user-seminar/" element={<USeminarUserPage />} />
         <Route path="/organization-seminar/" element={<OSeminarsPage />} />
-        <Route path="/seminar-view/:userId" element={<SeminarView />} />
+        <Route path="/seminar-view/" element={<SeminarView />} />
         <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/organization-lists" element={<OrganizationList />} />
         <Route path="/blogs" element={<BlogCreate />} />
+        <Route path="/user-blogs" element={<UserBlog />} />
       </Routes>
     </Router>
   );

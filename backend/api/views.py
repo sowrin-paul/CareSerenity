@@ -11,8 +11,8 @@ from rest_framework.views import APIView
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from rest_framework.decorators import api_view, permission_classes
-from .models.payment import Payment
-from .serializers import PaymentSerializer
+from .models .payment import Payment
+# from .serializers import PaymentSerializer
 from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
 from .models .seminar import Seminar
@@ -102,10 +102,7 @@ class GoogleAuthView(APIView):
         if not token:
             return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            # Specify the CLIENT_ID of the app that accesses the backend:
-            # You can skip audience check for development, but it's more secure to set it.
-            # idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "<YOUR_GOOGLE_CLIENT_ID>")
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "47543249338-obgt7q4u4ekjgo0itu2nhier7cr2ichh.apps.googleusercontent.com")
 
             # ID token is valid. Get the user's Google Account ID and email
             email = idinfo.get('email')
@@ -265,12 +262,13 @@ class OrganizationProfileView(APIView):
         if request.user.ac_role != 1:
             return Response({"error": "You are not authorized to access this resource."}, status=status.HTTP_403_FORBIDDEN)
         try:
-            organization = Organizations.objects.get(user=request.user)
+            organization, created = Organizations.objects.get_or_create(user=request.user)
             serializer = OrganizationProfileSerializer(organization)
             return Response({
                 "user": {
                     "name": request.user.email,
                     "email": request.user.email,
+                    "accountType": dict(User.ROLE_CHOICE).get(request.user.ac_role, "Organizations"),
                 },
                 "profile": serializer.data,
             }, status=status.HTTP_200_OK)
@@ -279,7 +277,7 @@ class OrganizationProfileView(APIView):
 
     def patch(self, request):
         try:
-            organization = Organizations.objects.get(user=request.user)
+            organization, created = Organizations.objects.get_or_create(user=request.user)
             serializer = OrganizationProfileSerializer(organization, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()

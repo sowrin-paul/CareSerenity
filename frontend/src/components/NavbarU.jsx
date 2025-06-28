@@ -118,10 +118,10 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/user-aboutus"
-              className={activeOption === "aboutus" ? styles.active : ""}
+              to="/user-blogs"
+              className={activeOption === "blogs" ? styles.active : ""}
             >
-              About Us
+              Blogs
             </Link>
           </li>
           {/* <li className={styles.icon} onClick={toggleNotification}>
