@@ -216,6 +216,40 @@ class SeminarRegistrationStatusView(APIView):
         is_registered = SeminarRegistration.objects.filter(user=request.user, seminar_id=seminar_id).exists()
         return Response({"registered": is_registered}, status=status.HTTP_200_OK)
 
+class SeminarDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request, seminar_id):
+        try:
+            # check if the requesting user is the creator
+            seminar = Seminar.objects.get(id=seminar_id)
+
+            # Only allow deletion if the user created this seminar
+            if seminar.created_by != request.user:
+                return Response(
+                    {"error": "You do not have permission to delete this seminar."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # seminar deletion
+            seminar.delete()
+            return Response(
+                {"message": "Seminar deleted successfully."},
+                status=status.HTTP_200_OK
+            )
+
+        except Seminar.DoesNotExist:
+            return Response(
+                {"error": "Seminar not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class FetchOpenVolunteerApplicationsView(APIView):
     permission_classes = [IsAuthenticated]

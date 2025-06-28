@@ -21,7 +21,8 @@ import RssFeedRoundedIcon from "@mui/icons-material/RssFeedRounded";
 import { styled } from "@mui/material/styles";
 import "../css/Color.module.css";
 import TopBar from "./TopBar";
-import Navbar from "./NavbarU";
+import NavbarU from "./NavbarU";
+import Footer from "./Footer";
 
 const blogData = [
   {
@@ -182,7 +183,7 @@ const UserBlog = () => {
   return (
     <React.Fragment>
       <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <Navbar />
+      <NavbarU />
       <CssBaseline enableColorScheme />
       <Container
         maxWidth="lg"
@@ -191,6 +192,7 @@ const UserBlog = () => {
           display: "flex",
           flexDirection: "column",
           marginTop: 14,
+          marginBottom: 8,
           gap: 4,
         }}
       >
@@ -303,6 +305,8 @@ const UserBlog = () => {
           <Pagination count={5} color="primary" />
         </Box>
       </Container>
+
+      <Footer />
     </React.Fragment>
   );
 }

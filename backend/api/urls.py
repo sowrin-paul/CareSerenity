@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, OrganizationListView
+from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, OrganizationListView, SeminarDeleteView
 from .models import get_username
 from . import views
 
@@ -19,4 +19,5 @@ urlpatterns = [
     path("seminars/<int:seminar_id>/", views.fetch_seminar_details, name="seminar-detail"),
     path("own-seminars/", views.fetch_own_seminar, name="fetch-own-seminars"),
     path("available-seminars/", views.fetch_available_seminars, name="fetch-available-seminars"),
+    path('seminar-delete/<int:seminar_id>/', SeminarDeleteView.as_view(), name='seminar-delete'),
 ]

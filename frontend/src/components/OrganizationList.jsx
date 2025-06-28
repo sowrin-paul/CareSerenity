@@ -15,7 +15,8 @@ import {
   DialogActions,
 } from '@mui/material';
 import TopBar from './TopBar';
-import Navbar from './NavbarO';
+import NavbarO from './NavbarO';
+import NavbarU from './NavbarU';
 import Footer from './Footer';
 import img from '../assets/org.png';
 
@@ -29,6 +30,12 @@ const OrganizationList = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState(null);
+
+  const [role, setRole] = useState(null);
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    setRole(storedRole);
+  }, []);
 
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -82,7 +89,7 @@ const OrganizationList = () => {
   return (
     <>
       <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-      <Navbar />
+      {role === "1" ? <NavbarO /> : <NavbarU />}
       <Box sx={{ padding: '20px', marginTop: 10 }}>
         {/* Header Section */}
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: 3 }}>

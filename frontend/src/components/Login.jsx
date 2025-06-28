@@ -69,13 +69,14 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.data.access);
+        localStorage.setItem("role", String(data.data.role));
         const userId = data.data.id;
         const userRole = data.data.role;
 
         if (userRole == 0) {
           navigate(`/user-home/${userId}`);
         } else if (userRole == 1) {
-          navigate(`/organization-profile/${userId}`);
+          navigate(`/org-home/${userId}`);
         }
       } else {
         const errorData = await response.json();

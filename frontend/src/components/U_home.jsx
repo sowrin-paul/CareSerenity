@@ -18,7 +18,7 @@ import {
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import TopBar from '../components/TopBar';
-import Navbar from '../components/NavbarU';
+import NavbarU from '../components/NavbarU';
 import Hero from '../components/Hero';
 import Footer from '../components/Footer';
 import styles from '../css/U_home.module.css';
@@ -144,7 +144,7 @@ const U_home = () => {
     return (
         <div>
             <TopBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-            <Navbar />
+            <NavbarU />
             <Hero />
             <div className={styles.container}>
                 <div className={styles.options}>
