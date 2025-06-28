@@ -6,6 +6,8 @@ import TopBar from './TopBar';
 import Navbar from './NavbarU';
 import Footer from './Footer';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const BlogCreate = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -21,7 +23,7 @@ const BlogCreate = () => {
     if (image) formData.append('image', image);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/blogs/`, {
+      const res = await fetch(`${apiUrl}/blogs/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -33,7 +35,7 @@ const BlogCreate = () => {
       setTitle('');
       setContent('');
       setImage(null);
-      navigate('/');
+      navigate('/user-home');
     } catch (error) {
       console.error('Error creating blog:', error);
     }

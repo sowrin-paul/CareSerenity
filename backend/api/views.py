@@ -334,6 +334,7 @@ class OrganizationListView(APIView):
 # ======================================== Blog =======================================
 class BlogListView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         blogs = Blog.objects.all()
@@ -345,7 +346,7 @@ class BlogListView(APIView):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ======================================== Volunteer ====================================
 class AssignVolunteerView(APIView):
@@ -390,12 +391,22 @@ class OrganizationVolunteersView(APIView):
 
     def get(self, request):
         try:
-            organization = request.user.organization
+            organization = Organizations.objects.get(user=request.user)
             volunteers = User.objects.filter(ac_role=0, is_active=True)
-            volunteer_data = [{"id": volunteer.id, "name": volunteer.first_name + " " + volunteer.last_name} for volunteer in volunteers]
-            return Response(volunteer_data, status=200)
-        except AttributeError:
-            return Response({"error": "Organization not found for the current user."}, status=404)
+            volunteer_data = []
+
+            for volunteer in volunteers:
+                # Simply use email as the name since UserProfile doesn't have full_name
+                name = volunteer.email
+
+                volunteer_data.append({
+                    "id": volunteer.id,
+                    "name": name
+                })
+
+            return Response(volunteer_data, status=status.HTTP_200_OK)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=status.HTTP_404_NOT_FOUND)
 
 class OpenVolunteerApplicationView(APIView):
     permission_classes = [IsAuthenticated]
