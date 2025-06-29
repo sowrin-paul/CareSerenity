@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../css/Color.module.css';
 import style from '../css/Footer.module.css';
+
 const Footer = () => {
   return (
     <div>

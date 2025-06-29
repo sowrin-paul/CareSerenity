@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../css/Topbar.module.css';
 import CallIcon from '@mui/icons-material/Call';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-const TopBar = ({ isLoggedIn, onLogout, ac_role }) => {
-  // const accountLink = ac_role === 1 ? "/organization-profile" : "/user-home";
+const TopBar = ({ isLoggedIn, onLogout }) => {
+  const [role, setRole] = useState(localStorage.getItem('role'));
+  const accountLink = role === "1" ? "/organization-profile" : "/user-profile";
+
+  console.log("current role:", role);
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    console.log("Role from localStorage:", storedRole);
+    setRole(storedRole);
+  }, []);
+
   return (
     <div className={styles.topbar}>
       <ul className={styles.contactInfo}>
@@ -27,7 +37,7 @@ const TopBar = ({ isLoggedIn, onLogout, ac_role }) => {
         {isLoggedIn ? (
           <>
             <li>
-              <Link to="/user-profile">My Account</Link>
+              <Link to={accountLink}>My Account</Link>
             </li>
             <li>
               <button onClick={onLogout} className={styles.loginBtn}>

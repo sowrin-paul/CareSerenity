@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     Alert, Stack, TextField, IconButton, FormControl, InputLabel, Select, MenuItem, Snackbar, Button, Card, CardContent, CardActionArea, CardMedia, Typography, Dialog, DialogActions, DialogContent, DialogTitle
 } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
@@ -52,6 +54,124 @@ function OSeminarsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSeminar, setSelectedSeminar] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        title: '',
+        subject: '',
+        description: '',
+        seminar_date: '',
+        guest: '',
+        seminar_type: '',
+        location: '',
+        banner: null,
+    });
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+    // edit seminar
+    const handleEditClick = () => {
+        if (!selectedSeminar) return;
+
+        setEditFormData({
+            title: selectedSeminar.title || '',
+            subject: selectedSeminar.subject || '',
+            description: selectedSeminar.description || '',
+            seminar_date: selectedSeminar.seminar_date || '',
+            guest: selectedSeminar.guest || '',
+            seminar_type: selectedSeminar.seminar_type || '',
+            location: selectedSeminar.location || '',
+            banner: null,
+        });
+
+        setIsModalOpen(false);
+        setIsEditModalOpen(true);
+    };
+
+    // edit seminar
+    const handleEditFormChange = (e) => {
+        const { name, value, files } = e.target;
+        setEditFormData((prev) => ({
+            ...prev,
+            [name]: files ? files[0] : value,
+        }));
+    };
+
+    // update submit
+    const handleUpdateSubmit = async (e) => {
+        e.preventDefault();
+        if (!selectedSeminar) return;
+
+        const formPayload = new FormData();
+
+        for (let key in editFormData) {
+            if (editFormData[key] !== null && editFormData[key] !== undefined) {
+                formPayload.append(key, editFormData[key]);
+            }
+        }
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const res = await fetch(`${apiUrl}/seminars/${selectedSeminar.id}/`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: formPayload,
+            });
+
+            setIsUploading(false);
+
+            if (res.ok) {
+                setFeedback({ positive: 'Seminar updated successfully!', negative: '' });
+                fetchOwnSeminars();
+                fetchAvailableSeminars();
+                setIsEditModalOpen(false);
+            } else {
+                const data = await res.json();
+                setFeedback({ positive: '', negative: data.message || 'Failed to update seminar.' });
+            }
+        } catch (error) {
+            setIsUploading(false);
+            setFeedback({ positive: '', negative: 'An error occurred while updating.' });
+        }
+    };
+
+    // delete seminar card
+    const handleDeleteClick = () => {
+        setIsDeleteConfirmOpen(true);
+    };
+
+    // delete confirmation
+    const handleDeleteConfirm = async () => {
+        if (!selectedSeminar) return;
+
+        try {
+            const res = await fetch(`${apiUrl}/seminar-delete/${selectedSeminar.id}/`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (res.ok) {
+                setFeedback({ positive: 'Seminar deleted successfully!', negative: '' });
+                fetchOwnSeminars();
+                fetchAvailableSeminars();
+                setIsDeleteConfirmOpen(false);
+                setIsModalOpen(false);
+            } else {
+                const data = await res.json();
+                setFeedback({ positive: '', negative: data.message || 'Failed to delete seminar.' });
+            }
+        } catch (error) {
+            setFeedback({ positive: '', negative: 'An error occurred while deleting.' });
+        }
+    };
+
+    const handleEditModalClose = () => {
+        setIsEditModalOpen(false);
+    };
 
     useEffect(() => {
         fetchOwnSeminars();
@@ -173,11 +293,14 @@ function OSeminarsPage() {
     };
 
     const handleCardClick = (id) => {
-        const seminar = seminars.find(s => s.id === id);
+        const ownSeminar = ownSeminars.find(s => s.id === id);
+        const availableSeminar = seminars.find(s => s.id === id);
+
+        const seminar = ownSeminar || availableSeminar;
         setSelectedSeminar(seminar);
         setLoading(true);
         setIsModalOpen(true);
-        setTimeout(() => setLoading(false), 1000); // Simulate loading
+        setTimeout(() => setLoading(false), 1000);
     };
 
     const handleModalClose = () => {
@@ -470,7 +593,12 @@ function OSeminarsPage() {
                 <h1 className={seminarStyles.title}>My Seminars :</h1>
                 <div className={seminarStyles.grid}>
                     {filteredOwnSeminars.length > 0 ? filteredOwnSeminars.map((seminar) => (
-                        <Link key={seminar.id} to={`/seminar-view/${seminar.id}`} className={seminarStyles.cardLink}>
+                        <div
+                            key={seminar.id}
+                            className={seminarStyles.cardLink}
+                            onClick={() => handleCardClick(seminar.id)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className={seminarStyles.card}>
                                 <img src={`${apiUrl}${seminar.banner}`} alt="Seminar Banner" className={seminarStyles.cardImage} />
                                 <h3 className={seminarStyles.cardTitle}>{seminar.title}</h3>
@@ -478,7 +606,7 @@ function OSeminarsPage() {
                                     <span className={seminarStyles.cardDate}>{seminar.seminar_date}</span>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     )) : (
                         <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
                             <Alert severity="warning">Currently no seminar available.</Alert>
@@ -560,7 +688,13 @@ function OSeminarsPage() {
                                 <b>Date:</b> {selectedSeminar?.seminar_date}
                             </Typography>
                             <Typography variant="body1" gutterBottom>
-                                <b>Location:</b> {selectedSeminar?.location}
+                                <b>Subject:</b> {selectedSeminar?.subject}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                <b>Type:</b> {selectedSeminar?.seminar_type}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                <b>Location:</b> {selectedSeminar?.location || 'Online'}
                             </Typography>
                             <Typography variant="body1" gutterBottom>
                                 <b>Description:</b> {selectedSeminar?.description}
@@ -572,8 +706,192 @@ function OSeminarsPage() {
                     )}
                 </DialogContent>
                 <DialogActions>
+                    {/* Show edit and delete buttons */}
+                    {ownSeminars.some(s => s.id === selectedSeminar?.id) && (
+                        <>
+                            <Button
+                                onClick={handleEditClick}
+                                color="primary"
+                                startIcon={<EditIcon />}
+                            >
+                                Modify
+                            </Button>
+                            <Button
+                                onClick={handleDeleteClick}
+                                color="error"
+                                startIcon={<DeleteIcon />}
+                            >
+                                Delete
+                            </Button>
+                        </>
+                    )}
                     <Button onClick={handleModalClose} color="primary" startIcon={<ArrowBackIcon />}>
                         Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Edit Seminar Modal */}
+            <Dialog open={isEditModalOpen} onClose={handleEditModalClose} maxWidth="md" fullWidth>
+                <DialogTitle>Edit Seminar</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleUpdateSubmit} encType="multipart/form-data">
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Title"
+                                name="title"
+                                value={editFormData.title}
+                                onChange={handleEditFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
+                        </div>
+
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Subject"
+                                name="subject"
+                                value={editFormData.subject}
+                                onChange={handleEditFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
+                        </div>
+
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Seminar Description"
+                                name="description"
+                                value={editFormData.description}
+                                onChange={handleEditFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                                multiline
+                                rows={4}
+                            />
+                        </div>
+
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Date"
+                                name="seminar_date"
+                                type="date"
+                                value={editFormData.seminar_date}
+                                onChange={handleEditFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                                InputLabelProps={{ shrink: true }}
+                            />
+                        </div>
+
+                        <div className={profileEditStyles.formRow}>
+                            <TextField
+                                label="Guests"
+                                name="guest"
+                                value={editFormData.guest}
+                                onChange={handleEditFormChange}
+                                required
+                                fullWidth
+                                margin="dense"
+                            />
+                        </div>
+
+                        <div className={profileEditStyles.formRow}>
+                            <FormControl fullWidth margin="dense" required>
+                                <InputLabel id="edit-type-label">Type</InputLabel>
+                                <Select
+                                    labelId="edit-type-label"
+                                    name="seminar_type"
+                                    value={editFormData.seminar_type}
+                                    label="Seminar Type"
+                                    onChange={handleEditFormChange}
+                                >
+                                    <MenuItem value="">
+                                        <em>Select online or offline</em>
+                                    </MenuItem>
+                                    <MenuItem value="online">Online</MenuItem>
+                                    <MenuItem value="offline">Offline</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </div>
+
+                        {editFormData.seminar_type === 'offline' && (
+                            <div className={profileEditStyles.formRow}>
+                                <TextField
+                                    label="Location"
+                                    name="location"
+                                    value={editFormData.location}
+                                    onChange={handleEditFormChange}
+                                    fullWidth
+                                    margin="dense"
+                                />
+                            </div>
+                        )}
+
+                        <div className={profileEditStyles.formRow}>
+                            <Button
+                                variant="outlined"
+                                component="label"
+                                fullWidth
+                                sx={{ justifyContent: 'center' }}
+                            >
+                                Update Seminar Banner
+                                <input
+                                    type="file"
+                                    name="banner"
+                                    hidden
+                                    onChange={handleEditFormChange}
+                                />
+                            </Button>
+                            {editFormData.banner && (
+                                <span style={{ marginLeft: 8 }}>{editFormData.banner.name || 'New file selected'}</span>
+                            )}
+                        </div>
+
+                        {isUploading && (
+                            <div style={{ margin: '16px 16px' }}>
+                                <LinearProgress variant="determinate" value={uploadProgress} />
+                                <div style={{ textAlign: 'center' }}>{uploadProgress}%</div>
+                            </div>
+                        )}
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditModalClose} color="error">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleUpdateSubmit} color="primary" variant="contained">
+                        Update
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Confirm Deletion"}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography id="alert-dialog-description">
+                        Are you sure you want to delete the seminar "{selectedSeminar?.title}"?
+                        This action cannot be undone.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsDeleteConfirmOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>

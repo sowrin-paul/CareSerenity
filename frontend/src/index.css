@@ -20,7 +20,7 @@ body, #root {
 }
 
 #root > *:last-child {
-  margin-top: auto;
+  /* margin-top: auto; */
 }
 
 a {

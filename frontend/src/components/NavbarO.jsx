@@ -14,7 +14,7 @@ const navOptions = {
   myprofile: ['/O_profile', '/O_profile_edit', '/O_chat_list', '/O_orphan', '/O_orphan_profile', '/O_orphan_removed', '/O_adoption'],
 };
 
-function Navbar() {
+const NavbarO = () => {
   const location = useLocation();
   const [activeOption, setActiveOption] = useState('');
   // const [notifications, setNotifications] = useState([]);
@@ -63,18 +63,10 @@ function Navbar() {
         <ul className={styles.navLinks}>
           <li>
             <Link
-            to="/organization-profile/:userId"
+            to="/org-home/:userId"
               className={activeOption === "home" ? styles.active : ""}
             >
               Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/organization-lists"
-              className={activeOption === "organizations" ? styles.active : ""}
-            >
-              Organizations
             </Link>
           </li>
           <li>
@@ -117,4 +109,4 @@ function Navbar() {
   );
 };
 
-export default Navbar;
+export default NavbarO;

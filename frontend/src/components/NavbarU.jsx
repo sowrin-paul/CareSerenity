@@ -8,12 +8,6 @@ import styles from '../css/Navbar.module.css';
 
 const navOptions = {
   home: ["/user-home", "/U_create_blog", "/U_view_blog"],
-  organizations: [
-    "/U_organization",
-    "/U_see_organization_orphanage",
-    "/U_see_organization_profile",
-    "/U_see_orphan_profile",
-  ],
   adoptions: ["/U_adoption"],
   seminars: ["/user-seminar/:userId"],
   joinus: ["/U_joinus"],
@@ -21,7 +15,7 @@ const navOptions = {
   myprofile: ["/user-profile", "/U_profile_edit", "/U_chat_list"],
 };
 
-function Navbar() {
+const NavbarU = () => {
   const { userId } = useParams();
   const location = useLocation();
   const [activeOption, setActiveOption] = useState("");
@@ -118,10 +112,10 @@ function Navbar() {
           </li>
           <li>
             <Link
-              to="/user-aboutus"
-              className={activeOption === "aboutus" ? styles.active : ""}
+              to="/user-blogs"
+              className={activeOption === "blogs" ? styles.active : ""}
             >
-              About Us
+              Blogs
             </Link>
           </li>
           {/* <li className={styles.icon} onClick={toggleNotification}>
@@ -140,4 +134,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default NavbarU;

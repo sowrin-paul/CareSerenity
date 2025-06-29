@@ -89,22 +89,22 @@ class VolunteerApplicationAdmin(admin.ModelAdmin):
     search_fields = ['user__email', 'seminar__title']
     list_filter = ['applied_at']
 
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = [
-        "payer", "organization", "orphan", "orphan_organization",
-        "amount", "payment_method", "transaction_id", "paid_at"
-    ]
-    search_fields = ["payer__email", "organization__name", "orphan__name", "transaction_id"]
-    list_filter = ["payment_method", "paid_at", "organization"]
-    readonly_fields = ["paid_at"]
+# @admin.register(Payment)
+# class PaymentAdmin(admin.ModelAdmin):
+#     list_display = [
+#         "payer", "organization", "orphan", "orphan_organization",
+#         "amount", "payment_method", "transaction_id", "paid_at"
+#     ]
+#     search_fields = ["payer__email", "organization__name", "orphan__name", "transaction_id"]
+#     list_filter = ["payment_method", "paid_at", "organization"]
+#     readonly_fields = ["paid_at"]
 
-@admin.register(Donation)
-class DonationAdmin(admin.ModelAdmin):
-    list_display = [
-        "donor", "organization", "orphan",
-        "amount", "payment_method", "transaction_id", "donated_at"
-    ]
-    search_fields = ["donor__email", "organization__name", "orphan__name", "transaction_id"]
-    list_filter = ["payment_method", "donated_at", "organization"]
-    readonly_fields = ["donated_at"]
+# @admin.register(Donation)
+# class DonationAdmin(admin.ModelAdmin):
+#     list_display = [
+#         "donor", "organization", "orphan",
+#         "amount", "payment_method", "transaction_id", "donated_at"
+#     ]
+#     search_fields = ["donor__email", "organization__name", "orphan__name", "transaction_id"]
+#     list_filter = ["payment_method", "donated_at", "organization"]
+#     readonly_fields = ["donated_at"]

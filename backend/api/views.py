@@ -8,9 +8,11 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 from rest_framework.decorators import api_view, permission_classes
-from .models.payment import Payment
-from .serializers import PaymentSerializer
+from .models .payment import Payment
+# from .serializers import PaymentSerializer
 from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
 from .models .seminar import Seminar
@@ -21,6 +23,7 @@ from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
 from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer, VolunteerSerializer, VolunteerApplicationSerializer
 
+# ============================== Register ==============================
 class RegisterView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -52,6 +55,7 @@ class RegisterView(APIView):
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ================================== login =====================================
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -90,6 +94,49 @@ def pending_organization(request):
     organization = User.objects.filter(ac_role=1, is_active=False)
     data = [{"id": org.id, "email": org.email} for org in organization]
     return Response(data, status=status.HTTP_200_OK)
+
+# ==================================== Google auth =================================
+class GoogleAuthView(APIView):
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "47543249338-obgt7q4u4ekjgo0itu2nhier7cr2ichh.apps.googleusercontent.com")
+
+            # ID token is valid. Get the user's Google Account ID and email
+            email = idinfo.get('email')
+            name = idinfo.get('name', email.split('@')[0])
+            if not email:
+                return Response({'error': 'No email found in token'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Get or create user
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'username': email,
+                'first_name': name,
+                'ac_role': 0,  # or set default role as needed
+                'is_active': True,
+            })
+
+            # Issue JWT tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "success": True,
+                "statusCode": 200,
+                "message": "Login successful",
+                "data": {
+                    "id": str(user.id),
+                    "name": user.get_username(),
+                    "email": user.email,
+                    "role": user.ac_role,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            }, status=status.HTTP_200_OK)
+        except ValueError:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # ============================================= Seminar ================================================
 class SeminarListView(APIView):
@@ -169,6 +216,40 @@ class SeminarRegistrationStatusView(APIView):
         is_registered = SeminarRegistration.objects.filter(user=request.user, seminar_id=seminar_id).exists()
         return Response({"registered": is_registered}, status=status.HTTP_200_OK)
 
+class SeminarDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def delete(self, request, seminar_id):
+        try:
+            # check if the requesting user is the creator
+            seminar = Seminar.objects.get(id=seminar_id)
+
+            # Only allow deletion if the user created this seminar
+            if seminar.created_by != request.user:
+                return Response(
+                    {"error": "You do not have permission to delete this seminar."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # seminar deletion
+            seminar.delete()
+            return Response(
+                {"message": "Seminar deleted successfully."},
+                status=status.HTTP_200_OK
+            )
+
+        except Seminar.DoesNotExist:
+            return Response(
+                {"error": "Seminar not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class FetchOpenVolunteerApplicationsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -215,12 +296,13 @@ class OrganizationProfileView(APIView):
         if request.user.ac_role != 1:
             return Response({"error": "You are not authorized to access this resource."}, status=status.HTTP_403_FORBIDDEN)
         try:
-            organization = Organizations.objects.get(user=request.user)
+            organization, created = Organizations.objects.get_or_create(user=request.user)
             serializer = OrganizationProfileSerializer(organization)
             return Response({
                 "user": {
                     "name": request.user.email,
                     "email": request.user.email,
+                    "accountType": dict(User.ROLE_CHOICE).get(request.user.ac_role, "Organizations"),
                 },
                 "profile": serializer.data,
             }, status=status.HTTP_200_OK)
@@ -229,7 +311,7 @@ class OrganizationProfileView(APIView):
 
     def patch(self, request):
         try:
-            organization = Organizations.objects.get(user=request.user)
+            organization, created = Organizations.objects.get_or_create(user=request.user)
             serializer = OrganizationProfileSerializer(organization, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -252,6 +334,7 @@ class OrganizationListView(APIView):
 # ======================================== Blog =======================================
 class BlogListView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         blogs = Blog.objects.all()
@@ -263,7 +346,7 @@ class BlogListView(APIView):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ======================================== Volunteer ====================================
 class AssignVolunteerView(APIView):
@@ -308,12 +391,22 @@ class OrganizationVolunteersView(APIView):
 
     def get(self, request):
         try:
-            organization = request.user.organization
+            organization = Organizations.objects.get(user=request.user)
             volunteers = User.objects.filter(ac_role=0, is_active=True)
-            volunteer_data = [{"id": volunteer.id, "name": volunteer.first_name + " " + volunteer.last_name} for volunteer in volunteers]
-            return Response(volunteer_data, status=200)
-        except AttributeError:
-            return Response({"error": "Organization not found for the current user."}, status=404)
+            volunteer_data = []
+
+            for volunteer in volunteers:
+                # Simply use email as the name since UserProfile doesn't have full_name
+                name = volunteer.email
+
+                volunteer_data.append({
+                    "id": volunteer.id,
+                    "name": name
+                })
+
+            return Response(volunteer_data, status=status.HTTP_200_OK)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=status.HTTP_404_NOT_FOUND)
 
 class OpenVolunteerApplicationView(APIView):
     permission_classes = [IsAuthenticated]
