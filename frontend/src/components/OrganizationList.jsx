@@ -13,12 +13,17 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  InputAdornment,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import TopBar from './TopBar';
 import NavbarO from './NavbarO';
 import NavbarU from './NavbarU';
 import Footer from './Footer';
 import img from '../assets/org.png';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const OrganizationList = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -30,6 +35,12 @@ const OrganizationList = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState(null);
+
+  // New state variables for donation
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+  const [donationAmount, setDonationAmount] = useState('');
+  const [feedback, setFeedback] = useState({ message: '', severity: 'success', open: false });
+  const [donationLoading, setDonationLoading] = useState(false);
 
   const [role, setRole] = useState(null);
   useEffect(() => {
@@ -76,9 +87,95 @@ const OrganizationList = () => {
     setSelectedOrganization(null);
   };
 
+  // Handle donate button click
   const handleDonate = (org) => {
-    console.log(`Donate to ${org.name}`);
-    // donation
+    setSelectedOrganization(org);
+    setIsDonateModalOpen(true);
+  };
+
+  // Handle donation modal close
+  const handleCloseDonateModal = () => {
+    setIsDonateModalOpen(false);
+    setDonationAmount('');
+  };
+
+  // Handle donation submission
+  const handleDonationSubmit = async () => {
+    if (!selectedOrganization || !donationAmount || isNaN(donationAmount)) {
+      setFeedback({
+        message: 'Please enter a valid donation amount',
+        severity: 'error',
+        open: true,
+      });
+      return;
+    }
+
+    try {
+      setDonationLoading(true);
+      // Log what we're sending for debugging
+      console.log('Submitting organization donation:', {
+        organization_id: selectedOrganization.id,
+        amount: parseFloat(donationAmount)
+      });
+
+      const res = await fetch(`${apiUrl}/donations/organization/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          organization_id: selectedOrganization.id,
+          amount: parseFloat(donationAmount),
+        }),
+      });
+
+      const contentType = res.headers.get("content-type");
+      if (!res.ok) {
+        let errorMessage = 'Failed to process donation';
+
+        // Try to get error message from response
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await res.json();
+
+      setFeedback({
+        message: 'Donation processed. Redirecting to payment page...',
+        severity: 'success',
+        open: true,
+      });
+
+      setIsDonateModalOpen(false);
+      setDonationAmount('');
+
+      // Redirect to the payment URL provided by the backend
+      if (data.payment_url) {
+        console.log(`Redirecting to: ${apiUrl}${data.payment_url}`);
+        // Add a slight delay to allow the user to see the success message
+        setTimeout(() => {
+          window.location.href = `${apiUrl}${data.payment_url}`;
+        }, 1500);
+      }
+    } catch (err) {
+      console.error('Error processing donation:', err);
+      setFeedback({
+        message: err.message || 'Failed to process donation',
+        severity: 'error',
+        open: true,
+      });
+    } finally {
+      setDonationLoading(false);
+    }
+  };
+
+  // Handle feedback close
+  const handleCloseFeedback = () => {
+    setFeedback(prev => ({ ...prev, open: false }));
   };
 
   const handleLogout = () => {
@@ -113,6 +210,11 @@ const OrganizationList = () => {
                 maxWidth: '600px',
                 margin: '0 auto',
                 boxShadow: 3,
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: 5,
+                },
               }}
             >
               <CardMedia
@@ -126,7 +228,10 @@ const OrganizationList = () => {
                   {org.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Rating: {org.rating}
+                  Rating: {org.rating || 'N/A'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  {org.address || 'Location not available'}
                 </Typography>
               </CardContent>
               <Stack direction="row" spacing={2} sx={{ p: 2 }}>
@@ -135,6 +240,11 @@ const OrganizationList = () => {
                   color="primary"
                   onClick={() => handleView(org)}
                   fullWidth
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#136ad4',
+                    }
+                  }}
                 >
                   View
                 </Button>
@@ -143,6 +253,7 @@ const OrganizationList = () => {
                   color="secondary"
                   onClick={() => handleDonate(org)}
                   fullWidth
+                  startIcon={<FavoriteIcon />}
                 >
                   Donate
                 </Button>
@@ -189,8 +300,90 @@ const OrganizationList = () => {
           <Button onClick={handleCloseModal} color="primary">
             Close
           </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => {
+              handleCloseModal();
+              handleDonate(selectedOrganization);
+            }}
+            startIcon={<FavoriteIcon />}
+          >
+            Donate
+          </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Donation Modal */}
+      <Dialog
+        open={isDonateModalOpen}
+        onClose={handleCloseDonateModal}
+        maxWidth="sm"
+        fullWidth
+      >
+        {selectedOrganization && (
+          <>
+            <DialogTitle>
+              <Typography variant="h5">Donate to {selectedOrganization.name}</Typography>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ p: 1 }}>
+                <Typography variant="body1" paragraph>
+                  Your donation will support {selectedOrganization.name}'s mission to help orphans and provide better care and opportunities for children in need.
+                </Typography>
+
+                <TextField
+                  label="Donation Amount ($)"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={donationAmount}
+                  onChange={(e) => setDonationAmount(e.target.value)}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  }}
+                  sx={{ mt: 2 }}
+                  autoFocus
+                />
+
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                  All donations are tax-deductible and will be processed securely.
+                </Typography>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDonateModal} color="inherit">
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleDonationSubmit}
+                disabled={!donationAmount || isNaN(donationAmount) || donationLoading}
+              >
+                {donationLoading ? <CircularProgress size={24} /> : 'Donate'}
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
+
+      {/* Feedback Snackbar */}
+      <Snackbar
+        open={feedback.open}
+        autoHideDuration={6000}
+        onClose={handleCloseFeedback}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseFeedback}
+          severity={feedback.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {feedback.message}
+        </Alert>
+      </Snackbar>
 
       <Footer />
     </>

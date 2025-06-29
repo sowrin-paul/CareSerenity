@@ -96,7 +96,7 @@ const NavbarU = () => {
           </li>
           <li>
             <Link
-              to="/user-adoption"
+              to="/adoption"
               className={activeOption === "adoptions" ? styles.active : ""}
             >
               Adoptions

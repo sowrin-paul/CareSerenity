@@ -8,6 +8,8 @@ from .models .seminarRegister import SeminarRegistration
 from .models .blogs import Blog
 from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
+from .models .orphan import Orphan
+from .models .adoption import Adoption
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -74,10 +76,14 @@ class OrganizationProfileSerializer(serializers.ModelSerializer):
         return value
 
 class BlogSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'content', 'image', 'author', 'created_at']
-        read_only_fields = ['author', 'created_at']
+        fields = ['id', 'title', 'content', 'image', 'created_at', 'updated_at', 'category', 'author_name', 'likes', 'dislikes']
+        read_only_fields = ['author_name', 'likes', 'dislikes']
+
+    def get_author_name(self, obj):
+        return obj.author.email if obj.author else None
 
 class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,3 +96,40 @@ class VolunteerApplicationSerializer(serializers.ModelSerializer):
         model = VolunteerApplication
         fields = ['id', 'seminar', 'user', 'applied_at']
         read_only_fields = ['applied_at']
+
+class OrphanSerializer(serializers.ModelSerializer):
+    organization_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Orphan
+        fields = ['id', 'name', 'birth_date', 'gender', 'education', 'medical_history',
+                 'profile_picture', 'is_adopted', 'organizations', 'organization_name', 'created_at']
+        read_only_fields = ['is_adopted', 'created_at', 'organization_name']
+
+    def get_organization_name(self, obj):
+        if obj.organizations:
+            return obj.organizations.name
+        return None
+
+class AdoptionSerializer(serializers.ModelSerializer):
+    orphan_name = serializers.SerializerMethodField()
+    adopter_name = serializers.SerializerMethodField()
+    organization_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Adoption
+        fields = ['id', 'orphan', 'adopter', 'status', 'application_date', 'approval_date', 
+                  'orphan_name', 'adopter_name', 'organization_name']
+        read_only_fields = ['application_date', 'approval_date', 'status', 
+                           'orphan_name', 'adopter_name', 'organization_name']
+    
+    def get_orphan_name(self, obj):
+        return obj.orphan.name if obj.orphan else None
+        
+    def get_adopter_name(self, obj):
+        return obj.adopter.email if obj.adopter else None
+        
+    def get_organization_name(self, obj):
+        if obj.orphan and obj.orphan.organizations:
+            return obj.orphan.organizations.name
+        return None

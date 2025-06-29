@@ -64,7 +64,7 @@ const O_home = () => {
     useEffect(() => {
         const fetchOrphans = async () => {
             try {
-                const res = await fetch(`${apiUrl}/orphans/`, {
+                const res = await fetch(`${apiUrl}/organization/orphans/list/`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },

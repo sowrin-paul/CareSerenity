@@ -11,17 +11,27 @@ from rest_framework.views import APIView
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from rest_framework.decorators import api_view, permission_classes
+from datetime import datetime
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views.generic import TemplateView
+from django.shortcuts import render, get_object_or_404, redirect
 from .models .payment import Payment
 # from .serializers import PaymentSerializer
 from rest_framework.permissions import IsAdminUser
 from .models import User, UserProfile
+from django.utils import timezone
 from .models .seminar import Seminar
 from .models .organizations import Organizations
 from .models .seminarRegister import SeminarRegistration
 from .models .blogs import Blog
 from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
-from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer, VolunteerSerializer, VolunteerApplicationSerializer
+from .models .orphan import Orphan
+from .models .adoption import Adoption
+from .models .donation import Donation
+from .models .blogReaction import BlogReaction
+from .serializers import RegisterSerializer, LoginSerializer, SeminarSerializers, UserProfileSerializer, OrganizationProfileSerializer, SeminarRegistrationSerializer, OrganizationSerializer, BlogSerializer, VolunteerSerializer, VolunteerApplicationSerializer, OrphanSerializer, AdoptionSerializer
 
 # ============================== Register ==============================
 class RegisterView(APIView):
@@ -396,7 +406,6 @@ class OrganizationVolunteersView(APIView):
             volunteer_data = []
 
             for volunteer in volunteers:
-                # Simply use email as the name since UserProfile doesn't have full_name
                 name = volunteer.email
 
                 volunteer_data.append({
@@ -453,3 +462,705 @@ class ApplyForVolunteeringView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
+class OrganizationVolunteerApplicationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to view volunteer applications."}, status=403)
+
+            organization = Organizations.objects.get(user=request.user)
+
+            organization_seminars = Seminar.objects.filter(created_by=request.user)
+
+            applications = VolunteerApplication.objects.filter(seminar__in=organization_seminars)
+
+            application_data = []
+            for app in applications:
+                application_data.append({
+                    "id": app.id,
+                    "volunteer_name": app.user.email,
+                    "volunteer_id": app.user.id,
+                    "seminar_id": app.seminar.id,
+                    "seminar_title": app.seminar.title,
+                    "applied_at": app.applied_at
+                })
+
+            return Response(application_data, status=200)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class ApproveVolunteerApplicationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, application_id):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to approve volunteer applications."}, status=403)
+
+            organization = Organizations.objects.get(user=request.user)
+            application = VolunteerApplication.objects.get(id=application_id)
+
+            if application.seminar.created_by != request.user:
+                return Response({"error": "You do not have permission to approve this application."}, status=403)
+
+            volunteer_assignment = Volunteer.objects.create(
+                seminar=application.seminar,
+                organization=organization,
+                volunteer=application.user
+            )
+
+            application.delete()
+
+            return Response({"message": "Volunteer application approved successfully."}, status=200)
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except VolunteerApplication.DoesNotExist:
+            return Response({"error": "Volunteer application not found."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class DeclineVolunteerApplicationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, application_id):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to decline volunteer applications."}, status=403)
+
+            application = VolunteerApplication.objects.get(id=application_id)
+
+            if application.seminar.created_by != request.user:
+                return Response({"error": "You do not have permission to decline this application."}, status=403)
+
+            application.delete()
+
+            return Response({"message": "Volunteer application declined."}, status=200)
+        except VolunteerApplication.DoesNotExist:
+            return Response({"error": "Volunteer application not found."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class UserVolunteerApplicationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            applications = VolunteerApplication.objects.filter(user=request.user)
+
+            application_data = []
+            for app in applications:
+                org_name = None
+                if hasattr(app.seminar, 'organization') and app.seminar.organization:
+                    org_name = app.seminar.organization.name
+
+                application_data.append({
+                    "id": app.id,
+                    "seminar": {
+                        "id": app.seminar.id,
+                        "title": app.seminar.title,
+                        "date": app.seminar.seminar_date,
+                        "organization": org_name
+                    },
+                    "applied_at": app.created_at
+                })
+
+            return Response(application_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# ================================ orphan create ===========================
+class OrphanCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to add orphans."}, status=403)
+
+            organization = Organizations.objects.get(user=request.user)
+
+            serializer = OrphanSerializer(data=request.data)
+            if serializer.is_valid():
+                orphan = serializer.save(organizations=organization)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class OrphanCountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "You are not authorized to access this resource."}, status=403)
+
+            organization = Organizations.objects.get(user=request.user)
+            count = Orphan.objects.filter(organizations=organization).count()
+
+            return Response({"count": count}, status=status.HTTP_200_OK)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for the current user."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class OrphanListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Get all orphans that are not adopted
+            orphans = Orphan.objects.filter(is_adopted=False)
+            
+            # Serialize orphans
+            serializer = OrphanSerializer(orphans, many=True)
+            orphan_data = serializer.data
+            
+            # Check for pending adoption requests by the current user
+            if not request.user.is_anonymous:
+                for orphan_info in orphan_data:
+                    orphan_id = orphan_info['id']
+                    orphan_info['has_pending_request'] = Adoption.objects.filter(
+                        orphan_id=orphan_id,
+                        adopter=request.user,
+                        status="pending"
+                    ).exists()
+            
+            return Response(orphan_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+# =============================== Adoption Endpoints ===============================
+class AdoptionRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            orphan_id = request.data.get('orphan_id')
+            if not orphan_id:
+                return Response({"error": "Orphan ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                orphan = Orphan.objects.get(id=orphan_id, is_adopted=False)
+            except Orphan.DoesNotExist:
+                return Response({"error": "Orphan not found or already adopted"}, status=status.HTTP_404_NOT_FOUND)
+
+            if Adoption.has_pending_request(orphan, request.user):
+                return Response({"error": "You already have a pending adoption request for this orphan"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            adoption = Adoption.objects.create(
+                orphan=orphan,
+                adopter=request.user,
+                status="pending"
+            )
+
+            serializer = AdoptionSerializer(adoption)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class AdoptionCancelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, orphan_id):
+        try:
+            try:
+                adoption = Adoption.objects.get(
+                    orphan_id=orphan_id,
+                    adopter=request.user,
+                    status="pending"
+                )
+            except Adoption.DoesNotExist:
+                return Response({"error": "No pending adoption request found for this orphan"}, 
+                                status=status.HTTP_404_NOT_FOUND)
+            adoption.delete()
+            return Response({"message": "Adoption request cancelled successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserAdoptionRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            adoptions = Adoption.objects.filter(adopter=request.user)
+            serializer = AdoptionSerializer(adoptions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class OrganizationAdoptionRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "Only organizations can access this endpoint"},
+                                status=status.HTTP_403_FORBIDDEN)
+            organization = Organizations.objects.get(user=request.user)
+
+            orphans = Orphan.objects.filter(organizations=organization)
+
+            adoption_requests = Adoption.objects.filter(orphan__in=orphans)
+
+            serializer = AdoptionSerializer(adoption_requests, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class ApproveAdoptionRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, adoption_id):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "Only organizations can approve adoption requests"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            organization = Organizations.objects.get(user=request.user)
+
+            try:
+                adoption = Adoption.objects.get(
+                    id=adoption_id,
+                    status="pending",
+                    orphan__organizations=organization
+                )
+            except Adoption.DoesNotExist:
+                return Response({"error": "Adoption request not found or not pending"},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            if adoption.orphan.is_adopted:
+                return Response({"error": "This orphan has already been adopted"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            adoption.status = "approved"
+            adoption.approval_date = timezone.now().date()
+            adoption.save()
+
+            orphan = adoption.orphan
+            orphan.is_adopted = True
+            orphan.save()
+
+            Adoption.objects.filter(orphan=orphan, status="pending").exclude(id=adoption.id).update(
+                status="rejected"
+            )
+
+            serializer = AdoptionSerializer(adoption)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class RejectAdoptionRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, adoption_id):
+        try:
+            if request.user.ac_role != 1:
+                return Response({"error": "Only organizations can reject adoption requests"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            organization = Organizations.objects.get(user=request.user)
+
+            try:
+                adoption = Adoption.objects.get(
+                    id=adoption_id,
+                    status="pending",
+                    orphan__organizations=organization
+                )
+            except Adoption.DoesNotExist:
+                return Response({"error": "Adoption request not found or not pending"},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            # Update adoption staus
+            adoption.status = "rejected"
+            adoption.save()
+
+            serializer = AdoptionSerializer(adoption)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# =============================== Donation ==============================
+class OrphanDonationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            orphan_id = request.data.get('orphan_id')
+            amount = request.data.get('amount')
+
+            if not orphan_id or not amount:
+                return Response({"error": "Orphan ID and amount are required"}, status=400)
+
+            print(f"Received donation request - orphan_id: {orphan_id}, amount: {amount}") # error checking
+
+            try:
+                amount = float(amount)
+                if amount <= 0:
+                    return Response({"error": "Amount must be greater than zero"}, status=400)
+            except ValueError:
+                return Response({"error": "Invalid amount format"}, status=400)
+
+            try:
+                orphan = Orphan.objects.get(id=orphan_id)
+            except Orphan.DoesNotExist:
+                return Response({"error": "Orphan not found"}, status=404)
+
+            try:
+                organization = orphan.organizations
+
+                donation = Donation.objects.create(
+                    donor=request.user,
+                    receiver_type="orphan",
+                    orphan=orphan,
+                    organization=organization,
+                    amount=amount,
+                    donation_date=datetime.now().date(),
+                    status="pending"
+                )
+                payment_url = f"/payment/process/{donation.id}/"
+
+                return Response({
+                    "message": "Donation created successfully",
+                    "donation_id": donation.id,
+                    "payment_url": payment_url
+                }, status=201)
+            except Exception as field_error:
+                print(f"Field error: {str(field_error)}")
+                if "field" in str(field_error).lower():
+                    return Response({"error": f"Donation model issue: {str(field_error)}"}, status=400)
+                raise
+
+        except Exception as e:
+            print(f"Donation error: {str(e)}")
+            return Response({"error": str(e)}, status=400)
+
+# Fix the method in OrganizationDonationsView from post to get
+class OrganizationDonationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):  # Changed from post to get
+        try:
+            org = Organizations.objects.get(user=request.user)
+
+            org_donations = Donation.objects.filter(
+                organization=org,
+                receiver_type='organization',
+                status='completed'
+            )
+
+            orphan_donations = Donation.objects.filter(
+                orphan__organizations=org,
+                receiver_type='orphan',
+                status='completed'
+            )
+
+            donation_data = []
+
+            for donation in org_donations:
+                donation_data.append({
+                    'id': donation.id,
+                    'amount': donation.amount,
+                    'receiver_type': 'organization',
+                    'user_id': donation.donor.id,
+                    'user_name': donation.donor.email,
+                    'status': donation.status,
+                    'donation_date': donation.donation_date
+                })
+
+            for donation in orphan_donations:
+                donation_data.append({
+                    'id': donation.id,
+                    'amount': donation.amount,
+                    'receiver_type': 'orphan',
+                    'orphan_id': donation.orphan.id,
+                    'first_name': donation.orphan.name.split()[0] if ' ' in donation.orphan.name else donation.orphan.name,
+                    'last_name': donation.orphan.name.split()[1] if ' ' in donation.orphan.name else '',
+                    'user_id': donation.donor.id,
+                    'user_name': donation.donor.email,
+                    'status': donation.status,
+                    'donation_date': donation.donation_date
+                })
+
+            donation_data.sort(key=lambda x: x['donation_date'], reverse=True)
+
+            return Response(donation_data, status=status.HTTP_200_OK)
+
+        except Organizations.DoesNotExist:
+            return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# Add the new OrganizationDirectDonationView
+class OrganizationDirectDonationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            organization_id = request.data.get('organization_id')
+            amount = request.data.get('amount')
+
+            if not organization_id or not amount:
+                return Response({"error": "Organization ID and amount are required"}, status=400)
+
+            print(f"Received organization donation request - organization_id: {organization_id}, amount: {amount}")
+
+            try:
+                amount = float(amount)
+                if amount <= 0:
+                    return Response({"error": "Amount must be greater than zero"}, status=400)
+            except ValueError:
+                return Response({"error": "Invalid amount format"}, status=400)
+
+            try:
+                organization = Organizations.objects.get(id=organization_id)
+            except Organizations.DoesNotExist:
+                return Response({"error": "Organization not found"}, status=404)
+
+            donation = Donation.objects.create(
+                donor=request.user,
+                receiver_type="organization",
+                organization=organization,
+                amount=amount,
+                donation_date=datetime.now().date(),
+                status="pending"
+            )
+
+            payment_url = f"/payment/process/{donation.id}/"
+
+            return Response({
+                "message": "Donation created successfully",
+                "donation_id": donation.id,
+                "payment_url": payment_url
+            }, status=201)
+
+        except Exception as e:
+            print(f"Error in organization donation: {str(e)}")
+            return Response({"error": str(e)}, status=400)
+
+class PaymentProcessView(TemplateView):
+    template_name = 'payment_process.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        donation_id = self.kwargs.get('donation_id')
+        donation = get_object_or_404(Donation, id=donation_id)
+
+        context['donation'] = donation
+        if donation.receiver_type == 'orphan':
+            context['receiver_name'] = donation.orphan.name
+        else:
+            context['receiver_name'] = donation.organization.name
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        donation_id = self.kwargs.get('donation_id')
+        donation = get_object_or_404(Donation, id=donation_id)
+
+        # In a real system, you'd process the payment here
+        # For this example, we'll just mark it as completed
+        donation.status = "completed"
+        donation.save()
+
+        return redirect('payment_success', donation_id=donation.id)
+
+class PaymentSuccessView(TemplateView):
+    template_name = 'payment_success.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        donation_id = self.kwargs.get('donation_id')
+        donation = get_object_or_404(Donation, id=donation_id)
+
+        context['donation'] = donation
+        if donation.receiver_type == 'orphan':
+            context['receiver_name'] = donation.orphan.name
+        else:
+            context['receiver_name'] = donation.organization.name
+
+        context['pending_approval'] = donation.status == 'pending'
+
+        return context
+
+# ========================== user donation view and seminar register view ======================
+class UserDonationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Get all donations made by the current user
+            donations = Donation.objects.filter(donor=request.user)
+
+            donation_data = []
+            for donation in donations:
+                data = {
+                    "id": donation.id,
+                    "amount": donation.amount,
+                    "status": donation.status,
+                    "donation_date": donation.donation_date,
+                    "receiver_type": donation.receiver_type,
+                }
+
+                if donation.receiver_type == "orphan" and donation.orphan:
+                    data["orphan_id"] = donation.orphan.id
+                    data["orphan_name"] = donation.orphan.name
+                    if donation.organization:
+                        data["organization_name"] = donation.organization.name
+
+                elif donation.receiver_type == "organization" and donation.organization:
+                    data["organization_id"] = donation.organization.id
+                    data["organization_name"] = donation.organization.name
+
+                donation_data.append(data)
+
+            return Response(donation_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserRegisteredSeminarsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            registrations = SeminarRegistration.objects.filter(user=request.user)
+
+            seminar_data = []
+            for registration in registrations:
+                seminar = registration.seminar
+
+                org_name = "Unknown Organization"
+                if hasattr(seminar, 'created_by') and seminar.created_by:
+                    try:
+                        org = Organizations.objects.get(user=seminar.created_by)
+                        org_name = org.name
+                    except Organizations.DoesNotExist:
+                        pass
+
+                try:
+                    seminar_data.append({
+                        "id": seminar.id,
+                        "title": getattr(seminar, 'title', 'Unnamed Seminar'),
+                        "description": getattr(seminar, 'description', ''),
+                        "date": getattr(seminar, 'seminar_date', None),
+                        "time": getattr(seminar, 'seminar_time', None),
+                        "location": getattr(seminar, 'location', 'Unknown Location'),
+                        "organization_name": org_name,
+                    })
+                except Exception as attr_error:
+                    print(f"Error accessing seminar attributes: {attr_error}")
+                    seminar_data.append({
+                        "id": seminar.id if hasattr(seminar, 'id') else 0,
+                        "title": "Data Error",
+                        "description": "There was an error retrieving seminar details",
+                        "organization_name": org_name,
+                        "registration_date": registration.registration_date
+                    })
+
+            return Response(seminar_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error in UserRegisteredSeminarsView: {str(e)}")
+            return Response([], status=status.HTTP_200_OK)
+
+# ============================== reaction ========================
+class BlogReactionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, blog_id):
+        try:
+            blog = Blog.objects.get(id=blog_id)
+            reaction_type = request.data.get('reaction_type')
+
+            if reaction_type not in ['like', 'dislike', 'remove']:
+                return Response({"error": "Invalid reaction type"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                existing_reaction = BlogReaction.objects.get(user=request.user, blog=blog)
+
+                if reaction_type == 'remove':
+                    if existing_reaction.reaction_type == 'like':
+                        blog.likes = max(0, blog.likes - 1)
+                    else:
+                        blog.dislikes = max(0, blog.dislikes - 1)
+
+                    existing_reaction.delete()
+                    blog.save()
+                    return Response({"message": "Reaction removed"}, status=status.HTTP_200_OK)
+
+                if existing_reaction.reaction_type != reaction_type:
+                    if existing_reaction.reaction_type == 'like':
+                        blog.likes = max(0, blog.likes - 1)
+                        blog.dislikes += 1
+                    else:
+                        blog.dislikes = max(0, blog.dislikes - 1)
+                        blog.likes += 1
+
+                    existing_reaction.reaction_type = reaction_type
+                    existing_reaction.save()
+                    blog.save()
+                    return Response({"message": f"Reaction changed to {reaction_type}"}, status=status.HTTP_200_OK)
+
+                return Response({"message": "Reaction already exists"}, status=status.HTTP_200_OK)
+
+            except BlogReaction.DoesNotExist:
+                if reaction_type == 'remove':
+                    return Response({"message": "No reaction to remove"}, status=status.HTTP_200_OK)
+
+                BlogReaction.objects.create(
+                    user=request.user,
+                    blog=blog,
+                    reaction_type=reaction_type
+                )
+
+                if reaction_type == 'like':
+                    blog.likes += 1
+                else:
+                    blog.dislikes += 1
+
+                blog.save()
+                return Response({"message": f"Blog {reaction_type}d"}, status=status.HTTP_201_CREATED)
+
+        except Blog.DoesNotExist:
+            return Response({"error": "Blog not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserBlogReactionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            reactions = BlogReaction.objects.filter(user=request.user)
+            reaction_data = [
+                {
+                    "blog_id": reaction.blog.id,
+                    "reaction_type": reaction.reaction_type,
+                    "created_at": reaction.created_at
+                } for reaction in reactions
+            ]
+            return Response(reaction_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

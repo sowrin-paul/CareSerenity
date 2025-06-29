@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import TopBar from '../components/TopBar';
 import NavbarU from '../components/NavbarU';
 import Hero from '../components/Hero';
@@ -210,85 +211,6 @@ const U_home = () => {
             <NavbarU />
             <Hero />
             <div className={styles.container}>
-                <div className={styles.options}>
-                    <Link to="/blogs" id="button-30" className={styles.button_30}>CreatePost</Link>
-                </div>
-                <div className={styles.highlights}>
-                    <h1 id="heading" className={styles.heading}>Recent Blogs</h1>
-                    {blogLoading ? (
-                        <p>Loading...</p>
-                    ) : recentBlogs.length > 0 ? (
-                        <div
-                            style={{
-                                display: 'flex',
-                                overflowX: 'auto',
-                                gap: 24,
-                                padding: '8px 40px',
-                                scrollBehavior: 'smooth',
-                            }}
-                        >
-                            {recentBlogs.map((blog) => (
-                                <Card
-                                    key={blog.id}
-                                    sx={{
-                                        width: 300,
-                                        minWidth: 300,
-                                        borderRadius: 3,
-                                        boxShadow: 3,
-                                        flex: '0 0 auto',
-                                        cursor: 'pointer',
-                                    }}
-                                    onClick={() => handleCardClick(blog)}
-                                >
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={blog.image ? `${apiUrl}${blog.image}` : '/assets/default_blog.jpg'}
-                                        alt={blog.title}
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h6" component="div">
-                                            {blog.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {blog.content.substring(0, 100)}...
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : (
-                        <Stack sx={{ width: "100%", margin: "10px auto" }} spacing={2}>
-                            <Alert severity="warning">No blogs available.</Alert>
-                        </Stack>
-                    )}
-                </div>
-
-                {/* Blog Detail Modal */}
-                <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-                    <DialogTitle>{selectedBlog?.title || "Blog Details"}</DialogTitle>
-                    <DialogContent>
-                        {selectedBlog && (
-                            <>
-                                <img
-                                    src={selectedBlog.image ? `${apiUrl}${selectedBlog.image}` : '/assets/default_blog.jpg'}
-                                    alt={selectedBlog.title}
-                                    style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }}
-                                />
-                                <Typography variant="body1" gutterBottom>
-                                    {selectedBlog.content}
-                                </Typography>
-                            </>
-                        )}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseModal} color="primary">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-
                 <div className={styles.highlights}>
                     <h1 id="heading" className={styles.heading}>Recent Funds</h1>
                     {/* <?php include('./fund_fetch_BE.php') ?> */}
@@ -392,21 +314,22 @@ const U_home = () => {
                     {/* volunteer recruitment section */}
                     <Box sx={{ mt: 6, mb: 4 }}>
                         <h1 id="heading" className={styles.heading}>Volunteer Opportunities</h1>
-                        
+
                         {applicationLoading ? (
                             <p>Loading volunteer opportunities...</p>
                         ) : openApplications.length > 0 ? (
                             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                 {openApplications.map((seminar) => (
-                                    <Card 
-                                        key={seminar.id} 
-                                        sx={{ 
+                                    <Card
+                                        key={seminar.id}
+                                        sx={{
                                             width: 320,
                                             borderRadius: 3,
                                             boxShadow: 3,
                                             display: 'flex',
                                             flexDirection: 'column',
-                                            height: '100%'
+                                            height: '100%',
+                                            marginTop: 5
                                         }}
                                     >
                                         <CardMedia
@@ -417,22 +340,22 @@ const U_home = () => {
                                         />
                                         <CardContent sx={{ flexGrow: 1 }}>
                                             <Typography variant="h6" gutterBottom>{seminar.title}</Typography>
-                                            
+
                                             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                                                <Chip 
-                                                    label={seminar.seminar_type === 'online' ? 'Online' : 'In-person'} 
-                                                    color={seminar.seminar_type === 'online' ? 'info' : 'success'} 
+                                                <Chip
+                                                    label={seminar.seminar_type === 'online' ? 'Online' : 'In-person'}
+                                                    color={seminar.seminar_type === 'online' ? 'info' : 'success'}
                                                     size="small"
                                                 />
-                                                <Chip 
-                                                    icon={<VolunteerActivismIcon />} 
-                                                    label="Volunteers Needed" 
-                                                    color="primary" 
-                                                    variant="outlined" 
+                                                <Chip
+                                                    icon={<VolunteerActivismIcon />}
+                                                    label="Volunteers Needed"
+                                                    color="primary"
+                                                    variant="outlined"
                                                     size="small"
                                                 />
                                             </Box>
-                                            
+
                                             <Typography variant="body2" sx={{ mb: 1 }}>
                                                 <strong>Date:</strong> {seminar.seminar_date}
                                             </Typography>
@@ -442,22 +365,28 @@ const U_home = () => {
                                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                                 {seminar.description?.substring(0, 100)}...
                                             </Typography>
-                                            
+
                                             {appliedSeminars.includes(seminar.id) ? (
-                                                <Button 
-                                                    variant="contained" 
-                                                    color="success" 
-                                                    disabled 
+                                                <Button
+                                                    variant="contained"
+                                                    color="success"
+                                                    disabled
                                                     fullWidth
                                                 >
                                                     Applied
                                                 </Button>
                                             ) : (
-                                                <Button 
-                                                    variant="contained" 
-                                                    color="primary" 
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
                                                     fullWidth
                                                     onClick={() => handleApplyVolunteer(seminar.id)}
+                                                    sx={{
+                                                        '&:hover': {
+                                                            backgroundColor: '#136ad4',
+                                                        }
+                                                    }}
+
                                                 >
                                                     Apply as Volunteer
                                                 </Button>
@@ -485,9 +414,9 @@ const U_home = () => {
                 onClose={handleCloseFeedback}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleCloseFeedback} 
-                    severity={feedback.severity} 
+                <Alert
+                    onClose={handleCloseFeedback}
+                    severity={feedback.severity}
                     sx={{ width: '100%' }}
                 >
                     {feedback.message}

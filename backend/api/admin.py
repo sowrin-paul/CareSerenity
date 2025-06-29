@@ -9,7 +9,7 @@ from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
 from .models .payment import Payment
 from .models .donation import Donation
-
+from .models .blogReaction import BlogReaction
 
 # Admin for the User Profile
 class UserProfileInline(admin.StackedInline):
@@ -73,6 +73,12 @@ class BlogAdmin(admin.ModelAdmin):
     search_fields = ['title', 'author__email']
     list_filter = ['created_at']
 
+@admin.register(BlogReaction)
+class BlogReactionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'blog', 'reaction_type', 'created_at')
+    list_filter = ('reaction_type', 'created_at')
+    search_fields = ('user__email', 'blog__title')
+
 
 # Admin for Volunteer
 @admin.register(Volunteer)
@@ -89,22 +95,23 @@ class VolunteerApplicationAdmin(admin.ModelAdmin):
     search_fields = ['user__email', 'seminar__title']
     list_filter = ['applied_at']
 
-# @admin.register(Payment)
-# class PaymentAdmin(admin.ModelAdmin):
-#     list_display = [
-#         "payer", "organization", "orphan", "orphan_organization",
-#         "amount", "payment_method", "transaction_id", "paid_at"
-#     ]
-#     search_fields = ["payer__email", "organization__name", "orphan__name", "transaction_id"]
-#     list_filter = ["payment_method", "paid_at", "organization"]
-#     readonly_fields = ["paid_at"]
+# Donation admin
+@admin.register(Donation)
+class DonationAdmin(admin.ModelAdmin):
+    list_display = [
+        "donor", "receiver_type", "organization", "orphan",
+        "amount", "status", "donation_date"
+    ]
+    search_fields = ["donor__email", "organization__name", "orphan__name"]
+    list_filter = ["status", "donation_date", "receiver_type"]
+    actions = ["approve_donations", "reject_donations"]
 
-# @admin.register(Donation)
-# class DonationAdmin(admin.ModelAdmin):
-#     list_display = [
-#         "donor", "organization", "orphan",
-#         "amount", "payment_method", "transaction_id", "donated_at"
-#     ]
-#     search_fields = ["donor__email", "organization__name", "orphan__name", "transaction_id"]
-#     list_filter = ["payment_method", "donated_at", "organization"]
-#     readonly_fields = ["donated_at"]
+    def approve_donations(self, request, queryset):
+        updated = queryset.update(status="completed")
+        self.message_user(request, f"{updated} donations have been approved.")
+    approve_donations.short_description = "Approve selected donations"
+
+    def reject_donations(self, request, queryset):
+        updated = queryset.update(status="failed")
+        self.message_user(request, f"{updated} donations have been rejected.")
+    reject_donations.short_description = "Reject selected donations"

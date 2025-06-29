@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -243,11 +243,12 @@ const UserBlog = () => {
     setActiveTag(tag);
   };
 
+  // like
   const handleLike = async (blogId, event) => {
     if (event) event.stopPropagation();
 
     try {
-      const reaction = likedBlogs[blogId] ? 'remove' : 'like';
+      const reaction_type = likedBlogs[blogId] ? 'remove' : 'like';
 
       const res = await fetch(`${apiUrl}/blogs/${blogId}/react/`, {
         method: 'POST',
@@ -255,11 +256,10 @@ const UserBlog = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ reaction_type: reaction }),
+        body: JSON.stringify({ reaction_type }),
       });
 
       if (res.ok) {
-        // Update blog likes count
         const updatedBlogs = blogs.map(blog => {
           if (blog.id === blogId) {
             const likeDelta = likedBlogs[blogId] ? -1 : 1;
@@ -324,11 +324,12 @@ const UserBlog = () => {
     }
   };
 
+  // dislike
   const handleDislike = async (blogId, event) => {
     if (event) event.stopPropagation();
 
     try {
-      const reaction = dislikedBlogs[blogId] ? 'remove' : 'dislike';
+      const reaction_type = dislikedBlogs[blogId] ? 'remove' : 'dislike';
 
       const res = await fetch(`${apiUrl}/blogs/${blogId}/react/`, {
         method: 'POST',
@@ -336,7 +337,7 @@ const UserBlog = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ reaction_type: reaction }),
+        body: JSON.stringify({ reaction_type }),
       });
 
       if (res.ok) {
@@ -460,42 +461,50 @@ const UserBlog = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
+            flexDirection: "column",
             gap: 2,
-            alignItems: "center",
             width: "100%",
           }}
         >
-          <SearchBar search={search} setSearch={setSearch} handleSearch={handleSearch} />
-          <IconButton size="small" aria-label="RSS feed" sx={{ color: "var(--secondary-title-color)" }}>
-            <RssFeedRoundedIcon />
-          </IconButton>
-        </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <SearchBar search={search} setSearch={setSearch} handleSearch={handleSearch} />
+            <IconButton size="small" aria-label="RSS feed" sx={{ color: "var(--secondary-title-color)" }}>
+              <RssFeedRoundedIcon />
+            </IconButton>
+          </Box>
 
-        {/* Categories */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 2,
-            overflow: "auto",
-            my: 2,
-          }}
-        >
-          {categories.map((category, index) => (
-            <Chip
-              key={index}
-              label={category}
-              onClick={() => handleTagFilter(category)}
+          {/* Create Post button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+            <Button
+              component={Link}
+              to="/blogs"
+              variant="contained"
+              color="primary"
               sx={{
-                background: activeTag === category ? "var(--primary-color-light)" : "var(--secondary-color-light)",
-                color: "#fff",
-                '&:hover': {
-                  opacity: 0.9
+                borderRadius: "30px",
+                textTransform: "none",
+                padding: "8px 20px",
+                fontWeight: "bold",
+                boxShadow: "0 8px 16px 0 rgba(0,0,0,0.1)",
+                background: "var(--primary-color-light)",
+                "&:hover": {
+                  background: "var(--primary-color-dark)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s"
                 }
               }}
-            />
-          ))}
+            >
+              Create Post
+            </Button>
+          </Box>
         </Box>
 
         {/* Blog Cards */}
@@ -548,8 +557,19 @@ const UserBlog = () => {
                           size="small"
                           color={likedBlogs[blog.id] ? "primary" : "default"}
                           onClick={(e) => handleLike(blog.id, e)}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: '#136ad4',
+                            }
+                          }}
                         >
-                          {likedBlogs[blog.id] ? <ThumbUpIcon fontSize="small" /> : <ThumbUpOutlinedIcon fontSize="small" />}
+                          {likedBlogs[blog.id] ? <ThumbUpIcon
+                            fontSize="small"
+                            sx={{
+                              '&:hover': {
+                                backgroundColor: '#136ad4',
+                              }
+                            }} /> : <ThumbUpOutlinedIcon fontSize="small" />}
                         </IconButton>
                         <Typography variant="caption">{blog.likes || 0}</Typography>
                       </Box>

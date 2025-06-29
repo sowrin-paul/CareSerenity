@@ -71,8 +71,8 @@ const NavbarO = () => {
           </li>
           <li>
             <Link
-              to="/"
-              className={activeOption === "adoptions" ? styles.active : ""}
+              to="/adoption"
+              className={activeOption === "Orphans" ? styles.active : ""}
             >
               Adoptions
             </Link>

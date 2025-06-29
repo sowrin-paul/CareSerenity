@@ -17,3 +17,11 @@ class Adoption(models.Model):
 
     def __str__(self):
         return f"{self.adopter.email} -> {self.orphan.name} ({self.status})"
+
+    @classmethod
+    def has_pending_request(cls, orphan, user):
+        return cls.objects.filter(orphan=orphan, adopter=user, status="pending").exists()
+
+    @classmethod
+    def get_pending_requests_for_orphan(cls, orphan):
+        return cls.objects.filter(orphan=orphan, status="pending")

@@ -11,6 +11,39 @@ import TopBar from './TopBar';
 import Footer from './Footer';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const dummyAdoptionRequests = [
+    {
+        adoption_id: 1,
+        orphan_id: 1,
+        orphan_name: "James Smith",
+        user_id: 1,
+        user_name: "john.doe@example.com",
+        status: "pending",
+        application_date: "2025-06-15",
+        approval_date: null
+    },
+    {
+        adoption_id: 2,
+        orphan_id: 2,
+        orphan_name: "Emma Johnson",
+        user_id: 2,
+        user_name: "sarah.parker@example.com",
+        status: "approved",
+        application_date: "2025-06-10",
+        approval_date: "2025-06-20"
+    },
+    {
+        adoption_id: 3,
+        orphan_id: 3,
+        orphan_name: "Michael Brown",
+        user_id: 3,
+        user_name: "robert.wilson@example.com",
+        status: "rejected",
+        application_date: "2025-06-05",
+        approval_date: "2025-06-18"
+    }
+];
+
 const OrganizationProfile = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -28,7 +61,7 @@ const OrganizationProfile = () => {
     const [profilePicPreview, setProfilePicPreview] = useState(null);
     const [profilePicture, setProfilePicture] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [adoptionRequests, setAdoptionRequests] = useState([]);
+    // const [adoptionRequests, setAdoptionRequests] = useState([]);
     const [donationRequests, setDonationRequests] = useState([]);
     const [unreadNotifications, setUnreadNotifications] = useState(0);
     const [totalOrphans, setTotalOrphans] = useState(0);
@@ -39,8 +72,25 @@ const OrganizationProfile = () => {
     const [selectedSeminar, setSelectedSeminar] = useState(null);
     const { userId } = useParams();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const [isOpenApplicationModalOpen, setIsOpenApplicationModalOpen] = useState(false);
+    const [isManageVolunteersModalOpen, setIsManageVolunteersModalOpen] = useState(false);
+    const [volunteerApplications, setVolunteerApplications] = useState([]);
+    const [isOrphanModalOpen, setIsOrphanModalOpen] = useState(false);
+    const [orphanData, setOrphanData] = useState({
+        name: "",
+        birth_date: "",
+        gender: "Male",
+        education: "",
+        medical_history: ""
+    });
+    const [orphanError, setOrphanError] = useState("");
+    const [adoptionLoading, setAdoptionLoading] = useState(true);
+    const [isAdoptionDetailsModalOpen, setIsAdoptionDetailsModalOpen] = useState(false);
+    const [selectedAdoptionRequest, setSelectedAdoptionRequest] = useState(null);
+    const [adoptionRequests, setAdoptionRequests] = useState(dummyAdoptionRequests);
     const navigate = useNavigate();
 
+    // fetch profile of the organization
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -70,6 +120,7 @@ const OrganizationProfile = () => {
         fetchProfile();
     }, [apiUrl]);
 
+    // profile edit
     const handleEditChange = (e) => {
         const { name, value, files } = e.target;
         if (name === "org_logo" && files && files[0]) {
@@ -107,6 +158,7 @@ const OrganizationProfile = () => {
         }
     };
 
+    // volunteer application
     const handleVolunteerOpen = async () => {
         setIsVolunteerModalOpen(true);
         try {
@@ -166,6 +218,340 @@ const OrganizationProfile = () => {
             alert("Failed to assign volunteer.");
         }
     };
+
+    // fetch adoption requests
+    const fetchAdoptionRequests = async () => {
+        try {
+            setAdoptionLoading(true);
+            const res = await fetch(`${apiUrl}/adoption/organization-requests/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to fetch adoption requests");
+
+            const data = await res.json();
+
+            const formattedRequests = data.map(request => ({
+                adoption_id: request.id,
+                orphan_id: request.orphan?.id || 0,
+                orphan_name: request.orphan?.name || "Unknown Orphan",
+                user_id: request.adopter?.id || 0,
+                user_name: request.adopter?.email || "Unknown User",
+                status: request.status || "pending",
+                application_date: request.application_date || new Date().toISOString().split('T')[0],
+                approval_date: request.approval_date
+            }));
+
+            if (formattedRequests.length > 0) {
+                setAdoptionRequests(formattedRequests);
+            }
+        } catch (err) {
+            console.error("Error fetching adoption requests:", err);
+            // Keep using the dummy data that's already in state
+        } finally {
+            setAdoptionLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAdoptionRequests();
+    }, []);
+
+    const handleApproveAdoption = async (adoptionId) => {
+        try {
+            const res = await fetch(`${apiUrl}/adoption/approve/${adoptionId}/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to approve adoption request");
+
+            fetchAdoptionRequests();
+
+            fetchTotalOrphans();
+            // fetchOrphans();
+
+            alert("Adoption request approved successfully!");
+        } catch (err) {
+            console.error("Error approving adoption:", err);
+            alert("Failed to approve adoption request. Please try again.");
+        }
+    };
+
+    const handleRejectAdoption = async (adoptionId) => {
+        try {
+            const res = await fetch(`${apiUrl}/adoption/reject/${adoptionId}/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to reject adoption request");
+
+            fetchAdoptionRequests();
+
+            alert("Adoption request rejected successfully!");
+        } catch (err) {
+            console.error("Error rejecting adoption:", err);
+            alert("Failed to reject adoption request. Please try again.");
+        }
+    };
+
+    const fetchVolunteerApplications = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/organization/volunteer-applications/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to fetch volunteer applications");
+
+            const data = await res.json();
+            setVolunteerApplications(data);
+        } catch (err) {
+            console.error("Error fetching volunteer applications:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchVolunteerApplications();
+    }, []);
+
+    const handleOpenVolunteerApplication = async () => {
+        if (!selectedSeminar) {
+            alert("Please select a seminar.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${apiUrl}/organization/seminars/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to open volunteer application.");
+
+            alert("Volunteer application opened successfully!");
+            setIsOpenApplicationModalOpen(true);
+
+            const seminarRes = await fetch(`${apiUrl}/organization/seminars/${selectedSeminar}/open-volunteer/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (seminarRes.ok) {
+                const seminarData = await seminarRes.json();
+                setSeminars(seminarData);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Failed to open volunteer application.");
+        }
+    };
+
+    const handleApproveVolunteer = async (applicationId) => {
+        try {
+            const res = await fetch(`${apiUrl}/organization/volunteer-applications/${applicationId}/approve/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to approve volunteer application");
+
+            alert("Volunteer application approved successfully!");
+
+            fetchVolunteerApplications();
+        } catch (err) {
+            console.error("Error approving volunteer application:", err);
+            alert("Failed to approve volunteer application.");
+        }
+    };
+
+    const handleDeclineVolunteer = async (applicationId) => {
+        try {
+            const res = await fetch(`${apiUrl}/organization/volunteer-applications/${applicationId}/decline/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to decline volunteer application");
+
+            alert("Volunteer application declined.");
+
+            fetchVolunteerApplications();
+        } catch (err) {
+            console.error("Error declining volunteer application:", err);
+            alert("Failed to decline volunteer application.");
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const handleOrphanInputChange = (e) => {
+        const { name, value } = e.target;
+        setOrphanData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // orphan form submission
+    const handleOrphanSubmit = async (e) => {
+        e.preventDefault();
+        setOrphanError("");
+
+        if (!orphanData.name || !orphanData.birth_date) {
+            setOrphanError("Name and birth date are required");
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+
+            formData.append("name", orphanData.name);
+            formData.append("birth_date", orphanData.birth_date);
+            formData.append("gender", orphanData.gender);
+
+            if (orphanData.education) {
+                formData.append("education", orphanData.education);
+            }
+
+            if (orphanData.medical_history) {
+                formData.append("medical_history", orphanData.medical_history);
+            }
+
+            if (orphanData.profile_picture) {
+                formData.append("profile_picture", orphanData.profile_picture);
+            }
+
+            const res = await fetch(`${apiUrl}/organization/orphans/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: formData,
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to add orphan");
+            }
+
+            alert("Orphan added successfully!");
+            setIsOrphanModalOpen(false);
+            setOrphanData({
+                name: "",
+                birth_date: "",
+                gender: "Male",
+                education: "",
+                medical_history: "",
+                profile_picture: null,
+                profile_picture_preview: null
+            });
+
+            fetchTotalOrphans();
+        } catch (err) {
+            console.error(err);
+            setOrphanError(err.message || "An error occurred while adding orphan");
+        }
+    };
+
+    //fetch total orphan
+    const fetchTotalOrphans = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/organization/orphans/count/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setTotalOrphans(data.count);
+            }
+        } catch (err) {
+            console.error("Error fetching orphan count:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchTotalOrphans();
+    }, []);
+
+    // donation records
+    const fetchDonationRecords = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/donations/organization/`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("Failed to fetch donation records");
+
+            const data = await res.json();
+            setDonationRequests(data);
+        } catch (err) {
+            console.error("Error fetching donation records:", err);
+            setDonationRequests([
+                {
+                    id: 1,
+                    amount: 5000,
+                    receiver_type: 'organization',
+                    user_id: 1,
+                    user_name: 'john.doe@example.com',
+                    status: 'completed',
+                    donation_date: '2025-06-15'
+                },
+                {
+                    id: 2,
+                    amount: 3000,
+                    receiver_type: 'orphan',
+                    orphan_id: 1,
+                    first_name: 'James',
+                    last_name: 'Smith',
+                    user_id: 2,
+                    user_name: 'jane.smith@example.com',
+                    status: 'completed',
+                    donation_date: '2025-06-10'
+                }
+            ]);
+        }
+    };
+
+    useEffect(() => {
+        fetchDonationRecords();
+    }, []);
+
+    // opening the details modal
+    const handleViewAdoptionDetails = (request) => {
+        setSelectedAdoptionRequest(request);
+        setIsAdoptionDetailsModalOpen(true);
+    };
+
+    // closing the details modal
+    const handleCloseAdoptionDetailsModal = () => {
+        setIsAdoptionDetailsModalOpen(false);
+        setSelectedAdoptionRequest(null);
+    };
+
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -235,17 +621,25 @@ const OrganizationProfile = () => {
                             variant="contained"
                             color="primary"
                             className={styles.optionButton}
-                            onClick={() => navigate('./O_orphan')}
+                            onClick={() => setIsOrphanModalOpen(true)}
                         >
-                            Orphanage
+                            Add Orphan
                         </Button>
                         <Button
                             variant="contained"
                             color="primary"
                             className={styles.optionButton}
-                            onClick={handleVolunteerOpen}
+                            onClick={() => setIsOpenApplicationModalOpen(true)}
                         >
-                            Volunteers
+                            Open Volunteer Applications
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={styles.optionButton}
+                            onClick={() => setIsManageVolunteersModalOpen(true)}
+                        >
+                            Manage Volunteers
                         </Button>
                         <Button
                             variant="contained"
@@ -255,6 +649,215 @@ const OrganizationProfile = () => {
                         >
                             Edit Profile
                         </Button>
+                    </div>
+
+                    {/* orphan adding modal from */}
+                    <Modal
+                        open={isOrphanModalOpen}
+                        onClose={() => setIsOrphanModalOpen(false)}
+                        aria-labelledby="add-orphan-modal"
+                        aria-describedby="modal-to-add-orphan-to-organization"
+                    >
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                width: 500,
+                                bgcolor: "background.paper",
+                                boxShadow: 24,
+                                p: 4,
+                                borderRadius: 2,
+                            }}
+                        >
+                            <h2 id="add-orphan-modal-title" style={{ marginBottom: 16 }}>Add Orphan</h2>
+                            {orphanError && (
+                                <Box sx={{ color: 'error.main', mb: 2 }}>{orphanError}</Box>
+                            )}
+                            <form onSubmit={handleOrphanSubmit} encType="multipart/form-data">
+                                <Stack spacing={2}>
+                                    {/* Profile Picture Field */}
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                        <Avatar
+                                            src={orphanData.profile_picture_preview || "/assets/default_org.png"}
+                                            sx={{ width: 64, height: 64 }}
+                                        />
+                                        <Button variant="outlined" component="label">
+                                            Upload Picture
+                                            <input
+                                                type="file"
+                                                name="profile_picture"
+                                                hidden
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files && e.target.files[0];
+                                                    if (file) {
+                                                        setOrphanData(prev => ({
+                                                            ...prev,
+                                                            profile_picture: file,
+                                                            profile_picture_preview: URL.createObjectURL(file)
+                                                        }));
+                                                    }
+                                                }}
+                                            />
+                                        </Button>
+                                    </Box>
+                                    <TextField
+                                        label="Full Name"
+                                        name="name"
+                                        value={orphanData.name}
+                                        onChange={handleOrphanInputChange}
+                                        required
+                                        fullWidth
+                                    />
+                                    <TextField
+                                        label="Birth Date"
+                                        name="birth_date"
+                                        type="date"
+                                        value={orphanData.birth_date}
+                                        onChange={handleOrphanInputChange}
+                                        InputLabelProps={{ shrink: true }}
+                                        required
+                                        fullWidth
+                                    />
+                                    <TextField
+                                        select
+                                        label="Gender"
+                                        name="gender"
+                                        value={orphanData.gender}
+                                        onChange={handleOrphanInputChange}
+                                        fullWidth
+                                    >
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                    </TextField>
+                                    <TextField
+                                        label="Education"
+                                        name="education"
+                                        value={orphanData.education}
+                                        onChange={handleOrphanInputChange}
+                                        multiline
+                                        rows={3}
+                                        fullWidth
+                                        helperText="Provide education details like current grade, school, etc."
+                                    />
+                                    <TextField
+                                        label="Medical History"
+                                        name="medical_history"
+                                        value={orphanData.medical_history}
+                                        onChange={handleOrphanInputChange}
+                                        multiline
+                                        rows={3}
+                                        fullWidth
+                                        helperText="Provide any relevant medical information"
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        fullWidth
+                                    >
+                                        Add Orphan
+                                    </Button>
+                                </Stack>
+                            </form>
+                        </Box>
+                    </Modal>
+
+                    {/* opening applications */}
+                    <Modal
+                        open={isOpenApplicationModalOpen}
+                        onClose={() => setIsOpenApplicationModalOpen(false)}
+                        aria-labelledby="open-application-modal"
+                    >
+                        <Box sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: 400,
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                        }}>
+                            <h2>Open Volunteer Applications</h2>
+                            <p>Select a seminar to open for volunteer applications</p>
+                            <TextField
+                                select
+                                label="Select Seminar"
+                                value={selectedSeminar || ""}
+                                onChange={(e) => setSelectedSeminar(e.target.value)}
+                                SelectProps={{ native: true }}
+                                fullWidth
+                                sx={{ marginTop: 2 }}
+                            >
+                                <option value="" disabled />
+                                {seminars.map((seminar) => (
+                                    <option key={seminar.id} value={seminar.id}>
+                                        {seminar.title}
+                                    </option>
+                                ))}
+                            </TextField>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleOpenVolunteerApplication}
+                                sx={{ marginTop: 2 }}
+                            >
+                                Open for Applications
+                            </Button>
+                        </Box>
+                    </Modal>
+
+                    {/* view and manage applications */}
+                    <div className={styles.infoBox}>
+                        <h2 className={styles.infoBoxHeading}>Volunteer Applications</h2>
+                        <table className={styles.infoTable}>
+                            <thead className={styles.tableHead}>
+                                <tr>
+                                    <th>Volunteer Name</th>
+                                    <th>Seminar</th>
+                                    <th>Date Applied</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className={styles.tableBody}>
+                                {volunteerApplications.length > 0 ? (
+                                    volunteerApplications.map((app) => (
+                                        <tr key={app.id}>
+                                            <td>{app.volunteer_name}</td>
+                                            <td>{app.seminar_title}</td>
+                                            <td>{formatDate(app.applied_at)}</td>
+                                            <td>
+                                                <Button
+                                                    size="small"
+                                                    color="success"
+                                                    onClick={() => handleApproveVolunteer(app.id)}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => handleDeclineVolunteer(app.id)}
+                                                >
+                                                    Decline
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" style={{ textAlign: "center" }}>
+                                            No volunteer applications yet
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
 
                     {/* Stats Section */}
@@ -308,42 +911,82 @@ const OrganizationProfile = () => {
                             <a href="./O_adoption" style={{ textDecoration: 'none' }}>
                                 <h2 className={styles.infoBoxHeading}>Adoption Requests</h2>
                             </a>
-                            <table className={styles.infoTable}>
-                                <thead className={styles.tableHead}>
-                                    <tr>
-                                        <th>Requested by</th>
-                                        <th>Requested for</th>
-                                        <th>Action</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className={styles.tableBody}>
-                                    {adoptionRequests.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>
-                                                <a href={`./O_see_user_profile?user_id=${item.user_id}`}>
-                                                    {item.user_name}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <a href={`./O_orphan_profile?orphan_id=${item.orphan_id}`}>
-                                                    {item.first_name}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <a href={`./O_adoption_request_details?adoption_id=${item.adoption_id}&user_id=${item.user_id}&orphan_id=${item.orphan_id}`}>
-                                                    View
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <p className={item.status === 'Approved' ? styles.statusDone : styles.statusPending}>
-                                                    {item.status}
-                                                </p>
-                                            </td>
+                            {adoptionLoading ? (
+                                <p>Loading adoption requests...</p>
+                            ) : adoptionRequests.length > 0 ? (
+                                <table className={styles.infoTable}>
+                                    <thead className={styles.tableHead}>
+                                        <tr>
+                                            <th>Requested by</th>
+                                            <th>Requested for</th>
+                                            <th>Request Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className={styles.tableBody}>
+                                        {adoptionRequests.map((request) => (
+                                            <tr key={request.adoption_id}>
+                                                <td>
+                                                    <a href={`./O_see_user_profile?user_id=${request.user_id}`}>
+                                                        {request.user_name}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a href={`./O_orphan_profile?orphan_id=${request.orphan_id}`}>
+                                                        {request.orphan_name}
+                                                    </a>
+                                                </td>
+                                                <td>{formatDate(request.application_date)}</td>
+                                                <td>
+                                                    <p className={
+                                                        request.status === 'approved'
+                                                            ? styles.statusDone
+                                                            : request.status === 'rejected'
+                                                                ? styles.statusRejected
+                                                                : styles.statusPending
+                                                    }>
+                                                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    {request.status === 'pending' && (
+                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                            <Button
+                                                                size="small"
+                                                                color="primary"
+                                                                onClick={() => handleViewAdoptionDetails(request)}
+                                                            >
+                                                                See Details
+                                                            </Button>
+                                                            <Button
+                                                                size="small"
+                                                                color="success"
+                                                                variant="contained"
+                                                                onClick={() => handleApproveAdoption(request.adoption_id)}
+                                                            >
+                                                                Approve
+                                                            </Button>
+                                                            <Button
+                                                                size="small"
+                                                                color="error"
+                                                                variant="contained"
+                                                                onClick={() => handleRejectAdoption(request.adoption_id)}
+                                                            >
+                                                                Reject
+                                                            </Button>
+                                                        </Box>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p style={{ textAlign: 'center', padding: '20px' }}>
+                                    No adoption requests found.
+                                </p>
+                            )}
                         </div>
 
                         {/* Donation Requests */}
@@ -351,17 +994,34 @@ const OrganizationProfile = () => {
                             <a href="./O_donation" style={{ textDecoration: 'none' }}>
                                 <h2 className={styles.infoBoxHeading}>Donation Records</h2>
                             </a>
-                            <ul className={styles.donationList}>
-                                {donationRequests.map((item, index) => (
-                                    <li key={index} className={item.receiver_type === 'organization' ? styles.completed : styles.notCompleted}>
-                                        {item.receiver_type === 'organization' ? (
-                                            <p>Donation Received {item.amount}TK from <a href={`./O_see_user_profile?user_id=${item.user_id}`}>{item.user_name}</a></p>
-                                        ) : (
-                                            <p>{item.first_name} {item.last_name} received {item.amount}TK from <a href={`./O_see_user_profile?user_id=${item.user_id}`}>{item.user_name}</a></p>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
+                            {donationRequests.length > 0 ? (
+                                <ul className={styles.donationList}>
+                                    {donationRequests.map((item, index) => (
+                                        <li key={index} className={item.status === 'completed' ? styles.completed : styles.notCompleted}>
+                                            {item.receiver_type === 'organization' ? (
+                                                <p>
+                                                    <span className={styles.donationAmount}>{item.amount} TK</span> received from{' '}
+                                                    <a href={`./O_see_user_profile?user_id=${item.user_id}`}>{item.user_name}</a>
+                                                    {' '}<span className={styles.donationDate}>on {formatDate(item.donation_date)}</span>
+                                                </p>
+                                            ) : (
+                                                <p>
+                                                    <span className={styles.donationAmount}>{item.amount} TK</span> donated to{' '}
+                                                    <a href={`./O_orphan_profile?orphan_id=${item.orphan_id}`}>
+                                                        {item.first_name} {item.last_name}
+                                                    </a>{' '}
+                                                    from <a href={`./O_see_user_profile?user_id=${item.user_id}`}>{item.user_name}</a>
+                                                    {' '}<span className={styles.donationDate}>on {formatDate(item.donation_date)}</span>
+                                                </p>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p style={{ textAlign: 'center', padding: '20px' }}>
+                                    No donation records found.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -467,7 +1127,19 @@ const OrganizationProfile = () => {
                                 rows={3}
                                 fullWidth
                             />
-                            <Button type="submit" variant="contained" color="primary">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                    color: "#fff",
+                                    backgroundColor: "primary.main",
+                                    '&:hover': {
+                                        backgroundColor: "primary.dark",
+                                        color: "#fff"
+                                    }
+                                }}
+                            >
                                 Save Changes
                             </Button>
                         </Stack>
@@ -553,6 +1225,146 @@ const OrganizationProfile = () => {
                             Open Volunteer Application
                         </Button>
                     </Stack>
+                </Box>
+            </Modal>
+
+            {/* Adoption Details Modal */}
+            <Modal
+                open={isAdoptionDetailsModalOpen}
+                onClose={handleCloseAdoptionDetailsModal}
+                aria-labelledby="adoption-details-modal"
+                aria-describedby="view-adoption-request-details"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 600,
+                        maxWidth: "90%",
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        maxHeight: "90vh",
+                        overflow: "auto"
+                    }}
+                >
+                    {selectedAdoptionRequest && (
+                        <>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                <Typography variant="h5" component="h2">
+                                    Adoption Request Details
+                                </Typography>
+                                <Chip
+                                    label={selectedAdoptionRequest.status.charAt(0).toUpperCase() + selectedAdoptionRequest.status.slice(1)}
+                                    color={
+                                        selectedAdoptionRequest.status === 'approved' ? 'success' :
+                                            selectedAdoptionRequest.status === 'rejected' ? 'error' : 'warning'
+                                    }
+                                />
+                            </Box>
+
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="h6" gutterBottom>
+                                            Orphan Information
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Name:</strong> {selectedAdoptionRequest.orphan_name}
+                                        </Typography>
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ mt: 1 }}
+                                            onClick={() => {
+                                                handleCloseAdoptionDetailsModal();
+                                                navigate(`./O_orphan_profile?orphan_id=${selectedAdoptionRequest.orphan_id}`);
+                                            }}
+                                        >
+                                            View Orphan Profile
+                                        </Button>
+                                    </Box>
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="h6" gutterBottom>
+                                            Requester Information
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Email:</strong> {selectedAdoptionRequest.user_name}
+                                        </Typography>
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ mt: 1 }}
+                                            onClick={() => {
+                                                handleCloseAdoptionDetailsModal();
+                                                navigate(`./O_see_user_profile?user_id=${selectedAdoptionRequest.user_id}`);
+                                            }}
+                                        >
+                                            View User Profile
+                                        </Button>
+                                    </Box>
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Box sx={{ mb: 3 }}>
+                                        <Typography variant="h6" gutterBottom>
+                                            Request Details
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Request Date:</strong> {formatDate(selectedAdoptionRequest.application_date)}
+                                        </Typography>
+                                        {selectedAdoptionRequest.approval_date && (
+                                            <Typography variant="body1">
+                                                <strong>Decision Date:</strong> {formatDate(selectedAdoptionRequest.approval_date)}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+                                        {selectedAdoptionRequest.status === 'pending' && (
+                                            <>
+                                                <Button
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => {
+                                                        handleApproveAdoption(selectedAdoptionRequest.adoption_id);
+                                                        handleCloseAdoptionDetailsModal();
+                                                    }}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() => {
+                                                        handleRejectAdoption(selectedAdoptionRequest.adoption_id);
+                                                        handleCloseAdoptionDetailsModal();
+                                                    }}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </>
+                                        )}
+                                        <Button
+                                            variant="outlined"
+                                            onClick={handleCloseAdoptionDetailsModal}
+                                        >
+                                            Close
+                                        </Button>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </>
+                    )}
                 </Box>
             </Modal>
             <Footer />

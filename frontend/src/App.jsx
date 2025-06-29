@@ -14,6 +14,7 @@ import UserProfile from "./components/UserProfile";
 import OrganizationList from "./components/OrganizationList";
 import BlogCreate from "./components/BlogCreate";
 import UserBlog from "./components/UserBlog";
+import OrphanList from "./components/OrphanList";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/organization-lists" element={<OrganizationList />} />
         <Route path="/blogs" element={<BlogCreate />} />
         <Route path="/user-blogs" element={<UserBlog />} />
+        <Route path="/adoption" element={<OrphanList />} />
       </Routes>
     </Router>
   );

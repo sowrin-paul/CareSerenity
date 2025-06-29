@@ -319,6 +319,18 @@ function USeminarUserPage() {
                   color={isRegistered ? "error" : "success"}
                   startIcon={isRegistered ? <CancelIcon /> : <HowToRegIcon />}
                   onClick={handleRegistration}
+                  sx={
+                    !isRegistered
+                      ? {
+                          backgroundColor: "#2e7d32",
+                          color: "#fff",
+                          "&:hover": {
+                            backgroundColor: "#27642a",
+                            color: "#fff",
+                          }
+                        }
+                      : {}
+                  }
                 >
                   {isRegistered ? "Cancel Registration" : "Register"}
                 </Button>

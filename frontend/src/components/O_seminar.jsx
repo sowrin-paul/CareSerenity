@@ -431,6 +431,12 @@ function OSeminarsPage() {
                         variant="contained"
                         onClick={() => setShowForm(true)}
                         id="button-30"
+                        sx={{
+                            '&:hover': {
+                                backgroundColor: '#136dd4',
+                                color: '#fff',
+                            }
+                        }}
                     >
                         Create Seminar
                     </Button>
@@ -552,7 +558,9 @@ function OSeminarsPage() {
                                 variant="outlined"
                                 component="label"
                                 fullWidth
-                                sx={{ justifyContent: 'center' }}
+                                sx={{
+                                    justifyContent: 'center'
+                                }}
                             >
                                 Upload Seminar Banner
                                 <input
@@ -580,6 +588,10 @@ function OSeminarsPage() {
                                 variant="contained"
                                 id="button-30"
                                 type="submit"
+                                sx={{
+                                    backgroundColor: '#FF597B',
+                                    color: '#000'
+                                }}
                             >
                                 Create
                             </Button>
