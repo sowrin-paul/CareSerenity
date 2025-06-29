@@ -453,22 +453,3 @@ class ApplyForVolunteeringView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
-# ------------------------------- payment --------------------------------
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def make_payment(request):
-    serializer = PaymentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(payer=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# -------------------------------- donation --------------------------------
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def make_donation(request):
-    serializer = DonationSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(donor=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
