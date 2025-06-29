@@ -3,11 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-<<<<<<< HEAD
-from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, make_payment, make_donation
-=======
 from .views import RegisterView, LoginView, approve_organization, pending_organization, SeminarListView, OrganizationListView, SeminarDeleteView, OrganizationVolunteersView, OpenVolunteerApplicationView, BlogListView
->>>>>>> b69993bcffc6c5d3466857a2fb42c0a5c24c7689
 from .models import get_username
 from . import views
 
@@ -23,14 +19,9 @@ urlpatterns = [
     path("seminars/<int:seminar_id>/", views.fetch_seminar_details, name="seminar-detail"),
     path("own-seminars/", views.fetch_own_seminar, name="fetch-own-seminars"),
     path("available-seminars/", views.fetch_available_seminars, name="fetch-available-seminars"),
-<<<<<<< HEAD
-    path('payments/', make_payment, name='make_payment'),
-    path('donations/', make_donation, name='make_donation'),
-=======
     path('seminar-delete/<int:seminar_id>/', SeminarDeleteView.as_view(), name='seminar-delete'),
     path('organization/volunteers/', OrganizationVolunteersView.as_view(), name='organization-volunteers'),
     path('organization/seminars/<int:seminar_id>/open-volunteer/', OpenVolunteerApplicationView.as_view(), name='open-volunteer-application'),
     path('organization/seminars/', views.fetch_own_seminar, name='organization-seminars'),
     path('blogs/', BlogListView.as_view(), name='blog-list-view'),
->>>>>>> b69993bcffc6c5d3466857a2fb42c0a5c24c7689
 ]
