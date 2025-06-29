@@ -14,6 +14,9 @@ import {
     DialogContent,
     DialogActions,
     Button,
+    Snackbar,
+    Box,
+    Chip,
 } from '@mui/material';
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -39,6 +42,9 @@ const U_home = () => {
     const [showRight, setShowRight] = useState(false);
     const [showLeft, setShowLeft] = useState(false);
     const [openApplications, setOpenApplications] = useState([]);
+    const [applicationLoading, setApplicationLoading] = useState(true);
+    const [feedback, setFeedback] = useState({ message: '', severity: 'success', open: false });
+    const [appliedSeminars, setAppliedSeminars] = useState([]);
     const scrollRef = useRef(null);
     const navigate = useNavigate();
 
@@ -101,23 +107,80 @@ const U_home = () => {
         };
     }, [upcomingSeminars, scrollRef]);
 
+    // volunteer application
     useEffect(() => {
-    const fetchOpenApplications = async () => {
+        const fetchOpenApplications = async () => {
+            try {
+                setApplicationLoading(true);
+                const res = await fetch(`${apiUrl}/volunteer/open-applications/`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                if (!res.ok) throw new Error("Failed to fetch open applications.");
+                const data = await res.json();
+                setOpenApplications(data);
+
+                // Fetch user's applied seminars
+                const appliedRes = await fetch(`${apiUrl}/volunteer/my-applications/`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
+                if (appliedRes.ok) {
+                    const appliedData = await appliedRes.json();
+                    // Create an array of seminar IDs the user has applied to
+                    setAppliedSeminars(appliedData.map(app => app.seminar.id));
+                }
+            } catch (err) {
+                console.error("Error fetching volunteer applications:", err);
+                setOpenApplications([]);
+            } finally {
+                setApplicationLoading(false);
+            }
+        };
+        fetchOpenApplications();
+    }, []);
+
+    const handleApplyVolunteer = async (seminarId) => {
         try {
-            const res = await fetch(`${apiUrl}/volunteer/open-applications/`, {
+            const res = await fetch(`${apiUrl}/volunteer/apply/${seminarId}/`, {
+                method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json',
                 },
             });
-            if (!res.ok) throw new Error("Failed to fetch open applications.");
-            const data = await res.json();
-            setOpenApplications(data);
-        } catch (err) {
-            console.error(err);
+
+            if (res.ok) {
+                // Add this seminar to applied list to update UI
+                setAppliedSeminars(prev => [...prev, seminarId]);
+                setFeedback({
+                    message: 'Application submitted successfully!',
+                    severity: 'success',
+                    open: true
+                });
+            } else {
+                const data = await res.json();
+                setFeedback({
+                    message: data.error || 'Failed to submit application.',
+                    severity: 'error',
+                    open: true
+                });
+            }
+        } catch (error) {
+            console.error('Error applying for volunteer:', error);
+            setFeedback({
+                message: 'An error occurred while submitting your application.',
+                severity: 'error',
+                open: true
+            });
         }
     };
-    fetchOpenApplications();
-}, []);
+
+    const handleCloseFeedback = () => {
+        setFeedback(prev => ({ ...prev, open: false }));
+    };
 
     const handleScroll = (direction) => {
         const el = scrollRef.current;
@@ -326,29 +389,110 @@ const U_home = () => {
                         </IconButton>
                     )}
 
-
-                    <h1 id="heading" className={styles.heading}>Volunteers Recruitment</h1>
-                    <h1>Open Volunteer Applications</h1>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                        {openApplications.map((seminar) => (
-                            <Card key={seminar.id} sx={{ width: 300 }}>
-                                <CardMedia
-                                    component="img"
-                                    height="140"
-                                    image="/assets/default_seminar.jpg"
-                                    alt={seminar.title}
-                                />
-                                <CardContent>
-                                    <Typography variant="h6">{seminar.title}</Typography>
-                                    <Typography variant="body2">{seminar.description}</Typography>
-                                    <Typography variant="body2">Date: {seminar.date}</Typography>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                    {/* volunteer recruitment section */}
+                    <Box sx={{ mt: 6, mb: 4 }}>
+                        <h1 id="heading" className={styles.heading}>Volunteer Opportunities</h1>
+                        
+                        {applicationLoading ? (
+                            <p>Loading volunteer opportunities...</p>
+                        ) : openApplications.length > 0 ? (
+                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {openApplications.map((seminar) => (
+                                    <Card 
+                                        key={seminar.id} 
+                                        sx={{ 
+                                            width: 320,
+                                            borderRadius: 3,
+                                            boxShadow: 3,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            height: '100%'
+                                        }}
+                                    >
+                                        <CardMedia
+                                            component="img"
+                                            height="160"
+                                            image={seminar.banner ? `${apiUrl}${seminar.banner}` : '/assets/default_seminar.jpg'}
+                                            alt={seminar.title}
+                                        />
+                                        <CardContent sx={{ flexGrow: 1 }}>
+                                            <Typography variant="h6" gutterBottom>{seminar.title}</Typography>
+                                            
+                                            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                                                <Chip 
+                                                    label={seminar.seminar_type === 'online' ? 'Online' : 'In-person'} 
+                                                    color={seminar.seminar_type === 'online' ? 'info' : 'success'} 
+                                                    size="small"
+                                                />
+                                                <Chip 
+                                                    icon={<VolunteerActivismIcon />} 
+                                                    label="Volunteers Needed" 
+                                                    color="primary" 
+                                                    variant="outlined" 
+                                                    size="small"
+                                                />
+                                            </Box>
+                                            
+                                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                                <strong>Date:</strong> {seminar.seminar_date}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                                <strong>By:</strong> {seminar.organization?.name || 'Organization'}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                                {seminar.description?.substring(0, 100)}...
+                                            </Typography>
+                                            
+                                            {appliedSeminars.includes(seminar.id) ? (
+                                                <Button 
+                                                    variant="contained" 
+                                                    color="success" 
+                                                    disabled 
+                                                    fullWidth
+                                                >
+                                                    Applied
+                                                </Button>
+                                            ) : (
+                                                <Button 
+                                                    variant="contained" 
+                                                    color="primary" 
+                                                    fullWidth
+                                                    onClick={() => handleApplyVolunteer(seminar.id)}
+                                                >
+                                                    Apply as Volunteer
+                                                </Button>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <Stack sx={{ width: "100%", margin: "20px auto" }} spacing={2}>
+                                <Alert severity="info">
+                                    There are currently no open volunteer positions. Check back later!
+                                </Alert>
+                            </Stack>
+                        )}
+                    </Box>
 
                 </div>
             </div>
+
+            {/* Feedback Snackbar */}
+            <Snackbar
+                open={feedback.open}
+                autoHideDuration={6000}
+                onClose={handleCloseFeedback}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseFeedback} 
+                    severity={feedback.severity} 
+                    sx={{ width: '100%' }}
+                >
+                    {feedback.message}
+                </Alert>
+            </Snackbar>
             <Footer />
         </div >
     );
