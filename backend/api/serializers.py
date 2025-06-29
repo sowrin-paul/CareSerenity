@@ -8,6 +8,8 @@ from .models .seminarRegister import SeminarRegistration
 from .models .blogs import Blog
 from .models .volunteer import Volunteer
 from .models .volunteerApplication import VolunteerApplication
+from .models .payment import Payment
+from .models .donation import Donation
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -90,3 +92,15 @@ class VolunteerApplicationSerializer(serializers.ModelSerializer):
         model = VolunteerApplication
         fields = ['id', 'seminar', 'user', 'applied_at']
         read_only_fields = ['applied_at']
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = "__all__"
+        read_only_fields = ["payer", "paid_at"]
+
+class DonationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Donation
+        fields = "__all__"
+        read_only_fields = ["donor", "donated_at"]
