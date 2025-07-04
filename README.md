@@ -1,6 +1,6 @@
 # CareSerenity
 
-![CareSerenity Logo](frontend/public/assets/logo.png)
+![CareSerenity Logo](frontend/src/assets/logo.png)
 
 ## Overview
 
